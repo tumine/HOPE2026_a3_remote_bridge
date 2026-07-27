@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "hope_msgs__py",
+		"source" : "/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs/hope_msgs__py"
+	}
+}

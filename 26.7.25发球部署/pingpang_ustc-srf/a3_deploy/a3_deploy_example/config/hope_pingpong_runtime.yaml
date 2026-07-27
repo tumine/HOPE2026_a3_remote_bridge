@@ -1,0 +1,93 @@
+# HOPE runtime configuration -- clean 111-D reference deploy.
+#
+# Read by the clean-room reference runner (a3_deploy_onnx_ref_pingpong). Every
+# relative path resolves against THIS file's directory.
+#
+# Single observation/action path only: 111-D observation, 31-D action, no
+# observation normalization, one control rate. There are no model/experiment
+# codenames, playback, or admission-control settings here.
+
+contract: hope_pingpong
+control_hz: 50.0                 # 50 Hz control loop
+observation_normalization: none  # raw observation (must stay 'none')
+passive_neck: true               # hold head_yaw/head_pitch at their default angle
+
+policy:
+  # Place your exported actor here (obs[1,111] -> raw_action[1,31]).
+  # Override on the command line with --onnx.
+  onnx_path: ../models/hope_pingpong.onnx
+  joint_order: agibot_a3         # informational; the canonical order lives in joint_order.py
+
+action_adapter:
+  # The shared adapter config (also read by the training package).
+  config_path: action_adapter.yaml
+
+simulation:
+  # The a3_pingpong MJCF shipped with this repo (loaded directly by the MuJoCo
+  # bridge; no build step needed). Point --model-xml elsewhere to use your own.
+  model_xml_path: ../../A3_MuJoCo_Sim/aimrt_mujoco_sim/src/models/bin/cfg/model/a3_pingpong/a3_pingpong.xml
+
+  # The planner publishes canonical table-surface coordinates (near-left corner is
+  # [0, 0, 0]); the robot-only MJCF uses a floor-based world. Axes are identical, so
+  # the direct-MuJoCo planner path applies this pure translation from its reset station.
+  table_frame:
+    near_edge_from_station_x: 0.5
+    table_width: 1.525
+    table_surface_z: 0.76
+
+  # Nominal Isaac Lab implicit-PD gains, by canonical joint name. The in-process
+  # MuJoCo bridge applies the same kp*(q_des-q)-kd*qd law to its torque motors.
+  # These remain simulation values, not vendor real-robot deploy gains.
+  pd_gains:
+    joints:
+      waist_yaw_joint: {kp: 85.0, kd: 3.0}
+      waist_roll_joint: {kp: 50.0, kd: 2.0}
+      waist_pitch_joint: {kp: 50.0, kd: 2.0}
+      head_yaw_joint: {kp: 40.0, kd: 2.0}
+      head_pitch_joint: {kp: 40.0, kd: 2.0}
+      left_shoulder_pitch_joint: {kp: 40.0, kd: 3.0}
+      left_shoulder_roll_joint: {kp: 40.0, kd: 3.0}
+      left_shoulder_yaw_joint: {kp: 30.0, kd: 2.0}
+      left_elbow_joint: {kp: 30.0, kd: 2.0}
+      left_wrist_roll_joint: {kp: 30.0, kd: 2.0}
+      left_wrist_pitch_joint: {kp: 20.0, kd: 2.0}
+      left_wrist_yaw_joint: {kp: 20.0, kd: 2.0}
+      right_shoulder_pitch_joint: {kp: 40.0, kd: 3.0}
+      right_shoulder_roll_joint: {kp: 40.0, kd: 3.0}
+      right_shoulder_yaw_joint: {kp: 30.0, kd: 2.0}
+      right_elbow_joint: {kp: 30.0, kd: 2.0}
+      right_wrist_roll_joint: {kp: 30.0, kd: 2.0}
+      right_wrist_pitch_joint: {kp: 20.0, kd: 2.0}
+      right_wrist_yaw_joint: {kp: 20.0, kd: 2.0}
+      left_hip_pitch_joint: {kp: 80.0, kd: 3.0}
+      left_hip_roll_joint: {kp: 120.0, kd: 4.0}
+      left_hip_yaw_joint: {kp: 80.0, kd: 3.0}
+      left_knee_joint: {kp: 250.0, kd: 8.0}
+      left_ankle_pitch_joint: {kp: 50.0, kd: 2.0}
+      left_ankle_roll_joint: {kp: 50.0, kd: 2.0}
+      right_hip_pitch_joint: {kp: 80.0, kd: 3.0}
+      right_hip_roll_joint: {kp: 120.0, kd: 4.0}
+      right_hip_yaw_joint: {kp: 80.0, kd: 3.0}
+      right_knee_joint: {kp: 250.0, kd: 8.0}
+      right_ankle_pitch_joint: {kp: 50.0, kd: 2.0}
+      right_ankle_roll_joint: {kp: 50.0, kd: 2.0}
+
+lifecycle:
+  # Isaac's guarded 91-frame clip strikes at frame 50: +1.0 s before contact
+  # and -0.8 s after it. Inter-clip hold is supplied by the next command/feed.
+  follow_through_s: 0.8
+  recovery_s: 0.0
+  ready_time_to_strike: 1.0
+  # Canonical policy-conditioning anchor while no RacketCommand is available.
+  # These are the first seed-0 forehand command's training-distribution values,
+  # validated with the current model_21500 policy for 10 s of stable MuJoCo idle.
+  # On the first frame the lifecycle converts rel_base_w to a fixed world target.
+  # Later observations subtract the live base, so robot drift changes the relative
+  # vector. Components remain on world axes; this is not a pelvis-yaw rotation.
+  # The non-zero target velocity conditions the learned pre-swing pose—it is not a
+  # claim that the physical racket is already moving at that velocity while idle.
+  ready_target_rel_base_w:
+    [0.3201315701007843, -0.6952511668205261, -0.057795558124780655]
+  ready_target_vel_w:
+    [2.3803303241729736, 0.6271703243255615, 1.0374835729599]
+  ready_swing_side: 1

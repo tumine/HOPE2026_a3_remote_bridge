@@ -1,0 +1,13 @@
+[WARN] [1785157728.038295563] [a3_pc_rl_deploy]: model_21500 runner in OBSERVE: actuation=ENABLED; waiting for synchronized MDU state + PPMocap table/base calibration; P then D are both required
+[INFO] [1785157728.038456543] [a3_pc_rl_deploy]: HOTKEYS (no Enter): P=default pose; D=enter live policy after all gates; I=status; C=recalibrate table (OBSERVE only); S=normal stop; X=immediate halt; H=help; Q=quit (OBSERVE only). There are no F/B synthetic-ball keys: live planner commands select each swing.
+[WARN] [1785157728.039090454] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=1 initial=yes sequence=2796522
+[WARN] [1785157728.198816772] [a3_pc_rl_deploy]: PPMOCAP CALIBRATED: canonical origin=near-left tabletop; +X=robot-to-opponent +Y=robot-left +Z=up
+[WARN] [1785157728.628161091] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=1 sequence=2796593
+[WARN] [1785157728.759589126] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=2 gap=0.132s sequence=2796609
+[WARN] [1785157728.859001578] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=2 sequence=2796621
+[WARN] [1785157729.293033052] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=3 gap=0.434s sequence=2796673
+[WARN] [1785157730.109290658] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=3 sequence=2796771
+[WARN] [1785157738.500751012] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=4 gap=8.392s sequence=2797778
+[WARN] [1785157740.243054829] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=4 sequence=2797987
+[WARN] [1785157740.634708723] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=5 gap=0.392s sequence=2798034
+[ERROR] [1785157741.034082349] [a3_pc_rl_deploy]: Ctrl-C: immediate zero-gain stop

@@ -1,0 +1,43 @@
+hope_world:
+  # Frame names published as static transforms by hope_world.launch.py.
+  frames:
+    world: world
+    robot_mocap: robot_mocap          # the robot's mocap marker-cluster frame
+    robot_base_link: robot_base_link  # the robot URDF base_link
+    table_center: table_center
+    robot_half_center: robot_half_center
+    opponent_half_center: opponent_half_center
+    net_center: net_center
+    floor_origin: floor_origin
+    virtual_hit_plane: virtual_hit_plane
+
+  # ITTF regulation table dimensions (m). World frame: +x forward (toward the
+  # opponent), +y left, +z up; z = 0 at the table surface; origin at the
+  # near-side left table corner, so the table occupies x in [0, length],
+  # y in [-width, 0].
+  table_m:
+    length: 2.74
+    width: 1.525
+    surface_height: 0.76
+    net_height: 0.1525
+
+  landmarks_m:
+    table_center: [1.37, -0.7625, 0.0]
+    robot_half_center: [0.685, -0.7625, 0.0]
+    opponent_half_center: [2.055, -0.7625, 0.0]
+    net_center: [1.37, -0.7625, 0.0]
+    floor_origin: [0.0, 0.0, -0.76]
+
+  planner:
+    # Fixed virtual hit-plane x (m); publish it as a frame for visualization.
+    x_hit: 0.0
+
+  mocap_to_base_link:
+    # Static transform from the robot's mocap marker-cluster frame to its URDF
+    # base_link. Measure the translation (xyz, m) and rotation (rpy, rad) from
+    # the marker-cluster origin to base_link (CAD or tape-measure + level), then
+    # refine by comparing FK-predicted base_link against the mocap reading while
+    # the robot stands still. Until measured, [0,0,0] means "marker cluster ==
+    # base_link" (only correct if the markers are exactly at base_link).
+    xyz: [0.0, 0.0, 0.0]   # TODO: measured marker-cluster -> base_link translation (m)
+    rpy: [0.0, 0.0, 0.0]   # TODO: measured marker-cluster -> base_link rotation (rad)

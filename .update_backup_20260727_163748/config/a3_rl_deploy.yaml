@@ -1,0 +1,41 @@
+# PC-side commissioning limits for the no-mocap HOPE RL runner.
+#
+# Kp/Kd are intentionally NOT duplicated here.  The runner loads them from the
+# policy bundle's training_actuator_gains.yaml and refuses startup unless every
+# value exactly equals runtime.yaml's sim2sim gain.
+
+control_hz: 50.0
+
+# P moves from the measured posture to the training default_q with a smoothstep
+# trajectory, then holds it.  This is a positioning stage, not a balance policy;
+# the robot must remain suspended/supported until D enters policy control.
+default_pose:
+  ramp_s: 5.0
+  settle_s: 1.0
+  max_position_error_rad: 0.15
+  max_velocity_rad_s: 0.25
+  # Applied only during DEFAULT_RAMP/DEFAULT_HOLD. Values remain capped by the
+  # existing MDU validator (Kp<=250, Kd<=8). D restores exact training gains.
+  kp_scale: 2.0
+  kd_scale: 2.0
+
+# D is accepted only after default_pose reports pose_ready=yes. F/B remain
+# locked until this many seconds of no-ball READY policy have completed safely.
+policy_warmup_s: 3.0
+
+# A normal S stop first holds the sim2sim READY observation under policy control,
+# then sends the zero-gain exit frames.  It never returns to static default_q PD.
+stop_ready_duration_s: 2.0
+zero_gain_ticks: 15
+
+safety:
+  max_state_age_s: 0.08
+  max_base_tilt_rad: 0.35
+  max_abs_raw_action: 20.0
+  max_inference_time_ms: 15.0
+  max_pending_acks: 10
+
+# Exact training/sim2sim action mapping.  The matching MuJoCo READY test at
+# 0.20 exceeded the 0.35 rad tilt bound after 1.70 s; 1.0 completed the full
+# WAIT->F->WAIT->B->WAIT dynamic gate.
+policy_blend: 1.0

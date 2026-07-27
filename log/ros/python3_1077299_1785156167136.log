@@ -1,0 +1,6 @@
+[INFO] [1785156167.208471036] [hope_planner]: HOPE planner started: strike_planes=FH:-0.210,BH:0.100 m, landing=[ 2.055  -0.7625], split_y=-1.173 m, new_task_tts=[0.250,1.000] s, ball_rearm=(vx_in<=-0.50, vx_out>=-0.10 m/s, confirm=5/10, x>=0.30 m), live_margins=(y=0.070m, z=0.040m, racket_v=0.150m/s), solve_period=0.020 s, ball_pose_index=0
+[WARN] [1785156248.220005067] [hope_planner]: TTS_GATE ball=11 side=BACKHAND decision=WAIT tts=1.5161s window=[0.2500, 1.0000]s est_x=2.0684m est_vx=-2.4310m/s
+[WARN] [1785156248.237594462] [hope_planner]: TTS_GATE ball=11 side=BACKHAND decision=ACCEPT tts=0.6196s window=[0.2500, 1.0000]s est_x=1.9665m est_vx=-3.5061m/s
+[WARN] [1785156248.251626294] [hope_planner]: PLANNER_TASK_PUBLISHED ball=11 task=1 side=BACKHAND tts=0.6196s target=[0.1000,-0.8202,0.1165] racket_v=[2.4269,0.1210,0.4671]
+[WARN] [1785156248.262138955] [hope_planner]: locked BH task has no admitted same-side revision; command not published (FH: y=-0.8842 outside [-1.5925, -1.2125]; BH: z=0.6770 outside [0.0400, 0.3800])
+[WARN] [1785156248.935135452] [hope_planner]: STRIKE_PLANE_CROSS ball=11 plane=BACKHAND x=0.100 measured_y=-0.8393 measured_z=0.3855 result=ACCEPT: task_id=1 revision=2 side=BACKHAND tts=0.4526s target=[0.1000,-0.8377,0.0812] racket_v=[2.4240,0.1450,0.4863]

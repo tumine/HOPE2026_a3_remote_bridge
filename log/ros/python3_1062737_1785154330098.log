@@ -1,0 +1,12 @@
+[INFO] [1785154330.495597889] [hope_planner]: HOPE planner started: strike_planes=FH:-0.210,BH:0.100 m, landing=[ 2.055  -0.7625], split_y=-1.173 m, new_task_tts=[0.250,1.000] s, ball_rearm=(vx_in<=-0.50, vx_out>=-0.10 m/s, confirm=5/10, x>=0.30 m), live_margins=(y=0.070m, z=0.040m, racket_v=0.150m/s), solve_period=0.020 s, ball_pose_index=0
+[WARN] [1785154342.581995120] [hope_planner]: TTS_GATE ball=1 side=BACKHAND decision=DROP tts=0.0741s window=[0.2500, 1.0000]s est_x=2.1336m est_vx=-39.2365m/s
+[WARN] [1785154342.582186034] [hope_planner]: incoming ball reached the planner too late for a new task; dropping this ball without consuming task_id
+[WARN] [1785154342.631715107] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-0.9712 outside [-1.5925, -1.2125]; BH: z=0.3886 outside [0.0400, 0.3800])
+[WARN] [1785154343.822674023] [hope_planner]: STRIKE_PLANE_CROSS ball=1 plane=FOREHAND x=-0.210 measured_y=-0.9791 measured_z=0.2050 result=REJECT: estimated ball velocity is not incoming (vx >= 0)
+[WARN] [1785154343.823113507] [hope_planner]: STRIKE_PLANE_CROSS ball=1 plane=BACKHAND x=0.100 measured_y=-1.1389 measured_z=0.1761 result=REJECT: estimated ball velocity is not incoming (vx >= 0)
+[WARN] [1785154343.831859310] [hope_planner]: incoming ball reached the planner too late for a new task; dropping this ball without consuming task_id
+[WARN] [1785154383.693696015] [hope_planner]: TTS_GATE ball=5 side=BACKHAND decision=ACCEPT tts=0.9192s window=[0.2500, 1.0000]s est_x=2.1180m est_vx=-3.2433m/s
+[WARN] [1785154383.707788110] [hope_planner]: PLANNER_TASK_PUBLISHED ball=5 task=1 side=BACKHAND tts=0.9192s target=[0.1000,-0.7552,0.0825] racket_v=[2.7425,-0.0278,0.8654]
+[WARN] [1785154383.739817394] [hope_planner]: locked BH task has no admitted same-side revision; command not published (FH: y=-0.7244 outside [-1.5925, -1.2125], z=0.1785 outside [0.2000, 0.4900]; BH: z=0.3944 outside [0.0400, 0.3800])
+[WARN] [1785154384.402583130] [hope_planner]: STRIKE_PLANE_CROSS ball=5 plane=BACKHAND x=0.100 measured_y=-0.7253 measured_z=0.2809 result=ACCEPT: task_id=1 revision=23 side=BACKHAND tts=0.0139s target=[0.1000,-0.7255,0.2809] racket_v=[1.8766,-0.0645,0.7868]
+[WARN] [1785154384.553384188] [hope_planner]: STRIKE_PLANE_CROSS ball=5 plane=FOREHAND x=-0.210 measured_y=-0.7023 measured_z=0.0660 result=REJECT: predicted position y=-0.7034 outside [-1.5925, -1.2125], z=0.0645 outside [0.2000, 0.4900]

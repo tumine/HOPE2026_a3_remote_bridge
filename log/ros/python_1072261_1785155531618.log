@@ -1,0 +1,78 @@
+[WARN] [1785155531.652746786] [a3_pc_rl_deploy]: model_21500 runner in OBSERVE: actuation=ENABLED; waiting for synchronized MDU state + PPMocap table/base calibration; P then D are both required
+[INFO] [1785155531.654220617] [a3_pc_rl_deploy]: HOTKEYS (no Enter): P=default pose; D=enter live policy after all gates; I=status; C=recalibrate table (OBSERVE only); S=normal stop; X=immediate halt; H=help; Q=quit (OBSERVE only). There are no F/B synthetic-ball keys: live planner commands select each swing.
+[WARN] [1785155531.766034471] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=1 gap=0.111s sequence=2532980
+[WARN] [1785155532.682504253] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=1 sequence=2533090
+[WARN] [1785155533.838958234] [a3_pc_rl_deploy]: PPMOCAP CALIBRATED: canonical origin=near-left tabletop; +X=robot-to-opponent +Y=robot-left +Z=up
+[WARN] [1785155534.332480042] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=2 gap=1.650s sequence=2533288
+[WARN] [1785155536.199931843] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=2 sequence=2533512
+[WARN] [1785155536.207930939] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=3 gap=0.008s sequence=2533513
+[WARN] [1785155536.804286287] [a3_pc_rl_deploy]: DEFAULT POSE START: 5.0s ramp; D remains locked until pose and PPMocap/planner gates are ready
+[WARN] [1785155538.557681821] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=3 sequence=2533795
+[WARN] [1785155538.565589191] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=4 gap=0.008s sequence=2533796
+[WARN] [1785155541.784540192] [a3_pc_rl_deploy]: DEFAULT_HOLD: waiting for pose settling
+[WARN] [1785155542.784735361] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; D still locked: BotA3 pose stale (1903.0ms)
+[WARN] [1785155546.183681704] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=4 sequence=2534710
+[WARN] [1785155546.291471764] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=5 gap=0.108s sequence=2534723
+[WARN] [1785155555.782962056] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=5 sequence=2535862
+[WARN] [1785155555.791025590] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=6 gap=0.008s sequence=2535863
+[WARN] [1785155556.616925723] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=6 sequence=2535962
+[WARN] [1785155557.324929624] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=7 gap=0.708s sequence=2536047
+[WARN] [1785155557.532798953] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=7 sequence=2536072
+[WARN] [1785155557.540874177] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=8 gap=0.008s sequence=2536073
+[WARN] [1785155557.548776127] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=8 sequence=2536074
+[WARN] [1785155557.883158074] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=9 gap=0.334s sequence=2536114
+[WARN] [1785155558.698821913] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=9 sequence=2536212
+[WARN] [1785155559.490719217] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=10 gap=0.792s sequence=2536307
+[WARN] [1785155559.708915725] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=10 sequence=2536333
+[WARN] [1785155560.024859050] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=11 gap=0.316s sequence=2536371
+[WARN] [1785155560.767210856] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=11 sequence=2536460
+[WARN] [1785155561.256814214] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=12 gap=0.490s sequence=2536519
+[WARN] [1785155566.342925698] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=12 sequence=2537129
+[WARN] [1785155566.399118509] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=13 gap=0.056s sequence=2537136
+[WARN] [1785155566.624859524] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=13 sequence=2537163
+[WARN] [1785155566.690774507] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=14 gap=0.066s sequence=2537171
+[WARN] [1785155569.774797549] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=14 sequence=2537541
+[WARN] [1785155570.008504188] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=15 gap=0.234s sequence=2537569
+[WARN] [1785155570.106450903] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=15 sequence=2537581
+[WARN] [1785155570.374326744] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=16 gap=0.268s sequence=2537613
+[WARN] [1785155570.624791985] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=16 sequence=2537643
+[WARN] [1785155570.682880306] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=17 gap=0.058s sequence=2537650
+[WARN] [1785155570.908413168] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=17 sequence=2537677
+[WARN] [1785155571.106781544] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=18 gap=0.198s sequence=2537701
+[WARN] [1785155571.114459664] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=18 sequence=2537702
+[WARN] [1785155571.242557789] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=19 gap=0.128s sequence=2537717
+[WARN] [1785155571.392402008] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=19 sequence=2537735
+[WARN] [1785155572.392429486] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=20 gap=1.000s sequence=2537855
+[WARN] [1785155573.974623204] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=20 sequence=2538045
+[WARN] [1785155575.124723257] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=21 gap=1.150s sequence=2538183
+[WARN] [1785155575.266472487] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=21 sequence=2538200
+[WARN] [1785155577.758247594] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=22 gap=2.492s sequence=2538499
+[WARN] [1785155579.708153831] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=22 sequence=2538733
+[WARN] [1785155579.781993558] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=23 gap=0.074s sequence=2538742
+[WARN] [1785155579.808205322] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=23 sequence=2538745
+[WARN] [1785155579.842297578] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=24 gap=0.034s sequence=2538749
+[WARN] [1785155579.850044936] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=24 sequence=2538750
+[WARN] [1785155579.966114103] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=25 gap=0.116s sequence=2538764
+[WARN] [1785155580.004539977] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; mocap/planner_ready=yes
+[WARN] [1785155580.034031571] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=25 sequence=2538772
+[WARN] [1785155580.050190503] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=26 gap=0.016s sequence=2538774
+[WARN] [1785155580.082166406] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=26 sequence=2538778
+[WARN] [1785155580.100329006] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=27 gap=0.018s sequence=2538780
+[WARN] [1785155580.124501399] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=27 sequence=2538783
+[WARN] [1785155580.142429095] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=28 gap=0.018s sequence=2538785
+[WARN] [1785155580.166207930] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=28 sequence=2538788
+[WARN] [1785155580.182098248] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=29 gap=0.016s sequence=2538790
+[WARN] [1785155580.198077253] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=29 sequence=2538792
+[WARN] [1785155580.240137021] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=30 gap=0.042s sequence=2538797
+[WARN] [1785155590.415979634] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=30 sequence=2540018
+[WARN] [1785155590.549689758] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=31 gap=0.134s sequence=2540034
+[WARN] [1785155591.765736987] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=31 sequence=2540180
+[WARN] [1785155592.884179704] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=32 gap=1.118s sequence=2540314
+[WARN] [1785155599.883272189] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=32 sequence=2541154
+[WARN] [1785155600.025244015] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=33 gap=0.142s sequence=2541171
+[WARN] [1785155600.091362436] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=33 sequence=2541179
+[WARN] [1785155600.099344642] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=34 gap=0.008s sequence=2541180
+[WARN] [1785155600.373340848] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=34 sequence=2541213
+[WARN] [1785155600.465270389] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=35 gap=0.092s sequence=2541224
+[WARN] [1785155604.344216381] [a3_pc_rl_deploy]: STOP before policy: sending zero-gain frames
+[WARN] [1785155604.624575673] [a3_pc_rl_deploy]: zero-gain stop complete

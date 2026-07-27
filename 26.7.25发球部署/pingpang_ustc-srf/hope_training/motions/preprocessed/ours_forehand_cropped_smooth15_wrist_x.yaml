@@ -1,0 +1,168 @@
+name: ours_forehand_cropped_smooth15_wrist_x
+swing_side: 1
+swing_name: forehand
+fps: 50.0
+frame_count: 361
+frame_time_s: 0.02
+duration_s: 7.2
+strike_frame: 180
+strike_phase: 0.5
+strike_detection: preserved_semantic_frame_after_wrist_face_normal_alignment
+ready_interval_frames:
+- 0
+- 86
+follow_through_end_frame: 210
+recover_end_frame: 295
+joint_order:
+- waist_yaw_joint
+- waist_roll_joint
+- waist_pitch_joint
+- head_yaw_joint
+- head_pitch_joint
+- left_shoulder_pitch_joint
+- left_shoulder_roll_joint
+- left_shoulder_yaw_joint
+- left_elbow_joint
+- left_wrist_roll_joint
+- left_wrist_pitch_joint
+- left_wrist_yaw_joint
+- right_shoulder_pitch_joint
+- right_shoulder_roll_joint
+- right_shoulder_yaw_joint
+- right_elbow_joint
+- right_wrist_roll_joint
+- right_wrist_pitch_joint
+- right_wrist_yaw_joint
+- left_hip_pitch_joint
+- left_hip_roll_joint
+- left_hip_yaw_joint
+- left_knee_joint
+- left_ankle_pitch_joint
+- left_ankle_roll_joint
+- right_hip_pitch_joint
+- right_hip_roll_joint
+- right_hip_yaw_joint
+- right_knee_joint
+- right_ankle_pitch_joint
+- right_ankle_roll_joint
+tracked_bodies:
+- pelvis_link
+- left_hip_roll_Link
+- left_knee_Link
+- left_ankle_roll_Link
+- right_hip_roll_Link
+- right_knee_Link
+- right_ankle_roll_Link
+- torso_Link
+- left_shoulder_roll_Link
+- left_elbow_Link
+- left_wrist_yaw_Link
+- right_shoulder_roll_Link
+- right_elbow_Link
+- right_wrist_yaw_Link
+anchor_body: torso_Link
+root_body: pelvis_link
+racket_link: right_wrist_yaw_Link
+racket_body: pingpang_red_Link
+mount_offset_xyz:
+- 0.21
+- 0.032
+- 0.032
+blade_normal_axis: y
+blade_normal_sign: 1
+source:
+  file: /home/fsr/HOPE/hope_training/motions/preprocessed/ours_forehand.csv
+  layout: g1_29
+  fps: 50.0
+  frame_range_1_based_inclusive: null
+  root_quaternion_order: xyzw
+  joint_units: radians
+root_alignment:
+  canonicalized_xy_and_heading: true
+  source_initial_yaw_deg: -86.43875553161186
+  a3_ground_alignment: true
+  extra_root_height_offset_m: 0.0
+  applied_root_z_shift_m: 0.19074182584881783
+full_swing_interval_frames:
+- 87
+- 295
+post_quiet_interval_frames:
+- 296
+- 360
+crop:
+  method: direct_npz_slice_no_resampling
+  source_motion: /home/fsr/HOPE/hope_training/motions/preprocessed/ours_forehand.npz
+  source_frame_range_zero_based_inclusive:
+  - 84
+  - 444
+  source_frame_range_one_based_inclusive:
+  - 85
+  - 445
+  source_strike_frame: 264
+  source_full_swing_interval_frames:
+  - 171
+  - 379
+  velocities_recomputed_after_crop: true
+smoothing:
+  method: centered_savitzky_golay
+  window_frames: 15
+  window_seconds: 0.3
+  polyorder: 3
+  edge_mode: mirror
+  zero_phase: true
+  filtered_fields:
+  - joint_pos
+  - root_pos_w
+  - root_quat_w
+  root_trajectory_preserved: false
+  tracked_body_fk: recomputed_from_a3_mujoco_model
+  velocities_recomputed: true
+  source_motion: /home/fsr/HOPE/hope_training/motions/preprocessed/ours_forehand_cropped.npz
+  model_xml: /home/fsr/HOPE/a3_deploy/A3_MuJoCo_Sim/aimrt_mujoco_sim/src/models/bin/cfg/model/a3_pingpong/a3_pingpong.xml
+  preserved_strike_frame: 180
+  filtered_racket_link_speed_peak_frame: 180
+racket_normal_correction:
+  method: wrist_only_least_squares_with_raised_cosine_blend
+  source_motion: /home/fsr/HOPE/hope_training/motions/preprocessed/ours_forehand_cropped_smooth15.npz
+  model_xml: /home/fsr/HOPE/a3_deploy/A3_MuJoCo_Sim/aimrt_mujoco_sim/src/models/bin/cfg/model/a3_pingpong/a3_pingpong.xml
+  strike_frame: 180
+  blend_frame_range_zero_based_inclusive:
+  - 150
+  - 210
+  blend_half_window_frames: 30
+  blend_half_window_seconds: 0.6
+  modified_joints:
+  - right_wrist_roll_joint
+  - right_wrist_pitch_joint
+  - right_wrist_yaw_joint
+  wrist_delta_degrees_at_strike:
+  - 23.98213213816432
+  - -26.4859088154045
+  - -23.82496227544173
+  target_world_normal:
+  - 1.0
+  - 0.0
+  - 0.0
+  source_world_normal_at_strike:
+  - 0.7422412466637452
+  - 0.28920314426382
+  - -0.604515899790047
+  corrected_world_normal_at_strike:
+  - 0.9999999999796125
+  - 2.9502088443322805e-06
+  - -5.663181985637866e-06
+  corrected_normal_error_degrees: 0.00036586367489541366
+  source_racket_position_at_strike_m:
+  - 0.3593410809881734
+  - -0.6602821726072914
+  - 0.9744632964962274
+  corrected_racket_position_at_strike_m:
+  - 0.2845876760822691
+  - -0.6769563579504652
+  - 1.0571154336713084
+  corrected_racket_velocity_at_strike_mps:
+  - 1.4891890287399292
+  - 0.04130695015192032
+  - 0.8637481331825256
+  tracked_body_fk_recomputed: true
+  velocities_recomputed: true

@@ -1,0 +1,46 @@
+[WARN] [1785156195.932810690] [robot_state_publisher]: No robot_description parameter, but command-line argument available.  Assuming argument is name of URDF file.  This backwards compatibility fallback will be removed in the future.
+[WARN] [1785156195.941038834] [kdl_parser]: The root link pelvis_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[INFO] [1785156195.941143128] [robot_state_publisher]: got segment head_pitch_Link
+[INFO] [1785156195.941164000] [robot_state_publisher]: got segment head_yaw_Link
+[INFO] [1785156195.941167101] [robot_state_publisher]: got segment imu_in_pelvis_Link
+[INFO] [1785156195.941169550] [robot_state_publisher]: got segment imu_in_torso_Link
+[INFO] [1785156195.941171920] [robot_state_publisher]: got segment left_ankle_pitch_Link
+[INFO] [1785156195.941174419] [robot_state_publisher]: got segment left_ankle_roll_Link
+[INFO] [1785156195.941176938] [robot_state_publisher]: got segment left_elbow_Link
+[INFO] [1785156195.941179444] [robot_state_publisher]: got segment left_hand_Link
+[INFO] [1785156195.941181836] [robot_state_publisher]: got segment left_hip_pitch_Link
+[INFO] [1785156195.941184092] [robot_state_publisher]: got segment left_hip_roll_Link
+[INFO] [1785156195.941186546] [robot_state_publisher]: got segment left_hip_yaw_Link
+[INFO] [1785156195.941188708] [robot_state_publisher]: got segment left_knee_Link
+[INFO] [1785156195.941190952] [robot_state_publisher]: got segment left_knee_shell_Link
+[INFO] [1785156195.941193131] [robot_state_publisher]: got segment left_shoulder_pitch_Link
+[INFO] [1785156195.941195331] [robot_state_publisher]: got segment left_shoulder_roll_Link
+[INFO] [1785156195.941197482] [robot_state_publisher]: got segment left_shoulder_yaw_Link
+[INFO] [1785156195.941199754] [robot_state_publisher]: got segment left_wrist_pitch_Link
+[INFO] [1785156195.941201976] [robot_state_publisher]: got segment left_wrist_roll_Link
+[INFO] [1785156195.941204245] [robot_state_publisher]: got segment left_wrist_yaw_Link
+[INFO] [1785156195.941206528] [robot_state_publisher]: got segment pelvis_link
+[INFO] [1785156195.941208889] [robot_state_publisher]: got segment pingbang_ball_Link
+[INFO] [1785156195.941211095] [robot_state_publisher]: got segment pingpang_black_Link
+[INFO] [1785156195.941213229] [robot_state_publisher]: got segment pingpang_red_Link
+[INFO] [1785156195.941215481] [robot_state_publisher]: got segment right_ankle_pitch_Link
+[INFO] [1785156195.941217848] [robot_state_publisher]: got segment right_ankle_roll_Link
+[INFO] [1785156195.941219993] [robot_state_publisher]: got segment right_elbow_Link
+[INFO] [1785156195.941222152] [robot_state_publisher]: got segment right_hand_pingpang_Link
+[INFO] [1785156195.941224451] [robot_state_publisher]: got segment right_hip_pitch_Link
+[INFO] [1785156195.941226791] [robot_state_publisher]: got segment right_hip_roll_Link
+[INFO] [1785156195.941228985] [robot_state_publisher]: got segment right_hip_yaw_Link
+[INFO] [1785156195.941231132] [robot_state_publisher]: got segment right_knee_Link
+[INFO] [1785156195.941233359] [robot_state_publisher]: got segment right_knee_shell_Link
+[INFO] [1785156195.941235653] [robot_state_publisher]: got segment right_shoulder_pitch_Link
+[INFO] [1785156195.941237887] [robot_state_publisher]: got segment right_shoulder_roll_Link
+[INFO] [1785156195.941240238] [robot_state_publisher]: got segment right_shoulder_yaw_Link
+[INFO] [1785156195.941242391] [robot_state_publisher]: got segment right_wrist_pitch_Link
+[INFO] [1785156195.941244689] [robot_state_publisher]: got segment right_wrist_roll_Link
+[INFO] [1785156195.941246883] [robot_state_publisher]: got segment right_wrist_yaw_Link
+[INFO] [1785156195.941249170] [robot_state_publisher]: got segment std_head_stereo_camera_Link
+[INFO] [1785156195.941251487] [robot_state_publisher]: got segment torso_Link
+[INFO] [1785156195.941253839] [robot_state_publisher]: got segment torso_shell_Link
+[INFO] [1785156195.941256124] [robot_state_publisher]: got segment waist_roll_Link
+[INFO] [1785156195.941358042] [robot_state_publisher]: got segment waist_yaw_Link
+[INFO] [1785156203.366566098] [rclcpp]: signal_handler(SIGINT/SIGTERM)

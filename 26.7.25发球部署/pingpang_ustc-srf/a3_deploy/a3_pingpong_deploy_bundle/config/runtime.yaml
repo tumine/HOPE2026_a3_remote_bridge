@@ -1,0 +1,83 @@
+# Runtime contract for the bundled current model_21500 policy.
+# Relative paths resolve against this file's directory.
+
+contract: hope_pingpong
+control_hz: 50.0
+observation_normalization: none
+passive_neck: true  # hold head_yaw/head_pitch at their default angle
+
+policy:
+  onnx_path: ../policy/hope_pingpong.onnx
+  joint_order: agibot_a3
+
+action_adapter:
+  config_path: action_adapter.yaml
+
+simulation:
+  model_xml_path: ../../A3_MuJoCo_Sim/aimrt_mujoco_sim/src/models/bin/cfg/model/a3_pingpong/a3_pingpong.xml
+
+  # Planner canonical table-surface coordinates -> robot-only MuJoCo floor world.
+  # Axes are parallel, so only this translation is applied.
+  table_frame:
+    near_edge_from_station_x: 0.5
+    table_width: 1.525
+    table_surface_z: 0.76
+
+  # Nominal Isaac per-joint gains used by the MuJoCo reference bridge's explicit
+  # position PD. These are simulation values, not Agibot hardware gains.
+  pd_gains:
+    joints:
+      waist_yaw_joint: {kp: 85.0, kd: 3.0}
+      waist_roll_joint: {kp: 50.0, kd: 2.0}
+      waist_pitch_joint: {kp: 50.0, kd: 2.0}
+      head_yaw_joint: {kp: 40.0, kd: 2.0}
+      head_pitch_joint: {kp: 40.0, kd: 2.0}
+      left_shoulder_pitch_joint: {kp: 40.0, kd: 3.0}
+      left_shoulder_roll_joint: {kp: 40.0, kd: 3.0}
+      left_shoulder_yaw_joint: {kp: 30.0, kd: 2.0}
+      left_elbow_joint: {kp: 30.0, kd: 2.0}
+      left_wrist_roll_joint: {kp: 30.0, kd: 2.0}
+      left_wrist_pitch_joint: {kp: 20.0, kd: 2.0}
+      left_wrist_yaw_joint: {kp: 20.0, kd: 2.0}
+      right_shoulder_pitch_joint: {kp: 40.0, kd: 3.0}
+      right_shoulder_roll_joint: {kp: 40.0, kd: 3.0}
+      right_shoulder_yaw_joint: {kp: 30.0, kd: 2.0}
+      right_elbow_joint: {kp: 30.0, kd: 2.0}
+      right_wrist_roll_joint: {kp: 30.0, kd: 2.0}
+      right_wrist_pitch_joint: {kp: 20.0, kd: 2.0}
+      right_wrist_yaw_joint: {kp: 20.0, kd: 2.0}
+      left_hip_pitch_joint: {kp: 80.0, kd: 3.0}
+      left_hip_roll_joint: {kp: 120.0, kd: 4.0}
+      left_hip_yaw_joint: {kp: 80.0, kd: 3.0}
+      left_knee_joint: {kp: 250.0, kd: 8.0}
+      left_ankle_pitch_joint: {kp: 50.0, kd: 2.0}
+      left_ankle_roll_joint: {kp: 50.0, kd: 2.0}
+      right_hip_pitch_joint: {kp: 80.0, kd: 3.0}
+      right_hip_roll_joint: {kp: 120.0, kd: 4.0}
+      right_hip_yaw_joint: {kp: 80.0, kd: 3.0}
+      right_knee_joint: {kp: 250.0, kd: 8.0}
+      right_ankle_pitch_joint: {kp: 50.0, kd: 2.0}
+      right_ankle_roll_joint: {kp: 50.0, kd: 2.0}
+
+lifecycle:
+  # Both current 91-frame clips strike at frame 50: +1.0 s before contact and
+  # -0.8 s after it. The next command/feed supplies the inter-clip hold.
+  follow_through_s: 0.8
+  recovery_s: 0.0
+  ready_time_to_strike: 1.0
+  # First seed-0 forehand command from the training distribution. This explicit
+  # conditioning anchor kept model_21500 upright for a 10 s MuJoCo idle test.
+  # On the first frame the lifecycle converts rel_base_w to a fixed world target.
+  # Later observations subtract the live base. Components remain on world axes;
+  # do not rotate them by pelvis yaw.
+  ready_target_rel_base_w:
+    [0.3201315701007843, -0.6952511668205261, -0.057795558124780655]
+  ready_target_vel_w:
+    [2.3803303241729736, 0.6271703243255615, 1.0374835729599]
+  ready_swing_side: 1
+
+hardware:
+  gains_source: MUST_FILL_FROM_VENDOR_BACKEND
+  gains_template: hardware_gains_TEMPLATE.yaml
+  policy_output_mode: joint_position_residual
+  command_period_s: 0.02

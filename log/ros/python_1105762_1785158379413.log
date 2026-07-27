@@ -1,0 +1,7 @@
+[WARN] [1785158379.651178472] [a3_pc_rl_deploy]: model_21500 runner in OBSERVE: actuation=ENABLED; waiting for synchronized MDU state + PPMocap table/base calibration; P then D are both required
+[INFO] [1785158379.651335907] [a3_pc_rl_deploy]: HOTKEYS (no Enter): P=default pose; D=enter live policy after all gates; I=status; C=recalibrate table (OBSERVE only); S=normal stop; X=immediate halt; H=help; Q=quit (OBSERVE only). There are no F/B synthetic-ball keys: live planner commands select each swing.
+[WARN] [1785158379.651992083] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=1 initial=yes sequence=2874714
+[WARN] [1785158379.808955088] [a3_pc_rl_deploy]: PPMOCAP CALIBRATED: canonical origin=near-left tabletop; +X=robot-to-opponent +Y=robot-left +Z=up
+[WARN] [1785158380.820763998] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=1 sequence=2874855
+[WARN] [1785158380.944832331] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=2 gap=0.124s sequence=2874870
+[ERROR] [1785158381.985993632] [a3_pc_rl_deploy]: Ctrl-C: immediate zero-gain stop

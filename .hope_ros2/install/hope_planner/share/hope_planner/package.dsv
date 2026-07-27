@@ -1,0 +1,6 @@
+source;share/hope_planner/hook/pythonpath.ps1
+source;share/hope_planner/hook/pythonpath.dsv
+source;share/hope_planner/hook/pythonpath.sh
+source;share/hope_planner/hook/ament_prefix_path.ps1
+source;share/hope_planner/hook/ament_prefix_path.dsv
+source;share/hope_planner/hook/ament_prefix_path.sh

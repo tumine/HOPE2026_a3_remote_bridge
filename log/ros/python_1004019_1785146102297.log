@@ -1,0 +1,3 @@
+[WARN] [1785146102.328124010] [a3_pc_rl_deploy]: model_21500 runner in OBSERVE: actuation=disabled; waiting for synchronized MDU state + PPMocap table/base calibration; P then D are both required
+[INFO] [1785146102.328282950] [a3_pc_rl_deploy]: HOTKEYS (no Enter): P=default pose; D=enter live policy after all gates; I=status; C=recalibrate table (OBSERVE only); S=normal stop; X=immediate halt; H=help; Q=quit (OBSERVE only). There are no F/B synthetic-ball keys: live planner commands select each swing.
+[ERROR] [1785146112.279838488] [a3_pc_rl_deploy]: unknown/invalid command: q

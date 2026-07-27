@@ -1,0 +1,4 @@
+[WARN] [1785146194.507630152] [a3_pc_rl_deploy]: model_21500 runner in OBSERVE: actuation=disabled; waiting for synchronized MDU state + PPMocap table/base calibration; P then D are both required
+[INFO] [1785146194.507792302] [a3_pc_rl_deploy]: HOTKEYS (no Enter): P=default pose; D=enter live policy after all gates; I=status; C=recalibrate table (OBSERVE only); S=normal stop; X=immediate halt; H=help; Q=quit (OBSERVE only). There are no F/B synthetic-ball keys: live planner commands select each swing.
+[WARN] [1785146194.662921543] [a3_pc_rl_deploy]: PPMOCAP CALIBRATED: canonical origin=near-left tabletop; +X=robot-to-opponent +Y=robot-left +Z=up
+[WARN] [1785146274.510647046] [a3_pc_rl_deploy]: New subscription discovered on topic '/a3_mocap/ball_poses', requesting incompatible QoS. No messages will be sent to it. Last incompatible policy: RELIABILITY

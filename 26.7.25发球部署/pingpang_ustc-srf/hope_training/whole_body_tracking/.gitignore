@@ -1,0 +1,26 @@
+# Python
+**/__pycache__/
+**/*.py[cod]
+**/*.egg-info/
+.pytest_cache/
+
+# Training outputs / local checkpoints (regenerate; not committed)
+logs/
+outputs/
+runs/
+videos/
+*.pt
+*.pth
+*.onnx
+
+# Generated robot asset contents (regenerate with scripts/prepare_a3_isaac_asset.py). Keep the
+# package marker files so the assets package still imports.
+source/whole_body_tracking/whole_body_tracking/assets/*
+!source/whole_body_tracking/whole_body_tracking/assets/__init__.py
+!source/whole_body_tracking/whole_body_tracking/assets/.gitignore
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/

@@ -1,0 +1,21 @@
+[WARN] [1785157192.400104742] [a3_pc_rl_deploy]: model_21500 runner in OBSERVE: actuation=ENABLED; waiting for synchronized MDU state + PPMocap table/base calibration; P then D are both required
+[INFO] [1785157192.400255450] [a3_pc_rl_deploy]: HOTKEYS (no Enter): P=default pose; D=enter live policy after all gates; I=status; C=recalibrate table (OBSERVE only); S=normal stop; X=immediate halt; H=help; Q=quit (OBSERVE only). There are no F/B synthetic-ball keys: live planner commands select each swing.
+[WARN] [1785157193.544929491] [a3_pc_rl_deploy]: PPMOCAP CALIBRATED: canonical origin=near-left tabletop; +X=robot-to-opponent +Y=robot-left +Z=up
+[WARN] [1785157193.807686848] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=1 gap=0.423s sequence=2732417
+[WARN] [1785157194.252136060] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=1 sequence=2732470
+[WARN] [1785157194.600836950] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=2 gap=0.349s sequence=2732512
+[WARN] [1785157194.776118275] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=2 sequence=2732533
+[WARN] [1785157195.134198299] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=3 gap=0.358s sequence=2732576
+[WARN] [1785157195.417981425] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=3 sequence=2732610
+[WARN] [1785157195.517698384] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=4 gap=0.100s sequence=2732622
+[WARN] [1785157195.802394432] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=4 sequence=2732656
+[WARN] [1785157196.900401149] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=5 gap=1.098s sequence=2732788
+[WARN] [1785157197.283686916] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=5 sequence=2732834
+[WARN] [1785157197.309597254] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=6 gap=0.026s sequence=2732837
+[WARN] [1785157198.226549258] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=6 sequence=2732947
+[WARN] [1785157198.241611112] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=7 gap=0.015s sequence=2732949
+[WARN] [1785157198.468223416] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=7 sequence=2732976
+[WARN] [1785157198.631469773] [a3_pc_rl_deploy]: DEFAULT POSE START: 5.0s ramp; D remains locked until pose and PPMocap/planner gates are ready
+[WARN] [1785157198.667689436] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=8 gap=0.200s sequence=2733000
+[ERROR] [1785157199.152084558] [a3_pc_rl_deploy]: HALT: command ACK backlog 26 exceeds 25
+[WARN] [1785157199.451860738] [a3_pc_rl_deploy]: zero-gain stop complete

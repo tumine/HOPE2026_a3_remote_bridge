@@ -1,0 +1,2 @@
+[INFO] [1785146193.112900891] [hope_planner]: HOPE planner started: strike_planes=FH:-0.210,BH:0.100 m, landing=[ 2.055  -0.7625], split_y=-1.173 m, solve_period=0.020 s, ball_pose_index=0
+[WARN] [1785146203.820397975] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-1.2669 outside [-1.5225, -1.2825], z=0.4656 outside [0.2400, 0.4500]; BH: y=-1.1913 outside [-1.0625, -0.6625])

@@ -1,0 +1,15 @@
+[INFO] [1785147039.738548784] [hope_planner]: HOPE planner started: strike_planes=FH:-0.210,BH:0.100 m, landing=[ 2.055  -0.7625], split_y=-1.173 m, new_task_tts=[0.300,0.600] s, solve_period=0.020 s, ball_pose_index=0
+[WARN] [1785147040.665755247] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: z=0.4958 outside [0.2400, 0.4500]; BH: y=-1.4375 outside [-1.0625, -0.6625], z=1.0000 outside [0.0800, 0.3400])
+[WARN] [1785147040.686578906] [hope_planner]: TTS_GATE ball=1 side=FOREHAND decision=WAIT tts=0.9996s window=[0.3000, 0.6000]s
+[WARN] [1785147041.107437113] [hope_planner]: TTS_GATE ball=1 side=FOREHAND decision=ACCEPT tts=0.5869s window=[0.3000, 0.6000]s
+[WARN] [1785147041.408867240] [hope_planner]: TTS_GATE ball=1 side=FOREHAND decision=DROP tts=0.2871s window=[0.3000, 0.6000]s
+[WARN] [1785147041.409039338] [hope_planner]: incoming ball reached the planner too late for a new task; dropping this ball without consuming task_id
+[WARN] [1785147041.540550513] [hope_planner]: STRIKE_PLANE_CROSS ball=1 plane=BACKHAND x=0.100 measured_y=-1.4375 measured_z=0.8948 result=REJECT: predicted position y=-1.4375 outside [-1.0625, -0.6625], z=0.8948 outside [0.0800, 0.3400]
+[WARN] [1785147041.701322527] [hope_planner]: STRIKE_PLANE_CROSS ball=1 plane=FOREHAND x=-0.210 measured_y=-1.4375 measured_z=0.3490 result=REJECT: time_to_strike=0.0007s is too late for admission window [0.3000, 0.6000]s; physical ball dropped
+[WARN] [1785147042.251825216] [hope_planner]: TTS_GATE ball=2 side=BACKHAND decision=WAIT tts=0.9944s window=[0.3000, 0.6000]s
+[WARN] [1785147042.503307969] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-0.8575 outside [-1.5225, -1.2825], z=0.7501 outside [0.2400, 0.4500]; BH: z=0.0776 outside [0.0800, 0.3400])
+[WARN] [1785147042.652064795] [hope_planner]: TTS_GATE ball=2 side=BACKHAND decision=ACCEPT tts=0.5890s window=[0.3000, 0.6000]s
+[WARN] [1785147042.956745140] [hope_planner]: TTS_GATE ball=2 side=BACKHAND decision=DROP tts=0.2817s window=[0.3000, 0.6000]s
+[WARN] [1785147042.956915289] [hope_planner]: incoming ball reached the planner too late for a new task; dropping this ball without consuming task_id
+[WARN] [1785147043.237630906] [hope_planner]: STRIKE_PLANE_CROSS ball=2 plane=BACKHAND x=0.100 measured_y=-0.8575 measured_z=0.1659 result=REJECT: time_to_strike=0.0153s is too late for admission window [0.3000, 0.6000]s; physical ball dropped
+[WARN] [1785147043.503991404] [hope_planner]: STRIKE_PLANE_CROSS ball=2 plane=FOREHAND x=-0.210 measured_y=-0.8575 measured_z=0.6879 result=REJECT: predicted position y=-0.8575 outside [-1.5225, -1.2825], z=0.6878 outside [0.2400, 0.4500]

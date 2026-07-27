@@ -1,0 +1,15 @@
+[INFO] [1785147879.277485628] [hope_planner]: HOPE planner started: strike_planes=FH:-0.210,BH:0.100 m, landing=[ 2.055  -0.7625], split_y=-1.173 m, new_task_tts=[0.300,1.000] s, solve_period=0.020 s, ball_pose_index=0
+[WARN] [1785147889.106536637] [hope_planner]: BALL_REARM ball=2 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785147894.198272986] [hope_planner]: BALL_REARM ball=4 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785147894.350729612] [hope_planner]: BALL_REARM ball=5 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785147894.425040946] [hope_planner]: BALL_REARM ball=6 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785147894.746873157] [hope_planner]: BALL_REARM ball=7 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785147901.540006192] [hope_planner]: BALL_REARM ball=9 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785147901.640579646] [hope_planner]: BALL_REARM ball=10 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785147903.288540244] [hope_planner]: BALL_REARM ball=12 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785147903.438466696] [hope_planner]: BALL_REARM ball=13 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785147903.540487561] [hope_planner]: BALL_REARM ball=14 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785147903.941059407] [hope_planner]: BALL_REARM ball=15 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785147932.198645484] [hope_planner]: BALL_REARM ball=18 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785147934.932069324] [hope_planner]: BALL_REARM ball=21 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785147935.057716322] [hope_planner]: BALL_REARM ball=22 reason=estimated direction changed from non-incoming to incoming

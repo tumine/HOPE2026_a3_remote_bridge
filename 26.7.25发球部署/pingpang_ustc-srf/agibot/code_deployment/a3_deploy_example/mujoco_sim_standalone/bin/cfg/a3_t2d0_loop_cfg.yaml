@@ -1,0 +1,342 @@
+# Copyright (c) 2023, AgiBot Inc.
+# All rights reserved.
+
+aimrt:
+  plugin:
+    plugins:
+      - name: iceoryx_plugin
+        path: libaimrt_iceoryx_plugin.so
+      - name: ros2_plugin
+        path: libaimrt_ros2_plugin.so
+        options:
+          node_name: mujoco_sim_module #创建的ROS2 节点名
+          executor_type: SingleThreaded # SingleThreaded/StaticSingleThreaded/MultiThreaded
+  log:
+    core_lvl: INFO # Trace/Debug/Info/Warn/Error/Fatal/Off
+    backends:
+      - type: console
+  executor:
+    executors:
+      - name: gui_thread
+        type: simple_thread
+      - name: sim_thread
+        type: asio_thread
+        options:
+            thread_num: 1
+      - name: work_thread_pool
+        type: asio_thread
+        options:
+          thread_num: 8
+      - name: sensor_thread_pool
+        type: asio_thread
+        options:
+          thread_num: 8
+  channel:
+    backends:
+      - type: ros2
+      - type: iceoryx
+    sub_topics_options:
+      - topic_name: "(.*)"
+        enable_backends: [iceoryx]
+    pub_topics_options:
+      - topic_name: "/tf"
+        enable_backends: [ros2]
+      - topic_name: "(.*)"
+        enable_backends: [iceoryx]
+  module:
+    pkgs:
+      - path: libmujoco_sim_pkg.so
+        enable_modules: [MujocoSimModule]
+    modules:
+      - name: MujocoSimModule
+        log_lvl: INFO
+
+# Module custom configuration
+MujocoSimModule:
+  simulation_model_path: ../models/a3_t2d0/mjcf/a3_t2d0_loop.xml  # packaged relative path
+  sim_executor: sim_thread
+  gui_executor: gui_thread
+  subscriber_options:
+    - topic: /body_drive/waist_joint_command
+      type: a3_joint_actuator_ros2
+      options:
+        joints:
+          - name: waist_yaw_joint
+            bind_joint: waist_yaw_joint
+          - name: waist_roll_joint
+            bind_joint: left_waist_motor_joint
+          - name: waist_pitch_joint
+            bind_joint: right_waist_motor_joint
+
+    - topic: /body_drive/leg_joint_command
+      type: a3_joint_actuator_ros2
+      options:
+        joints:
+          - name: left_hip_pitch_joint
+            bind_joint: left_hip_pitch_joint
+          - name: left_hip_roll_joint
+            bind_joint: left_hip_roll_joint
+          - name: left_hip_yaw_joint
+            bind_joint: left_hip_yaw_joint
+          - name: left_knee_joint
+            bind_joint: left_knee_joint
+          - name: left_ankle_pitch_joint
+            bind_joint: left_ankle_motor_up_joint
+          - name: left_ankle_roll_joint
+            bind_joint: left_ankle_motor_down_joint
+          - name: right_hip_pitch_joint
+            bind_joint: right_hip_pitch_joint
+          - name: right_hip_roll_joint
+            bind_joint: right_hip_roll_joint
+          - name: right_hip_yaw_joint
+            bind_joint: right_hip_yaw_joint
+          - name: right_knee_joint
+            bind_joint: right_knee_joint
+          - name: right_ankle_pitch_joint
+            bind_joint: right_ankle_motor_up_joint
+          - name: right_ankle_roll_joint
+            bind_joint: right_ankle_motor_down_joint
+    - topic: /body_drive/arm_joint_command
+      type: a3_joint_actuator_ros2
+      options:
+        joints:
+          - name: left_shoulder_pitch_joint
+            bind_joint: left_shoulder_pitch_joint
+          - name: left_shoulder_roll_joint
+            bind_joint: left_shoulder_roll_joint
+          - name: left_shoulder_yaw_joint
+            bind_joint: left_shoulder_yaw_joint
+          - name: left_elbow_joint
+            bind_joint: left_elbow_joint
+          - name: left_wrist_roll_joint
+            bind_joint: left_wrist_roll_joint
+          - name: left_wrist_pitch_joint
+            bind_joint: left_wrist_pitch_joint
+          - name: left_wrist_yaw_joint
+            bind_joint: left_wrist_yaw_joint
+          - name: right_shoulder_pitch_joint
+            bind_joint: right_shoulder_pitch_joint
+          - name: right_shoulder_roll_joint
+            bind_joint: right_shoulder_roll_joint
+          - name: right_shoulder_yaw_joint
+            bind_joint: right_shoulder_yaw_joint
+          - name: right_elbow_joint
+            bind_joint: right_elbow_joint
+          - name: right_wrist_roll_joint
+            bind_joint: right_wrist_roll_joint
+          - name: right_wrist_pitch_joint
+            bind_joint: right_wrist_pitch_joint
+          - name: right_wrist_yaw_joint
+            bind_joint: right_wrist_yaw_joint
+    - topic: /body_drive/neck_joint_command
+      type: a3_joint_actuator_ros2
+      options:
+        joints:
+          - name: head_yaw_joint
+            bind_joint: head_yaw_joint
+          - name: head_pitch_joint
+            bind_joint: head_pitch_joint
+
+    # - topic: /body_drive/hand_joint_command
+    #   type: hand_actuator
+    #   options:
+    #     command_offset: [0, 0, 0, 0, 0, 0]
+    #     command_ratio: [0.001143, 0.00039, 0.00085, 0.00085, 0.00085, 0.00085]
+    #     joints:
+    #       - name: L_thumb_swing_joint
+    #         bind_joint: L_thumb_swing_joint
+    #       - name: L_thumb_1_joint
+    #         bind_joint: L_thumb_1_joint
+    #       - name: L_index_1_joint
+    #         bind_joint: L_index_1_joint
+    #       - name: L_middle_1_joint
+    #         bind_joint: L_middle_1_joint
+    #       - name: L_ring_1_joint
+    #         bind_joint: L_ring_1_joint
+    #       - name: L_pinky_1_joint
+    #         bind_joint: L_pinky_1_joint
+    #       - name: R_thumb_swing_joint
+    #         bind_joint: R_thumb_swing_joint
+    #       - name: R_thumb_1_joint
+    #         bind_joint: R_thumb_1_joint
+    #       - name: R_index_1_joint
+    #         bind_joint: R_index_1_joint
+    #       - name: R_middle_1_joint
+    #         bind_joint: R_middle_1_joint
+    #       - name: R_ring_1_joint
+    #         bind_joint: R_ring_1_joint
+    #       - name: R_pinky_1_joint
+    #         bind_joint: R_pinky_1_joint
+  publisher_options:
+    - topic: /body_drive/waist_joint_state
+      frequency: 1000
+      executor: work_thread_pool
+      type: a3_joint_sensor_ros2
+      options:
+        joints:
+          - name: waist_yaw_joint
+            bind_joint: waist_yaw_joint
+          - name: waist_roll_joint
+            bind_joint: left_waist_motor_joint
+          - name: waist_pitch_joint
+            bind_joint: right_waist_motor_joint
+
+    - topic: /body_drive/leg_joint_state
+      frequency: 1000
+      executor: work_thread_pool
+      type: a3_joint_sensor_ros2
+      options:
+        joints:
+          - name: left_hip_pitch_joint
+            bind_joint: left_hip_pitch_joint
+          - name: left_hip_roll_joint
+            bind_joint: left_hip_roll_joint
+          - name: left_hip_yaw_joint
+            bind_joint: left_hip_yaw_joint
+          - name: left_knee_joint
+            bind_joint: left_knee_joint
+          - name: left_ankle_pitch_joint
+            bind_joint: left_ankle_motor_up_joint
+          - name: left_ankle_roll_joint
+            bind_joint: left_ankle_motor_down_joint
+          - name: right_hip_pitch_joint
+            bind_joint: right_hip_pitch_joint
+          - name: right_hip_roll_joint
+            bind_joint: right_hip_roll_joint
+          - name: right_hip_yaw_joint
+            bind_joint: right_hip_yaw_joint
+          - name: right_knee_joint
+            bind_joint: right_knee_joint
+          - name: right_ankle_pitch_joint
+            bind_joint: right_ankle_motor_up_joint
+          - name: right_ankle_roll_joint
+            bind_joint: right_ankle_motor_down_joint
+    - topic: /body_drive/arm_joint_state
+      frequency: 1000
+      executor: work_thread_pool
+      type: a3_joint_sensor_ros2
+      options:
+        joints:
+          - name: left_shoulder_pitch_joint
+            bind_joint: left_shoulder_pitch_joint
+          - name: left_shoulder_roll_joint
+            bind_joint: left_shoulder_roll_joint
+          - name: left_shoulder_yaw_joint
+            bind_joint: left_shoulder_yaw_joint
+          - name: left_elbow_joint
+            bind_joint: left_elbow_joint
+          - name: left_wrist_roll_joint
+            bind_joint: left_wrist_roll_joint
+          - name: left_wrist_pitch_joint
+            bind_joint: left_wrist_pitch_joint
+          - name: left_wrist_yaw_joint
+            bind_joint: left_wrist_yaw_joint
+          - name: right_shoulder_pitch_joint
+            bind_joint: right_shoulder_pitch_joint
+          - name: right_shoulder_roll_joint
+            bind_joint: right_shoulder_roll_joint
+          - name: right_shoulder_yaw_joint
+            bind_joint: right_shoulder_yaw_joint
+          - name: right_elbow_joint
+            bind_joint: right_elbow_joint
+          - name: right_wrist_roll_joint
+            bind_joint: right_wrist_roll_joint
+          - name: right_wrist_pitch_joint
+            bind_joint: right_wrist_pitch_joint
+          - name: right_wrist_yaw_joint
+            bind_joint: right_wrist_yaw_joint
+    - topic: /body_drive/neck_joint_state
+      frequency: 1000
+      executor: work_thread_pool
+      type: a3_joint_sensor_ros2
+      options:
+        joints:
+          - name: head_yaw_joint
+            bind_joint: head_yaw_joint
+          - name: head_pitch_joint
+            bind_joint: head_pitch_joint
+    # - topic: /body_drive/hand_joint_state
+    #   frequency: 1000
+    #   executor: work_thread_pool
+    #   type: hand_sensor
+    #   options:
+    #     state_offset: [0, 0, 0, 0, 0, 0]
+    #     state_ratio: [874.89063867, 2564.102564103, 1176.470588235, 1176.470588235, 1176.470588235, 1176.470588235]
+    #     joints:
+    #       - name: L_thumb_swing_joint
+    #         bind_joint: L_thumb_swing_joint
+    #       - name: L_thumb_1_joint
+    #         bind_joint: L_thumb_1_joint
+    #       - name: L_index_1_joint
+    #         bind_joint: L_index_1_joint
+    #       - name: L_middle_1_joint
+    #         bind_joint: L_middle_1_joint
+    #       - name: L_ring_1_joint
+    #         bind_joint: L_ring_1_joint
+    #       - name: L_pinky_1_joint
+    #         bind_joint: L_pinky_1_joint
+    #       - name: R_thumb_swing_joint
+    #         bind_joint: R_thumb_swing_joint
+    #       - name: R_thumb_1_joint
+    #         bind_joint: R_thumb_1_joint
+    #       - name: R_index_1_joint
+    #         bind_joint: R_index_1_joint
+    #       - name: R_middle_1_joint
+    #         bind_joint: R_middle_1_joint
+    #       - name: R_ring_1_joint
+    #         bind_joint: R_ring_1_joint
+    #       - name: R_pinky_1_joint
+    #         bind_joint: R_pinky_1_joint
+    - topic: /body_drive/pelvis_imu/data
+      frequency: 500
+      executor: work_thread_pool
+      type: imu_sensor_ros2
+      options:
+        bind_site: imu_in_pelvis
+        bind_framequat: pelvis-orientation
+        bind_gyro: pelvis-angular-velocity
+        bind_accelerometer: pelvis-linear-acceleration
+    - topic: /body_drive/torso_imu/data
+      frequency: 500
+      executor: work_thread_pool
+      type: imu_sensor_ros2
+      options:
+        bind_site: imu_in_torso
+        bind_framequat: torso-orientation
+        bind_gyro: torso-angular-velocity
+        bind_accelerometer: torso-linear-acceleration
+    # - topic: /body_drive/foot_sensor_state
+    #   frequency: 500
+    #   executor: work_thread_pool
+    #   type: touch_sensor_ros2
+    #   options:
+    #     names: 
+    #       - left_foot
+    #       - right_foot
+    #     states:
+    #       - 
+    #         - bind_site: left_heel_outside
+    #           bind_touch_sensor: touch_left_heel_outside
+    #         - bind_site: left_heel_inside
+    #           bind_touch_sensor: touch_left_heel_inside
+    #         - bind_site: left_toe_outside
+    #           bind_touch_sensor: touch_left_toe_outside
+    #         - bind_site: left_toe_inside
+    #           bind_touch_sensor: touch_left_toe_inside
+    #       - 
+    #         - bind_site: right_heel_outside
+    #           bind_touch_sensor: touch_right_heel_outside
+    #         - bind_site: right_heel_inside
+    #           bind_touch_sensor: touch_right_heel_inside
+    #         - bind_site: right_toe_outside
+    #           bind_touch_sensor: touch_right_toe_outside
+    #         - bind_site: right_toe_inside
+    #           bind_touch_sensor: touch_right_toe_inside
+    - topic: /tf
+      frequency: 100
+      executor: work_thread_pool
+      type: odometry_ros2
+      options:
+        bind_site: body
+        bind_framequat: pelvis-orientation
+        bind_framepos: pelvis-linear-pos

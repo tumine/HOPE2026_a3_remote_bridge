@@ -1,0 +1,31 @@
+[WARN] [1785144590.779152987] [a3_pc_rl_deploy]: model_21500 runner in OBSERVE: actuation=ENABLED; waiting for synchronized MDU state + PPMocap table/base calibration; P then D are both required
+[INFO] [1785144590.779308172] [a3_pc_rl_deploy]: HOTKEYS (no Enter): P=default pose; D=enter live policy after all gates; I=status; C=recalibrate table (OBSERVE only); S=normal stop; X=immediate halt; H=help; Q=quit (OBSERVE only). There are no F/B synthetic-ball keys: live planner commands select each swing.
+[WARN] [1785144591.655564025] [a3_pc_rl_deploy]: PPMOCAP CALIBRATED: canonical origin=near-left tabletop; +X=robot-to-opponent +Y=robot-left +Z=up
+[WARN] [1785144599.789879628] [a3_pc_rl_deploy]: DEFAULT POSE START: 5.0s ramp; D remains locked until pose and PPMocap/planner gates are ready
+[WARN] [1785144604.769932237] [a3_pc_rl_deploy]: DEFAULT_HOLD: waiting for pose settling
+[WARN] [1785144605.770087014] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; D still locked: station mismatch 0.310m; base_xy=[-0.518 -1.072] expected=[-0.5   -0.762]
+[ERROR] [1785144623.310070309] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.310m; base_xy=[-0.556 -1.067] expected=[-0.5   -0.762]
+[ERROR] [1785144628.949940558] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.323m; base_xy=[-0.583 -1.074] expected=[-0.5   -0.762]
+[ERROR] [1785144643.109914908] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.342m; base_xy=[-0.624 -1.081] expected=[-0.5   -0.762]
+[ERROR] [1785144644.389878703] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.346m; base_xy=[-0.633 -1.082] expected=[-0.5   -0.762]
+[WARN] [1785144648.350248179] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; D still locked: station mismatch 0.365m; base_xy=[-0.682 -1.079] expected=[-0.5   -0.762]
+[ERROR] [1785144648.970045844] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.364m; base_xy=[-0.686 -1.075] expected=[-0.5   -0.762]
+[ERROR] [1785144650.549860314] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.355m; base_xy=[-0.676 -1.07 ] expected=[-0.5   -0.762]
+[ERROR] [1785144651.330198694] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.346m; base_xy=[-0.661 -1.069] expected=[-0.5   -0.762]
+[ERROR] [1785144651.850168663] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.338m; base_xy=[-0.646 -1.068] expected=[-0.5   -0.762]
+[ERROR] [1785144652.350071457] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.335m; base_xy=[-0.632 -1.071] expected=[-0.5   -0.762]
+[ERROR] [1785144653.450013847] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.327m; base_xy=[-0.602 -1.073] expected=[-0.5   -0.762]
+[ERROR] [1785144653.850462269] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.321m; base_xy=[-0.583 -1.072] expected=[-0.5   -0.762]
+[ERROR] [1785144654.270715295] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.316m; base_xy=[-0.572 -1.07 ] expected=[-0.5   -0.762]
+[ERROR] [1785144654.729942692] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.314m; base_xy=[-0.558 -1.071] expected=[-0.5   -0.762]
+[ERROR] [1785144655.109972197] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.312m; base_xy=[-0.545 -1.071] expected=[-0.5   -0.762]
+[ERROR] [1785144655.509930718] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.312m; base_xy=[-0.532 -1.073] expected=[-0.5   -0.762]
+[ERROR] [1785144658.910088210] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.303m; base_xy=[-0.449 -1.062] expected=[-0.5   -0.762]
+[ERROR] [1785144660.029997876] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.303m; base_xy=[-0.423 -1.056] expected=[-0.5   -0.762]
+[ERROR] [1785144664.010199692] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.288m; base_xy=[-0.34  -1.002] expected=[-0.5   -0.762]
+[ERROR] [1785144665.489921615] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.304m; base_xy=[-0.324 -1.011] expected=[-0.5   -0.762]
+[ERROR] [1785144666.250072363] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.287m; base_xy=[-0.355 -1.01 ] expected=[-0.5   -0.762]
+[ERROR] [1785144669.250158140] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.284m; base_xy=[-0.374 -1.017] expected=[-0.5   -0.762]
+[ERROR] [1785144670.310103617] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.291m; base_xy=[-0.374 -1.025] expected=[-0.5   -0.762]
+[ERROR] [1785144673.449894788] [a3_pc_rl_deploy]: HALT: operator immediate halt
+[WARN] [1785144673.729883210] [a3_pc_rl_deploy]: zero-gain stop complete

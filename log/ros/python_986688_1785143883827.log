@@ -1,0 +1,16 @@
+[WARN] [1785143883.860841048] [a3_pc_rl_deploy]: model_21500 runner in OBSERVE: actuation=ENABLED; waiting for synchronized MDU state + PPMocap table/base calibration; P then D are both required
+[INFO] [1785143883.861011984] [a3_pc_rl_deploy]: HOTKEYS (no Enter): P=default pose; D=enter live policy after all gates; I=status; C=recalibrate table (OBSERVE only); S=normal stop; X=immediate halt; H=help; Q=quit (OBSERVE only). There are no F/B synthetic-ball keys: live planner commands select each swing.
+[WARN] [1785143884.073936644] [a3_pc_rl_deploy]: PPMOCAP CALIBRATED: canonical origin=near-left tabletop; +X=robot-to-opponent +Y=robot-left +Z=up
+[INFO] [1785143886.333188387] [a3_pc_rl_deploy]: mode=OBSERVE lifecycle=ready state_age=0.2ms mocap_age=3.9ms base=[-0.479 -0.867  0.163] forward=[ 0.925 -0.38 ] pose_ready=no gate=station mismatch 0.106m; base_xy=[-0.479 -0.867] expected=[-0.5   -0.762] task=None swings=0 sent=0 acked=0 pending=0 infer_p95=0.000ms invalid=0/0/0
+[WARN] [1785143914.712498867] [a3_pc_rl_deploy]: DEFAULT POSE START: 5.0s ramp; D remains locked until pose and PPMocap/planner gates are ready
+[WARN] [1785143919.692685994] [a3_pc_rl_deploy]: DEFAULT_HOLD: waiting for pose settling
+[WARN] [1785143920.692746129] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; D still locked: station mismatch 0.074m; base_xy=[-0.519 -0.834] expected=[-0.5   -0.762]
+[WARN] [1785143936.972745640] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; D still locked: station mismatch 0.138m; base_xy=[-0.372 -0.815] expected=[-0.5   -0.762]
+[WARN] [1785143938.952829743] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; D still locked: station mismatch 0.152m; base_xy=[-0.358 -0.817] expected=[-0.5   -0.762]
+[WARN] [1785143950.972902368] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; D still locked: station mismatch 0.187m; base_xy=[-0.322 -0.821] expected=[-0.5   -0.762]
+[WARN] [1785144000.472714124] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; D still locked: base height 0.155m outside [0.250,0.360]
+[ERROR] [1785144080.852438383] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: base height 0.154m outside [0.250,0.360]
+[ERROR] [1785144082.932493940] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: base height 0.154m outside [0.250,0.360]
+[ERROR] [1785144084.392436273] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: base height 0.154m outside [0.250,0.360]
+[ERROR] [1785144087.192537043] [a3_pc_rl_deploy]: HALT: operator immediate halt
+[WARN] [1785144087.472590952] [a3_pc_rl_deploy]: zero-gain stop complete

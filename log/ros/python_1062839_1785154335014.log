@@ -1,0 +1,29 @@
+[WARN] [1785154335.047790556] [a3_pc_rl_deploy]: model_21500 runner in OBSERVE: actuation=ENABLED; waiting for synchronized MDU state + PPMocap table/base calibration; P then D are both required
+[INFO] [1785154335.047967054] [a3_pc_rl_deploy]: HOTKEYS (no Enter): P=default pose; D=enter live policy after all gates; I=status; C=recalibrate table (OBSERVE only); S=normal stop; X=immediate halt; H=help; Q=quit (OBSERVE only). There are no F/B synthetic-ball keys: live planner commands select each swing.
+[WARN] [1785154335.201350368] [a3_pc_rl_deploy]: PPMOCAP CALIBRATED: canonical origin=near-left tabletop; +X=robot-to-opponent +Y=robot-left +Z=up
+[WARN] [1785154342.504113671] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=1 gap=7.455s sequence=2390266
+[WARN] [1785154344.004051632] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=1 sequence=2390446
+[WARN] [1785154344.014419814] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=2 gap=0.010s sequence=2390447
+[WARN] [1785154345.488082376] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=2 sequence=2390624
+[WARN] [1785154346.572092100] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=3 gap=1.084s sequence=2390754
+[WARN] [1785154346.579845835] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=3 sequence=2390755
+[WARN] [1785154348.062266819] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=4 gap=1.482s sequence=2390933
+[WARN] [1785154357.779339476] [a3_pc_rl_deploy]: DEFAULT POSE START: 5.0s ramp; D remains locked until pose and PPMocap/planner gates are ready
+[WARN] [1785154358.520794746] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=4 sequence=2392188
+[WARN] [1785154358.694634920] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=5 gap=0.174s sequence=2392209
+[WARN] [1785154358.728524992] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=5 sequence=2392213
+[WARN] [1785154360.862764161] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=6 gap=2.134s sequence=2392469
+[WARN] [1785154362.759781067] [a3_pc_rl_deploy]: DEFAULT_HOLD: waiting for pose settling
+[WARN] [1785154363.759674686] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; D still locked: base height 0.377m outside [0.250,0.360]
+[WARN] [1785154375.394830445] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=6 sequence=2394213
+[WARN] [1785154375.535227780] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=7 gap=0.140s sequence=2394230
+[WARN] [1785154375.544907346] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=7 sequence=2394231
+[WARN] [1785154377.010831037] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=8 gap=1.466s sequence=2394407
+[WARN] [1785154379.499554897] [a3_pc_rl_deploy]: POLICY ARMED BY D: 3.0s READY warmup; live planner commands remain blocked until warmup completes; base pose/yaw now come from PPMocap
+[WARN] [1785154382.480812297] [a3_pc_rl_deploy]: POLICY_ACTIVE: validated READY is running; live /racket/command enabled
+[WARN] [1785154383.719812341] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=1 side=backhand tts=0.886s
+[WARN] [1785154385.220931316] [a3_pc_rl_deploy]: BALL COMPLETE: task=1 total=1; READY restored
+[WARN] [1785154385.970095257] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=8 sequence=2395482
+[WARN] [1785154385.986051704] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=9 gap=0.016s sequence=2395484
+[ERROR] [1785154387.899586503] [a3_pc_rl_deploy]: HALT: base tilt 20.35deg exceeds 20.05deg
+[WARN] [1785154388.199491121] [a3_pc_rl_deploy]: zero-gain stop complete

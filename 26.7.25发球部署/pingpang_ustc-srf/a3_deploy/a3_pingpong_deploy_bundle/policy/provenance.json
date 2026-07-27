@@ -1,0 +1,61 @@
+{
+  "bundle_contract": "hope_pingpong",
+  "policy_status": "current_sim_candidate_not_hardware_certified",
+  "policy_generation": "full_body_uniform_action_return_physics_v1",
+  "source_run": "2026-07-26_01-47-04",
+  "source_checkpoint": "hope_training/whole_body_tracking/logs/rsl_rl/hope_pingpong/2026-07-26_01-47-04/model_21500.pt",
+  "source_checkpoint_iteration": 21500,
+  "source_checkpoint_sha256": "7939b3a2e4716e764271126668602b0826f6f4fc9615a74ccdb7a0761ee19987",
+  "source_base_commit": "42530cac9717642176a70d43bafdce0a2b0c5e08",
+  "deployed_contract_commit": "28d0074a8fb595d4c730cbc13a146fdd53c0a170",
+  "source_worktree_diff": "hope_training/whole_body_tracking/logs/rsl_rl/hope_pingpong/2026-07-26_01-47-04/git/HOPE.diff",
+  "source_worktree_diff_sha256": "8c129c02e7bc134da7c3eb1cfd3afba4c2e5652d4975143a83e62feea7ab77d3",
+  "bundled_training_env": "provenance/training_env.yaml",
+  "bundled_training_env_sha256": "b53ce46b5dd241cd01bc46ee73c5230f407c1cd85115550631d32bf7aad1c70c",
+  "bundled_training_agent": "provenance/training_agent.yaml",
+  "bundled_training_agent_sha256": "c6a3ad503602f71704fe447f5c4e5432b6adba3ff3b6e8c7bcc403a8797f43bc",
+  "bundled_training_worktree_diff": "provenance/training_worktree.diff",
+  "bundled_training_worktree_diff_sha256": "8c129c02e7bc134da7c3eb1cfd3afba4c2e5652d4975143a83e62feea7ab77d3",
+  "exported_utc": "2026-07-27T07:45:03.175751+00:00",
+  "export_method": "cpu_actor_only_exact_state_dict",
+  "actor_architecture": [
+    111,
+    512,
+    256,
+    128,
+    31
+  ],
+  "hidden_activation": "elu",
+  "observation_normalization": "none",
+  "control_rate_hz": 50,
+  "onnx_file": "hope_pingpong.onnx",
+  "onnx_sha256": "6e2fcf9c9793a568f0583ae9b6e7b0439fb83df004c356e85af85841afc2d074",
+  "policy_manifest_sha256": "c952a1547ce090c70d55aeb0927df707ffd5d0a6ed16f95bd9d16bdb6a50bc6f",
+  "pytorch_onnx_max_abs_error": 1.430511474609375e-06,
+  "training_snapshot_at_iteration_21500": {
+    "mean_reward": 14.143362998962402,
+    "mean_episode_length": 495.2799987792969,
+    "racket_pos_error_m": 0.2804376780986786,
+    "racket_vel_error_mps": 0.6911897659301758,
+    "racket_normal_error_rad": 0.312211811542511,
+    "contact_rate": 0.9962550401687622,
+    "net_clear_rate": 0.9605103731155396,
+    "return_success": 0.947412371635437,
+    "both_feet_contact": 0.9697650671005249,
+    "base_tilt_rad": 0.06857311725616455,
+    "station_error_m": 0.05009888857603073,
+    "target_curriculum_progress": 1.0
+  },
+  "mujoco_idle_ready_anchor_10s": {
+    "report": "validation/mujoco_idle_ready_anchor_10s.json",
+    "min_pelvis_height_m": 1.0653315348318637,
+    "max_station_drift_m": 0.021174385941500916,
+    "fell": false
+  },
+  "mujoco_ready_anchor_smoke": {
+    "report": "validation/mujoco_ready_anchor_smoke_diagnostics.json",
+    "successes": 8,
+    "attempts": 8,
+    "falls": 0
+  }
+}

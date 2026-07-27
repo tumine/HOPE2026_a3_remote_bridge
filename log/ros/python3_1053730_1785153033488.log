@@ -1,0 +1,91 @@
+[INFO] [1785153033.558171032] [hope_planner]: HOPE planner started: strike_planes=FH:-0.210,BH:0.100 m, landing=[ 2.055  -0.7625], split_y=-1.173 m, new_task_tts=[0.250,1.000] s, ball_rearm=(vx_in<=-0.50, vx_out>=-0.10 m/s, confirm=5/10, x>=0.30 m), live_margins=(y=0.070m, z=0.040m, racket_v=0.150m/s), solve_period=0.020 s, ball_pose_index=0
+[WARN] [1785153064.928335046] [hope_planner]: TTS_GATE ball=1 side=BACKHAND decision=WAIT tts=1.7271s window=[0.2500, 1.0000]s est_x=2.2057m est_vx=-2.3465m/s
+[WARN] [1785153064.947127799] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-0.7875 outside [-1.5925, -1.2125]; BH: z=0.5073 outside [0.0400, 0.3800])
+[WARN] [1785153064.971333405] [hope_planner]: TTS_GATE ball=1 side=BACKHAND decision=ACCEPT tts=0.6364s window=[0.2500, 1.0000]s est_x=2.0422m est_vx=-3.5074m/s
+[WARN] [1785153064.985352485] [hope_planner]: PLANNER_TASK_PUBLISHED ball=1 task=1 side=BACKHAND tts=0.6364s target=[0.1000,-0.7787,0.2771] racket_v=[1.1269,0.0030,0.7080]
+[WARN] [1785153074.320538360] [hope_planner]: TTS_GATE ball=5 side=BACKHAND decision=ACCEPT tts=0.5819s window=[0.2500, 1.0000]s est_x=2.5572m est_vx=-5.8404m/s
+[WARN] [1785153074.334724903] [hope_planner]: PLANNER_TASK_PUBLISHED ball=5 task=2 side=BACKHAND tts=0.5819s target=[0.1000,-1.0228,0.3008] racket_v=[1.8478,0.2134,0.6165]
+[WARN] [1785153074.358954962] [hope_planner]: locked BH task has no admitted same-side revision; command not published (BH: vx=0.5671 outside [0.9000, 3.1500], vz=0.2531 outside [0.3000, 1.6000])
+[WARN] [1785153074.751065457] [hope_planner]: STRIKE_PLANE_CROSS ball=5 plane=BACKHAND x=0.100 measured_y=-1.1472 measured_z=0.1796 result=ACCEPT: task_id=2 revision=1 side=BACKHAND tts=0.2665s target=[0.1000,-1.1262,0.2192] racket_v=[1.8592,0.3118,0.4401]
+[WARN] [1785153074.884727788] [hope_planner]: STRIKE_PLANE_CROSS ball=5 plane=FOREHAND x=-0.210 measured_y=-1.4830 measured_z=-0.1070 result=REJECT: no usable future crossing within 2.00s (plane not reached or dead-ball crossing)
+[WARN] [1785153093.677058137] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-1.1937 outside [-1.5925, -1.2125], z=0.1423 outside [0.2000, 0.4900]; BH: y=-1.1655 outside [-1.1325, -0.5925])
+[WARN] [1785153093.696961398] [hope_planner]: TTS_GATE ball=14 side=FOREHAND decision=ACCEPT tts=0.7679s window=[0.2500, 1.0000]s est_x=2.5794m est_vx=-5.2893m/s
+[WARN] [1785153093.710952046] [hope_planner]: PLANNER_TASK_PUBLISHED ball=14 task=3 side=FOREHAND tts=0.7679s target=[-0.2100,-1.2162,0.3027] racket_v=[2.2958,0.4197,0.8560]
+[WARN] [1785153098.539559120] [hope_planner]: TTS_GATE ball=16 side=BACKHAND decision=ACCEPT tts=0.7414s window=[0.2500, 1.0000]s est_x=2.6739m est_vx=-5.1092m/s
+[WARN] [1785153098.553547103] [hope_planner]: PLANNER_TASK_PUBLISHED ball=16 task=4 side=BACKHAND tts=0.7414s target=[0.1000,-1.0017,0.1601] racket_v=[1.7417,0.1203,0.9304]
+[WARN] [1785153098.601947421] [hope_planner]: locked BH task has no admitted same-side revision; command not published (BH: vx=0.7571 outside [0.9000, 3.1500])
+[WARN] [1785153101.464502257] [hope_planner]: PLANNER_TASK_PUBLISHED ball=16 task=5 side=BACKHAND tts=0.8126s target=[0.1000,-0.8067,0.1880] racket_v=[2.2888,0.0008,0.9803]
+[WARN] [1785153101.533827888] [hope_planner]: locked BH task has no admitted same-side revision; command not published (BH: vx=0.2205 outside [0.9000, 3.1500], vz=0.0958 outside [0.3000, 1.6000])
+[WARN] [1785153101.860918656] [hope_planner]: STRIKE_PLANE_CROSS ball=16 plane=BACKHAND x=0.100 measured_y=-0.8917 measured_z=0.1991 result=ACCEPT: task_id=5 revision=10 side=BACKHAND tts=0.0102s target=[0.1000,-0.8923,0.1990] racket_v=[1.1741,0.0275,0.3521]
+[WARN] [1785153102.975413702] [hope_planner]: BALL_REARM ball=17 reason=confirmed incoming cycle x=2.548m vx=-2.593m/s (hysteresis+consecutive-sample gate)
+[WARN] [1785153104.042286624] [hope_planner]: STRIKE_PLANE_CROSS ball=17 plane=BACKHAND x=0.100 measured_y=-0.2103 measured_z=-0.7378 result=REJECT: no usable future crossing within 2.00s (plane not reached or dead-ball crossing)
+[WARN] [1785153104.202528401] [hope_planner]: STRIKE_PLANE_CROSS ball=17 plane=FOREHAND x=-0.210 measured_y=-0.1394 measured_z=-0.7373 result=WAIT: estimator needs at least 6 samples
+[WARN] [1785153115.793280267] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-0.9883 outside [-1.5925, -1.2125]; BH: z=0.5542 outside [0.0400, 0.3800])
+[WARN] [1785153115.914621314] [hope_planner]: TTS_GATE ball=19 side=BACKHAND decision=ACCEPT tts=0.5921s window=[0.2500, 1.0000]s est_x=1.7460m est_vx=-3.1238m/s
+[WARN] [1785153115.928805425] [hope_planner]: PLANNER_TASK_PUBLISHED ball=19 task=6 side=BACKHAND tts=0.5921s target=[0.1000,-1.0242,0.1091] racket_v=[1.1240,0.1368,0.8290]
+[WARN] [1785153116.742160703] [hope_planner]: STRIKE_PLANE_CROSS ball=19 plane=BACKHAND x=0.100 measured_y=-1.0431 measured_z=0.4825 result=ACCEPT: task_id=6 revision=0 side=BACKHAND tts=0.5921s target=[0.1000,-1.0242,0.1091] racket_v=[1.1240,0.1368,0.8290]
+[WARN] [1785153116.968100852] [hope_planner]: STRIKE_PLANE_CROSS ball=19 plane=FOREHAND x=-0.210 measured_y=-1.0872 measured_z=0.1319 result=REJECT: predicted position y=-1.0870 outside [-1.5925, -1.2125], z=0.1313 outside [0.2000, 0.4900]
+[WARN] [1785153117.444868353] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: y=-1.1695 outside [-1.1325, -0.5925])
+[WARN] [1785153117.934044435] [hope_planner]: TTS_GATE ball=19 side=BACKHAND decision=DROP tts=0.1600s window=[0.2500, 1.0000]s est_x=0.1149m est_vx=-0.1479m/s
+[WARN] [1785153117.934231380] [hope_planner]: incoming ball reached the planner too late for a new task; dropping this ball without consuming task_id
+[WARN] [1785153119.802769908] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-1.0280 outside [-1.5925, -1.2125], z=-0.6646 outside [0.2000, 0.4900])
+[WARN] [1785153131.746498975] [hope_planner]: TTS_GATE ball=21 side=BACKHAND decision=WAIT tts=1.3726s window=[0.2500, 1.0000]s est_x=2.1189m est_vx=-2.1988m/s
+[WARN] [1785153131.766983067] [hope_planner]: TTS_GATE ball=21 side=BACKHAND decision=ACCEPT tts=0.9094s window=[0.2500, 1.0000]s est_x=2.0572m est_vx=-2.6398m/s
+[WARN] [1785153131.781079648] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: vz=0.1997 outside [0.3000, 1.6000])
+[WARN] [1785153131.855704879] [hope_planner]: PLANNER_TASK_PUBLISHED ball=21 task=7 side=BACKHAND tts=0.7813s target=[0.1000,-1.0802,0.0868] racket_v=[2.5309,0.4079,0.3035]
+[WARN] [1785153132.668783504] [hope_planner]: STRIKE_PLANE_CROSS ball=21 plane=FOREHAND x=-0.210 measured_y=-0.9587 measured_z=0.2922 result=REJECT: no usable future crossing within 2.00s (plane not reached or dead-ball crossing)
+[WARN] [1785153132.669323080] [hope_planner]: STRIKE_PLANE_CROSS ball=21 plane=BACKHAND x=0.100 measured_y=-0.9691 measured_z=0.3726 result=ACCEPT: task_id=7 revision=18 side=BACKHAND tts=1.1434s target=[0.1000,-1.0718,0.3300] racket_v=[2.1397,0.3373,1.1818]
+[WARN] [1785153132.961835198] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: y=-1.1425 outside [-1.1325, -0.5925])
+[WARN] [1785153132.978316663] [hope_planner]: TTS_GATE ball=21 side=BACKHAND decision=DROP tts=0.0337s window=[0.2500, 1.0000]s est_x=0.1817m est_vx=-3.8778m/s
+[WARN] [1785153132.978487113] [hope_planner]: incoming ball reached the planner too late for a new task; dropping this ball without consuming task_id
+[WARN] [1785153137.489125684] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: y=-1.1703 outside [-1.1325, -0.5925])
+[WARN] [1785153137.555867581] [hope_planner]: BALL_REARM ball=22 reason=confirmed incoming cycle x=1.896m vx=-3.906m/s (hysteresis+consecutive-sample gate)
+[WARN] [1785153138.154450362] [hope_planner]: TTS_GATE ball=22 side=FOREHAND decision=ACCEPT tts=0.4467s window=[0.2500, 1.0000]s est_x=0.5116m est_vx=-1.7279m/s
+[WARN] [1785153138.168434752] [hope_planner]: PLANNER_TASK_PUBLISHED ball=22 task=8 side=FOREHAND tts=0.4467s target=[-0.2100,-1.3281,0.4373] racket_v=[2.3417,0.6323,0.9276]
+[WARN] [1785153138.420149018] [hope_planner]: STRIKE_PLANE_CROSS ball=22 plane=BACKHAND x=0.100 measured_y=-1.1993 measured_z=0.5203 result=REJECT: predicted position y=-1.1995 outside [-1.1325, -0.5925], z=0.5198 outside [0.0400, 0.3800]
+[WARN] [1785153138.622997344] [hope_planner]: STRIKE_PLANE_CROSS ball=22 plane=FOREHAND x=-0.210 measured_y=-1.3327 measured_z=0.3349 result=ACCEPT: task_id=8 revision=18 side=FOREHAND tts=0.0043s target=[-0.2100,-1.3327,0.3346] racket_v=[2.2737,0.6216,1.0534]
+[WARN] [1785153140.804321693] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: z=0.5591 outside [0.0400, 0.3800])
+[WARN] [1785153140.826075480] [hope_planner]: BALL_REARM ball=23 reason=confirmed incoming cycle x=2.276m vx=-3.015m/s (hysteresis+consecutive-sample gate)
+[WARN] [1785153140.875688319] [hope_planner]: TTS_GATE ball=23 side=BACKHAND decision=ACCEPT tts=0.7987s window=[0.2500, 1.0000]s est_x=2.1545m est_vx=-3.0436m/s
+[WARN] [1785153140.893156211] [hope_planner]: PLANNER_TASK_PUBLISHED ball=23 task=9 side=BACKHAND tts=0.7987s target=[0.1000,-1.0501,0.1580] racket_v=[0.9730,0.1847,0.7667]
+[WARN] [1785153141.825184007] [hope_planner]: locked BH task has no admitted same-side revision; command not published (BH: z=0.4348 outside [0.0400, 0.3800])
+[WARN] [1785153142.243782654] [hope_planner]: STRIKE_PLANE_CROSS ball=23 plane=BACKHAND x=0.100 measured_y=-1.0526 measured_z=0.3462 result=ACCEPT: task_id=9 revision=34 side=BACKHAND tts=0.0230s target=[0.1000,-1.0528,0.3468] racket_v=[2.4460,0.4279,0.6567]
+[WARN] [1785153144.959234179] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-0.5937 outside [-1.5925, -1.2125], z=0.6074 outside [0.2000, 0.4900]; BH: z=0.6381 outside [0.0400, 0.3800])
+[WARN] [1785153145.059482022] [hope_planner]: TTS_GATE ball=24 side=BACKHAND decision=ACCEPT tts=0.7126s window=[0.2500, 1.0000]s est_x=2.1238m est_vx=-3.3025m/s
+[WARN] [1785153145.073513262] [hope_planner]: PLANNER_TASK_PUBLISHED ball=24 task=10 side=BACKHAND tts=0.7126s target=[0.1000,-0.6808,0.2818] racket_v=[0.9990,-0.0716,0.6908]
+[WARN] [1785153145.979505300] [hope_planner]: locked BH task has no admitted same-side revision; command not published (BH: y=-0.5702 outside [-1.1325, -0.5925], z=0.4818 outside [0.0400, 0.3800])
+[WARN] [1785153146.061983262] [hope_planner]: STRIKE_PLANE_CROSS ball=24 plane=BACKHAND x=0.100 measured_y=-0.5702 measured_z=0.4808 result=ACCEPT: task_id=10 revision=19 side=BACKHAND tts=0.6594s target=[0.1000,-0.6170,0.2852] racket_v=[1.6471,-0.1470,1.0733]
+[WARN] [1785153146.277939969] [hope_planner]: STRIKE_PLANE_CROSS ball=24 plane=FOREHAND x=-0.210 measured_y=-0.4867 measured_z=-0.0162 result=REJECT: no usable future crossing within 2.00s (plane not reached or dead-ball crossing)
+[WARN] [1785153172.143564892] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: z=0.1782 outside [0.2000, 0.4900]; BH: y=-1.1933 outside [-1.1325, -0.5925], z=0.6132 outside [0.0400, 0.3800])
+[WARN] [1785153172.193523147] [hope_planner]: TTS_GATE ball=28 side=FOREHAND decision=ACCEPT tts=0.7674s window=[0.2500, 1.0000]s est_x=2.0524m est_vx=-3.5208m/s
+[WARN] [1785153172.345014774] [hope_planner]: TTS_GATE ball=28 side=FOREHAND decision=WAIT tts=1.5600s window=[0.2500, 1.0000]s est_x=1.7255m est_vx=-2.3033m/s
+[WARN] [1785153173.163103088] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: y=-1.1569 outside [-1.1325, -0.5925])
+[WARN] [1785153173.279582175] [hope_planner]: STRIKE_PLANE_CROSS ball=28 plane=BACKHAND x=0.100 measured_y=-1.1564 measured_z=0.3117 result=REJECT: predicted position y=-1.1564 outside [-1.1325, -0.5925]
+[WARN] [1785153173.547233847] [hope_planner]: STRIKE_PLANE_CROSS ball=28 plane=FOREHAND x=-0.210 measured_y=-1.2273 measured_z=-0.5693 result=REJECT: no usable future crossing within 2.00s (plane not reached or dead-ball crossing)
+[WARN] [1785153193.838606758] [hope_planner]: TTS_GATE ball=36 side=BACKHAND decision=WAIT tts=1.3126s window=[0.2500, 1.0000]s est_x=2.3593m est_vx=-3.0462m/s
+[WARN] [1785153193.858265957] [hope_planner]: TTS_GATE ball=36 side=BACKHAND decision=ACCEPT tts=0.5798s window=[0.2500, 1.0000]s est_x=2.2225m est_vx=-4.5040m/s
+[WARN] [1785153193.872345664] [hope_planner]: PLANNER_TASK_PUBLISHED ball=36 task=11 side=BACKHAND tts=0.5798s target=[0.1000,-0.8348,0.2461] racket_v=[2.1858,0.0770,0.4718]
+[WARN] [1785153193.907550843] [hope_planner]: locked BH task has no admitted same-side revision; command not published (FH: y=-0.8764 outside [-1.5925, -1.2125]; BH: z=0.5191 outside [0.0400, 0.3800])
+[WARN] [1785153195.759011317] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-1.1040 outside [-1.5925, -1.2125], z=0.0588 outside [0.2000, 0.4900]; BH: z=0.3920 outside [0.0400, 0.3800])
+[WARN] [1785153195.798467483] [hope_planner]: PLANNER_TASK_PUBLISHED ball=36 task=12 side=BACKHAND tts=0.4052s target=[0.1000,-0.9967,0.3708] racket_v=[0.9479,0.1599,0.4379]
+[WARN] [1785153195.831351375] [hope_planner]: BALL_REARM ball=37 reason=confirmed incoming cycle x=1.649m vx=-6.280m/s (hysteresis+consecutive-sample gate)
+[WARN] [1785153196.345113784] [hope_planner]: STRIKE_PLANE_CROSS ball=37 plane=BACKHAND x=0.100 measured_y=-1.0174 measured_z=0.3407 result=ACCEPT: task_id=12 revision=7 side=BACKHAND tts=0.0088s target=[0.1000,-1.0172,0.3405] racket_v=[1.9698,0.3254,0.4105]
+[WARN] [1785153197.616315356] [hope_planner]: BALL_REARM ball=38 reason=confirmed incoming cycle x=3.139m vx=-0.864m/s (hysteresis+consecutive-sample gate)
+[WARN] [1785153200.159134896] [hope_planner]: TTS_GATE ball=38 side=BACKHAND decision=ACCEPT tts=0.8204s window=[0.2500, 1.0000]s est_x=2.4337m est_vx=-4.0323m/s
+[WARN] [1785153200.173163660] [hope_planner]: PLANNER_TASK_PUBLISHED ball=38 task=13 side=BACKHAND tts=0.8204s target=[0.1000,-0.8894,0.3594] racket_v=[1.9342,0.1324,0.8132]
+[WARN] [1785153200.181335586] [hope_planner]: locked BH task has no admitted same-side revision; command not published (FH: y=-0.9513 outside [-1.5925, -1.2125]; BH: z=0.0223 outside [0.0400, 0.3800])
+[WARN] [1785153200.879149892] [hope_planner]: STRIKE_PLANE_CROSS ball=38 plane=BACKHAND x=0.100 measured_y=-0.8920 measured_z=0.3851 result=ACCEPT: task_id=13 revision=9 side=BACKHAND tts=0.4625s target=[0.1000,-0.9024,0.3786] racket_v=[1.8965,0.1425,0.8004]
+[WARN] [1785153202.824018497] [hope_planner]: BALL_REARM ball=39 reason=confirmed incoming cycle x=2.941m vx=-1.218m/s (hysteresis+consecutive-sample gate)
+[WARN] [1785153203.794841923] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-0.9040 outside [-1.5925, -1.2125]; BH: z=0.0385 outside [0.0400, 0.3800])
+[WARN] [1785153203.817353421] [hope_planner]: TTS_GATE ball=39 side=BACKHAND decision=ACCEPT tts=0.5318s window=[0.2500, 1.0000]s est_x=2.4375m est_vx=-5.1405m/s
+[WARN] [1785153203.831256106] [hope_planner]: PLANNER_TASK_PUBLISHED ball=39 task=14 side=BACKHAND tts=0.5318s target=[0.1000,-0.9205,0.0816] racket_v=[0.9632,0.0732,0.6119]
+[WARN] [1785153205.756078591] [hope_planner]: PLANNER_TASK_PUBLISHED ball=39 task=15 side=BACKHAND tts=0.6651s target=[0.1000,-0.7750,0.3036] racket_v=[2.1353,0.0088,0.3205]
+[WARN] [1785153205.766530251] [hope_planner]: locked BH task has no admitted same-side revision; command not published (FH: y=-0.7676 outside [-1.5925, -1.2125]; BH: z=0.6180 outside [0.0400, 0.3800])
+[WARN] [1785153205.816076669] [hope_planner]: BALL_REARM ball=40 reason=confirmed incoming cycle x=2.180m vx=-7.507m/s (hysteresis+consecutive-sample gate)
+[WARN] [1785153206.387800252] [hope_planner]: STRIKE_PLANE_CROSS ball=40 plane=BACKHAND x=0.100 measured_y=-0.8183 measured_z=0.3107 result=REJECT: BH: vz=0.2843 outside [0.3000, 1.6000]
+[WARN] [1785153207.419440760] [hope_planner]: TTS_GATE ball=40 side=BACKHAND decision=ACCEPT tts=0.7859s window=[0.2500, 1.0000]s est_x=2.0076m est_vx=-3.6703m/s
+[WARN] [1785153207.433484531] [hope_planner]: PLANNER_TASK_PUBLISHED ball=40 task=16 side=BACKHAND tts=0.7859s target=[0.1000,-0.7760,0.1242] racket_v=[2.5779,-0.0064,0.9504]
+[WARN] [1785153207.463491363] [hope_planner]: locked BH task has no admitted same-side revision; command not published (FH: y=-0.7409 outside [-1.5925, -1.2125]; BH: z=0.4496 outside [0.0400, 0.3800])
+[WARN] [1785153207.489123491] [hope_planner]: BALL_REARM ball=41 reason=confirmed incoming cycle x=1.576m vx=-7.313m/s (hysteresis+consecutive-sample gate)
+[WARN] [1785153207.902394887] [hope_planner]: STRIKE_PLANE_CROSS ball=41 plane=BACKHAND x=0.100 measured_y=-0.8127 measured_z=0.1271 result=ACCEPT: task_id=16 revision=12 side=BACKHAND tts=0.0032s target=[0.1000,-0.8127,0.1274] racket_v=[1.7728,0.0144,0.4626]
+[WARN] [1785153207.987143253] [hope_planner]: STRIKE_PLANE_CROSS ball=41 plane=FOREHAND x=-0.210 measured_y=-0.8000 measured_z=0.2274 result=REJECT: predicted position y=-0.8009 outside [-1.5925, -1.2125]

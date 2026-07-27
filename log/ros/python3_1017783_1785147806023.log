@@ -1,0 +1,13 @@
+[INFO] [1785147806.089800706] [hope_planner]: HOPE planner started: strike_planes=FH:-0.210,BH:0.100 m, landing=[ 2.055  -0.7625], split_y=-1.173 m, new_task_tts=[0.300,1.000] s, solve_period=0.020 s, ball_pose_index=0
+[WARN] [1785147807.743569092] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: y=-1.4000 outside [-1.0625, -0.6625], z=0.0643 outside [0.0800, 0.3400])
+[WARN] [1785147808.501878385] [hope_planner]: STRIKE_PLANE_CROSS ball=1 plane=BACKHAND x=0.100 measured_y=-1.4000 measured_z=0.3200 result=REJECT: predicted position y=-1.4000 outside [-1.0625, -0.6625]
+[WARN] [1785147808.675252807] [hope_planner]: TTS_GATE ball=1 side=FOREHAND decision=DROP tts=0.1094s window=[0.3000, 1.0000]s
+[WARN] [1785147808.675426376] [hope_planner]: incoming ball reached the planner too late for a new task; dropping this ball without consuming task_id
+[WARN] [1785147808.782898342] [hope_planner]: STRIKE_PLANE_CROSS ball=1 plane=FOREHAND x=-0.210 measured_y=-1.4000 measured_z=0.3200 result=REJECT: time_to_strike=0.0044s is too late for admission window [0.3000, 1.0000]s; physical ball dropped
+[WARN] [1785147810.697192054] [hope_planner]: BALL_REARM ball=2 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785147810.754245729] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: y=-1.4000 outside [-1.0625, -0.6625])
+[WARN] [1785147811.634969967] [hope_planner]: STRIKE_PLANE_CROSS ball=2 plane=BACKHAND x=0.100 measured_y=-1.4000 measured_z=0.3200 result=REJECT: predicted position y=-1.4000 outside [-1.0625, -0.6625]
+[WARN] [1785147811.766584378] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: z=0.2099 outside [0.2400, 0.4500])
+[WARN] [1785147811.806778937] [hope_planner]: TTS_GATE ball=2 side=FOREHAND decision=DROP tts=0.1081s window=[0.3000, 1.0000]s
+[WARN] [1785147811.806945005] [hope_planner]: incoming ball reached the planner too late for a new task; dropping this ball without consuming task_id
+[WARN] [1785147811.913128663] [hope_planner]: STRIKE_PLANE_CROSS ball=2 plane=FOREHAND x=-0.210 measured_y=-1.4000 measured_z=0.3200 result=REJECT: time_to_strike=0.0042s is too late for admission window [0.3000, 1.0000]s; physical ball dropped

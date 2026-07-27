@@ -1,0 +1,56 @@
+# =============================================================================
+# HOPE whole-body task (Agibot A3) — the single training task.
+#
+# Selected with `task=HOPEPingPong`. Composes the shared env / sim / randomization bases
+# (cfg/base/*) and sets the HOPE knobs below. The detailed reward weights, racket-target
+# sampling boxes, and domain-randomization defaults live in the environment configuration
+# (HOPEPingPongEnvCfg, in the tasks/tracking package) — this file carries only the launcher-level
+# knobs and an optional `overrides` map for tuning.
+#
+# Actor observation: 111-D (contract `hope_pingpong`, unchanged). Action: 31-D raw output,
+# clipped to [-100, 100], then mapped by the shared identity + uniform-0.25 ActionAdapter.
+# Control rate: 50 Hz. Forehand + backhand are learned by one policy (swing_side is an observation).
+# =============================================================================
+
+name: HOPEPingPong
+gym_task: HOPE-PingPong-AgibotA3-v0
+experiment_name: hope_pingpong
+actor_obs_contract: hope_pingpong
+
+defaults:
+  - /base/env_base@_here_
+  - /base/sim_base@_here_
+  - /base/randomization_base@_here_
+  - _self_
+
+# Equal-length, guarded-retime A3 reference motions (repo-root-relative).
+#   clip 0 = wrist-aligned, 15-frame zero-phase smoothed forehand; clip 1 = backhand.
+#   Both are 91 frames at 50 Hz (1.80 s), with the strike aligned to frame 50.
+#   The outer wind-up/recovery phases are accelerated after cropping source frames
+#   72--320. Source frames 173--187 remain at unit speed, including a one-frame
+#   derivative buffer around the +/-0.12 s strike reward window.
+# Override on the CLI with motion_file= / motion_file_2= only for an intentional experiment.
+motion_file: hope_training/motions/preprocessed/ours_forehand_guarded_1p8s_wrist_x.npz
+motion_file_2: hope_training/motions/preprocessed/ours_backhand_guarded_1p8s.npz
+
+env:
+  # A 91-frame swing consumes 1.82 s of actor steps (both endpoints included);
+  # each wrap adds U[0, 2] s of hold. A 10 s episode therefore contains at least
+  # two complete swings even at the maximum hold, and about 3.5 at the mean hold.
+  episode_length_s: 10.0
+
+motion:
+  # Do not teleport the robot state on clip wrap: the robot pose / joint state / last action carry
+  # across swings so recovery is learned. (Required by the continuous multi-rally lifecycle.)
+  wrap_teleport: false
+
+# Optional environment-cfg overrides applied by scripts/train.py as dotted paths onto the parsed
+# env cfg. Use this to tune without editing Python. Unknown paths are skipped with a warning.
+# Example (uncomment and edit):
+# overrides:
+#   rewards.racket_position.weight: 12.0
+#   rewards.racket_velocity.weight: 8.0
+#   commands.motion.stand_start_prob: 0.9
+#   commands.racket_target.target_curriculum_duration_steps: 300000
+#   rewards.both_feet_contact.weight: 0.7
+overrides: {}

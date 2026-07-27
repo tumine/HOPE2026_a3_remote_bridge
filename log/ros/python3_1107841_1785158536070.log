@@ -1,0 +1,22 @@
+[INFO] [1785158536.138420608] [hope_planner]: HOPE planner started: strike_planes=FH:-0.210,BH:0.100 m, landing=[ 2.055  -0.7625], split_y=-1.173 m, new_task_tts=[0.250,1.000] s, ball_rearm=(vx_in<=-0.50, vx_out>=-0.10 m/s, confirm=5/10, x>=0.30 m), live_margins=(y=0.070m, z=0.040m, racket_v=0.150m/s), solve_period=0.020 s, ball_pose_index=0
+[WARN] [1785158661.988598645] [hope_planner]: TTS_GATE ball=2 side=BACKHAND decision=WAIT tts=1.9283s window=[0.2500, 1.0000]s est_x=2.4517m est_vx=-2.7639m/s
+[WARN] [1785158662.006905114] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-1.0891 outside [-1.5925, -1.2125]; BH: z=0.4582 outside [0.0400, 0.3800])
+[WARN] [1785158662.029493092] [hope_planner]: TTS_GATE ball=2 side=FOREHAND decision=ACCEPT tts=0.5144s window=[0.2500, 1.0000]s est_x=2.1322m est_vx=-6.3739m/s
+[WARN] [1785158662.043614969] [hope_planner]: PLANNER_TASK_PUBLISHED ball=2 task=1 side=FOREHAND tts=0.5144s target=[-0.2100,-1.2699,0.4139] racket_v=[2.2125,0.5008,0.4474]
+[WARN] [1785158666.121438639] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: y=-1.3414 outside [-1.1325, -0.5925])
+[WARN] [1785158666.137893849] [hope_planner]: TTS_GATE ball=3 side=BACKHAND decision=ACCEPT tts=0.4957s window=[0.2500, 1.0000]s est_x=2.4488m est_vx=-5.8803m/s
+[WARN] [1785158666.152024776] [hope_planner]: PLANNER_TASK_PUBLISHED ball=3 task=2 side=BACKHAND tts=0.4957s target=[0.1000,-1.0466,0.2007] racket_v=[1.9513,0.3425,0.3661]
+[WARN] [1785158669.449212009] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: y=-1.4127 outside [-1.1325, -0.5925])
+[WARN] [1785158669.464565398] [hope_planner]: TTS_GATE ball=5 side=FOREHAND decision=ACCEPT tts=0.7385s window=[0.2500, 1.0000]s est_x=2.5385m est_vx=-5.5451m/s
+[WARN] [1785158669.478539091] [hope_planner]: PLANNER_TASK_PUBLISHED ball=5 task=3 side=FOREHAND tts=0.7385s target=[-0.2100,-1.2607,0.4008] racket_v=[2.2403,0.5369,0.7172]
+[WARN] [1785158679.280278736] [hope_planner]: TTS_GATE ball=6 side=BACKHAND decision=WAIT tts=1.3841s window=[0.2500, 1.0000]s est_x=2.3216m est_vx=-2.8323m/s
+[WARN] [1785158679.298489763] [hope_planner]: TTS_GATE ball=6 side=BACKHAND decision=ACCEPT tts=0.6460s window=[0.2500, 1.0000]s est_x=2.1967m est_vx=-4.1683m/s
+[WARN] [1785158679.312499688] [hope_planner]: PLANNER_TASK_PUBLISHED ball=6 task=4 side=BACKHAND tts=0.6460s target=[0.1000,-1.0078,0.3567] racket_v=[2.1553,0.3019,0.5118]
+[WARN] [1785158679.359957081] [hope_planner]: locked BH task has no admitted same-side revision; command not published (BH: vx=0.8504 outside [0.9000, 3.1500])
+[WARN] [1785158679.958381836] [hope_planner]: STRIKE_PLANE_CROSS ball=6 plane=BACKHAND x=0.100 measured_y=-1.0298 measured_z=0.3791 result=ACCEPT: task_id=4 revision=15 side=BACKHAND tts=0.0040s target=[0.1000,-1.0298,0.3790] racket_v=[1.8422,0.2850,0.5799]
+[WARN] [1785158681.101238683] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-1.1990 outside [-1.5925, -1.2125]; BH: y=-1.2105 outside [-1.1325, -0.5925])
+[WARN] [1785158681.168231567] [hope_planner]: BALL_REARM ball=7 reason=confirmed incoming cycle x=1.468m vx=-13.302m/s (hysteresis+consecutive-sample gate)
+[WARN] [1785158681.246886119] [hope_planner]: TTS_GATE ball=7 side=BACKHAND decision=DROP tts=0.1316s window=[0.2500, 1.0000]s est_x=0.9740m est_vx=-8.6049m/s
+[WARN] [1785158681.247280642] [hope_planner]: incoming ball reached the planner too late for a new task; dropping this ball without consuming task_id
+[WARN] [1785158681.386918880] [hope_planner]: STRIKE_PLANE_CROSS ball=7 plane=BACKHAND x=0.100 measured_y=-1.1219 measured_z=0.1806 result=REJECT: time_to_strike=0.0083s is too late for admission window [0.2500, 1.0000]s; physical ball dropped
+[WARN] [1785158681.435634468] [hope_planner]: STRIKE_PLANE_CROSS ball=7 plane=FOREHAND x=-0.210 measured_y=-1.0903 measured_z=0.2472 result=REJECT: predicted position y=-1.0899 outside [-1.5925, -1.2125]

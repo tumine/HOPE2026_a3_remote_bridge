@@ -1,0 +1,102 @@
+# ISAAC_TRAINING_SIM_ONLY
+#
+# Nominal implicit-PD dynamics used by the policy's Isaac training run.
+# Units: kp [N*m/rad], kd [N*m*s/rad], effort_limit [N*m],
+# velocity_limit [rad/s]. These are not approved real-robot values.
+
+physics_hz: 200.0
+policy_hz: 50.0
+decimation: 4
+pd_gain_domain_randomization: none
+
+groups:
+  waist_yaw:
+    joints: [waist_yaw_joint]
+    kp: 85.0
+    kd: 3.0
+    effort_limit: 220.0
+    velocity_limit: 12.0
+  waist_roll:
+    joints: [waist_roll_joint]
+    kp: 50.0
+    kd: 2.0
+    effort_limit: 46.0
+    velocity_limit: 22.7
+  waist_pitch:
+    joints: [waist_pitch_joint]
+    kp: 50.0
+    kd: 2.0
+    effort_limit: 118.0
+    velocity_limit: 9.2
+  head:
+    joints: [head_yaw_joint, head_pitch_joint]
+    kp: 40.0
+    kd: 2.0
+    effort_limit: 6.0
+    velocity_limit: 12.7
+  shoulder_pitch_roll:
+    joints:
+      - left_shoulder_pitch_joint
+      - left_shoulder_roll_joint
+      - right_shoulder_pitch_joint
+      - right_shoulder_roll_joint
+    kp: 40.0
+    kd: 3.0
+    effort_limit: 60.0
+    velocity_limit: 13.6
+  shoulder_yaw_elbow_wrist_roll:
+    joints:
+      - left_shoulder_yaw_joint
+      - left_elbow_joint
+      - left_wrist_roll_joint
+      - right_shoulder_yaw_joint
+      - right_elbow_joint
+      - right_wrist_roll_joint
+    kp: 30.0
+    kd: 2.0
+    effort_limit: 24.0
+    velocity_limit: 15.7
+  wrist_pitch_yaw:
+    joints:
+      - left_wrist_pitch_joint
+      - left_wrist_yaw_joint
+      - right_wrist_pitch_joint
+      - right_wrist_yaw_joint
+    kp: 20.0
+    kd: 2.0
+    effort_limit: 6.0
+    velocity_limit: 12.7
+  hip_yaw_pitch:
+    joints:
+      - left_hip_yaw_joint
+      - left_hip_pitch_joint
+      - right_hip_yaw_joint
+      - right_hip_pitch_joint
+    kp: 80.0
+    kd: 3.0
+    effort_limit: 220.0
+    velocity_limit: 12.0
+  hip_roll:
+    joints: [left_hip_roll_joint, right_hip_roll_joint]
+    kp: 120.0
+    kd: 4.0
+    effort_limit: 220.0
+    velocity_limit: 12.0
+  knee:
+    joints: [left_knee_joint, right_knee_joint]
+    kp: 250.0
+    kd: 8.0
+    effort_limit: 320.0
+    velocity_limit: 14.6
+  ankle_pitch:
+    joints: [left_ankle_pitch_joint, right_ankle_pitch_joint]
+    kp: 50.0
+    kd: 2.0
+    effort_limit: 118.0
+    velocity_limit: 10.8
+  ankle_roll:
+    joints: [left_ankle_roll_joint, right_ankle_roll_joint]
+    kp: 50.0
+    kd: 2.0
+    effort_limit: 55.0
+    velocity_limit: 19.3

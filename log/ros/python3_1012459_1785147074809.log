@@ -1,0 +1,1 @@
+[INFO] [1785147074.877523609] [hope_planner]: HOPE planner started: strike_planes=FH:-0.210,BH:0.100 m, landing=[ 2.055  -0.7625], split_y=-1.173 m, new_task_tts=[0.300,1.000] s, solve_period=0.020 s, ball_pose_index=0

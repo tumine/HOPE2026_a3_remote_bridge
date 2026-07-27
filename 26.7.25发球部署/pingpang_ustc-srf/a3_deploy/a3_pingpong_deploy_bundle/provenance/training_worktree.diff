@@ -1,0 +1,1237 @@
+--- git status ---
+On branch srf
+Your branch is up to date with 'pingpang/srf'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+  (commit or discard the untracked or modified content in submodules)
+	modified:   a3_deploy/a3_deploy_example/README.md
+	modified:   a3_deploy/a3_deploy_example/config/action_adapter.yaml
+	modified:   a3_deploy/a3_deploy_example/reference/README.md
+	modified:   a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/action_adapter.py
+	modified:   a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/observation.py
+	modified:   a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/runner.py
+	modified:   docs/POLICY_INTERFACE.md
+	modified:   docs/RUN_ON_AGIBOT.md
+	modified:   docs/TRAIN_POLICY.md
+	modified:   docs/interfaces/policy_io.md
+	modified:   hope_training/pingpang_ustc (untracked content)
+	modified:   hope_training/whole_body_tracking/README.md
+	modified:   hope_training/whole_body_tracking/cfg/algo/ppo.yaml
+	modified:   hope_training/whole_body_tracking/cfg/task/HOPEPingPong.yaml
+	modified:   hope_training/whole_body_tracking/scripts/mujoco_eval_onnx.py
+	modified:   hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/robots/agibot_a3.py
+	modified:   hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/actor_observation_contract.py
+	modified:   hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/agents/ppo.py
+	modified:   hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/hope_env_cfg.py
+	modified:   hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_actions.py
+	modified:   hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_observations.py
+	modified:   hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_rewards.py
+	modified:   hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/utils/action_adapter_config.py
+	modified:   hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/utils/exporter.py
+	modified:   hope_training/whole_body_tracking/tests/test_action_adapter_parity.py
+	modified:   hope_training/whole_body_tracking/tests/test_balance_configuration.py
+	modified:   hope_training/whole_body_tracking/tests/test_passive_head_feedback.py
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/a3_deploy/a3_deploy_example/README.md b/a3_deploy/a3_deploy_example/README.md
+index 2165a30..53ff732 100644
+--- a/a3_deploy/a3_deploy_example/README.md
++++ b/a3_deploy/a3_deploy_example/README.md
+@@ -31,9 +31,9 @@ runner.
+ | Piece | Spec |
+ | --- | --- |
+ | Observation | **111-D**, single layout, no normalization (raw). See `reference/.../observation.py`. |
+-| Action | **31-D** `raw_action`; the passive head columns (idx 3, 4) are zeroed to form the **applied action**, which is fed back as next-tick `last_action` (matching training). |
++| Action | **31-D** `raw_action`; clip to `[-100, 100]`, then zero passive head columns (idx 3, 4) to form the **applied action**, which is fed back as next-tick `last_action` (matching training). |
+ | ONNX | `observation[1, 111] -> raw_action[1, 31]`, single output. |
+-| ActionAdapter | `adapter_action = tanh(raw_action)`; `q_des = default_q + adapter_action * per_joint_scale`, then a joint clamp. One shared config: `config/action_adapter.yaml`. |
++| ActionAdapter | `adapter_action = clip(raw_action, -100, 100)`; `q_des = default_q + adapter_action * 0.25`, then a joint clamp. One shared config: `config/action_adapter.yaml`. |
+ | Joint order | 31-DOF Agibot A3, fixed. See `reference/.../joint_order.py`. |
+ | Command | `RacketCommand` (task_id / task_revision / swing_side / position / velocity / time_to_strike). |
+ | Lifecycle | `ready -> swing -> follow-through -> recovery -> ready`, one swing per `task_id`, no state reset between balls. |
+@@ -86,8 +86,8 @@ module layout, the design, and the integration seams.
+ Real-robot execution is **not** performed by anything in this repository. Bring up
+ your own licensed AgiBot vendor deploy package and its safety systems (motor
+ protection, hard limits, e-stop), then wire the public contract above into it:
+-build the 111-D observation, run `hope_pingpong.onnx`, zero the passive head columns
+-to form the applied action (also the next `last_action`), map it through the shared
++build the 111-D observation, run `hope_pingpong.onnx`, clip to `[-100, 100]`, and zero
++the passive head columns to form the applied action (also the next `last_action`), map it through the shared
+ ActionAdapter to 31 joint targets, and command the vendor backend at 50 Hz.
+ The vendor backend's gains, limits, and e-stop stay authoritative; the public code
+ never sets, probes, or bypasses them.
+diff --git a/a3_deploy/a3_deploy_example/config/action_adapter.yaml b/a3_deploy/a3_deploy_example/config/action_adapter.yaml
+index 23ba869..b71c496 100644
+--- a/a3_deploy/a3_deploy_example/config/action_adapter.yaml
++++ b/a3_deploy/a3_deploy_example/config/action_adapter.yaml
+@@ -8,65 +8,37 @@
+ # Parity is asserted by hope_training/whole_body_tracking/tests/test_action_adapter_parity.py.
+ #
+ # Transform (deterministic; not a rejection filter, emits no status):
+-#     adapter_action = tanh(raw_action)
+-#     q_des = default_q + adapter_action * action_scale
++#     applied_action = clip(raw_action, -100.0, 100.0)
++#     adapter_action = applied_action
++#     q_des = default_q + adapter_action * 0.25
+ #     q_des = clip(q_des, joint_position_clamp.lower, joint_position_clamp.upper)
+ #
+ # IMPORTANT: this action mapping is a policy contract. Changing the transform,
+-# default pose, or any scale requires retraining; do not use an older checkpoint
+-# trained with the legacy identity / uniform-0.25 mapping.
++# default pose, or scale requires retraining; do not use a checkpoint trained
++# with the former tanh / per-joint-scale mapping.
+ #
+ # ALL VALUES BELOW STILL REQUIRE HARDWARE VALIDATION.
+ #   * default_q : a plausible upright A3 stand (slight hip/knee bend, arms down and
+ #                 slightly out, waist and head at zero). Not performance-tuned.
+-#   * raw_action_transform : tanh smoothly bounds arbitrary network output before
+-#                    it can become a position residual. It does not alter the
+-#                    raw-action feedback in the 111-D observation.
+-#   * action_scale : motion-informed per-joint residual bounds. Upper-body joints
+-#                    retain the range needed by the guarded forehand/backhand clips;
+-#                    the waist, legs and ankles are limited to their task envelope.
++#   * raw_action_transform : identity keeps the policy output linear. It does not
++#                    add nonlinear compression.
++#   * action_clip : hard-clips the applied policy action to [-100, 100] before
++#                    residual scaling; this clipped value is fed back as last_action.
++#   * action_scale : one 0.25 rad multiplier for every action column. Values beyond
++#                    +/-1 remain expressible so the complete reference clips are
++#                    reachable; the mechanical clamp below remains the final bound.
+ #   * joint_position_clamp : the A3 model's mechanical joint ranges, used as a
+ #                    deterministic safety clamp. Vendor hard limits / motor
+ #                    protection / e-stop remain the robot backend's responsibility.
+ #
+ # head_yaw_joint / head_pitch_joint are passive at deploy (held at their default);
+-# they still occupy their action columns so every vector here is length 31. Their
+-# scales are zero because the runtime holds both joints at default_q.
++# they still occupy their action columns so every vector here is length 31. Training
++# and deployment zero those action columns independently of this uniform scale.
+ 
+-raw_action_transform: tanh
++raw_action_transform: identity
++action_clip: [-100.0, 100.0]
+ 
+-action_scale:         # rad; symmetric residual bound after tanh
+-  waist_yaw_joint: 0.25
+-  waist_roll_joint: 0.22
+-  waist_pitch_joint: 0.41
+-  head_yaw_joint: 0.0
+-  head_pitch_joint: 0.0
+-  left_shoulder_pitch_joint: 1.05
+-  left_shoulder_roll_joint: 0.40
+-  left_shoulder_yaw_joint: 0.55
+-  left_elbow_joint: 0.20
+-  left_wrist_roll_joint: 0.10
+-  left_wrist_pitch_joint: 0.75
+-  left_wrist_yaw_joint: 0.80
+-  right_shoulder_pitch_joint: 2.55
+-  right_shoulder_roll_joint: 0.80
+-  right_shoulder_yaw_joint: 1.65
+-  right_elbow_joint: 1.25
+-  right_wrist_roll_joint: 0.70
+-  right_wrist_pitch_joint: 0.30
+-  right_wrist_yaw_joint: 1.15
+-  left_hip_pitch_joint: 0.35
+-  left_hip_roll_joint: 0.36
+-  left_hip_yaw_joint: 0.52
+-  left_knee_joint: 0.36
+-  left_ankle_pitch_joint: 0.52
+-  left_ankle_roll_joint: 0.18
+-  right_hip_pitch_joint: 0.30
+-  right_hip_roll_joint: 0.40
+-  right_hip_yaw_joint: 0.58
+-  right_knee_joint: 0.22
+-  right_ankle_pitch_joint: 0.16
+-  right_ankle_roll_joint: 0.24
++action_scale: 0.25   # rad per raw-action unit, uniform across all 31 columns
+ 
+ default_q:            # rad, example neutral upright stand
+   waist_yaw_joint: 0.0
+diff --git a/a3_deploy/a3_deploy_example/reference/README.md b/a3_deploy/a3_deploy_example/reference/README.md
+index 5554e86..ded444b 100644
+--- a/a3_deploy/a3_deploy_example/reference/README.md
++++ b/a3_deploy/a3_deploy_example/reference/README.md
+@@ -26,7 +26,7 @@ Flags: `--backend {mujoco,aimrt}`, `--onnx`, `--model-xml`, `--view`, `--realtim
+ | `joint_order.py` | The 31-DOF Agibot A3 joint order (the single order used everywhere). |
+ | `quaternion.py` | `(w,x,y,z)` quaternion helpers (projected gravity, base forward). |
+ | `observation.py` | `build_observation(...) -> float32[111]` — the exact 111-D layout. |
+-| `action_adapter.py` | Shared ActionAdapter: `adapter_action = tanh(raw)`; `q_des = default_q + adapter_action*per_joint_scale`, then clamp. |
++| `action_adapter.py` | Shared ActionAdapter: `adapter_action = clip(raw, -100, 100)`; `q_des = default_q + adapter_action*0.25`, then clamp. |
+ | `racket_command.py` | `RacketCommand` + command sources (queue seam, example feed). |
+ | `lifecycle.py` | `ready -> swing -> follow-through -> recovery` state machine. |
+ | `onnx_policy.py` | onnxruntime actor wrapper `obs[1,111] -> raw_action[1,31]`. |
+@@ -41,8 +41,8 @@ Flags: `--backend {mujoco,aimrt}`, `--onnx`, `--model-xml`, `--view`, `--realtim
+ 2. poll the latest `RacketCommand`; emit the current swing goal;
+ 3. assemble the 111-D observation (raw, no normalization);
+ 4. run the ONNX actor → `raw_action[31]`;
+-5. zero the passive head columns (idx 3, 4) to form the **applied action** and feed
+-   that back as the next `last_action` (matching training's zeroed feedback);
++5. clip to `[-100, 100]`, zero the passive head columns (idx 3, 4) to form the
++   **applied action**, and feed that back as the next `last_action` (matching training);
+ 6. map the applied action → 31 joint targets via the shared ActionAdapter (holding the
+    passive neck at its default);
+ 7. write the targets, step the sim, then advance the lifecycle clock once.
+diff --git a/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/action_adapter.py b/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/action_adapter.py
+index bb1e9fd..dfe56ec 100644
+--- a/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/action_adapter.py
++++ b/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/action_adapter.py
+@@ -2,11 +2,11 @@
+ # SPDX-License-Identifier: Apache-2.0
+ """Shared ActionAdapter: raw policy output -> joint-position targets.
+ 
+-The adapter is a pure, deterministic numeric transform (an optional bounded-domain
+-transform, a per-joint residual, then a clamp). It is NOT a rejection filter and
++The adapter is a pure, deterministic numeric transform (an optional raw-action
++clip/transform, a per-column residual, then a joint clamp). It is NOT a rejection filter and
+ emits no failure status:
+ 
+-    adapter_action = transform(raw_action)
++    adapter_action = transform(clip(raw_action))
+     q_des = default_q + adapter_action * action_scale
+     q_des = clip(q_des, clamp_lower, clamp_upper)
+ 
+@@ -36,6 +36,7 @@ class ActionAdapter:
+     clamp_lower: np.ndarray   # (31,) lower joint-position clamp, rad
+     clamp_upper: np.ndarray   # (31,) upper joint-position clamp, rad
+     raw_action_transform: str = "identity"
++    action_clip: tuple[float, float] | None = None
+ 
+     def __post_init__(self) -> None:
+         for field in ("default_q", "action_scale", "clamp_lower", "clamp_upper"):
+@@ -46,19 +47,26 @@ class ActionAdapter:
+         if np.any(self.clamp_lower > self.clamp_upper):
+             raise ValueError("action_adapter clamp_lower must be <= clamp_upper for every joint")
+         self.raw_action_transform = _resolve_raw_action_transform(self.raw_action_transform)
++        self.action_clip = _resolve_action_clip(self.action_clip)
+ 
+-    def transform_raw_action(self, raw_action: np.ndarray) -> np.ndarray:
+-        """Map actor output into the normalized residual domain.
+-
+-        This does not alter the runner's ``last_action`` feedback: that remains the
+-        original actor output (with passive columns zeroed). Only target decoding is
+-        bounded.
+-        """
++    def clip_raw_action(self, raw_action: np.ndarray) -> np.ndarray:
++        """Clip actor output to the configured applied-action interval."""
+         raw = np.asarray(raw_action, dtype=np.float64)
+         if raw.ndim == 0 or raw.shape[-1] != NUM_JOINTS:
+             raise ValueError(
+                 f"raw_action trailing dimension must be {NUM_JOINTS}, got {raw.shape}"
+             )
++        if self.action_clip is None:
++            return raw.copy()
++        return np.clip(raw, self.action_clip[0], self.action_clip[1])
++
++    def transform_raw_action(self, raw_action: np.ndarray) -> np.ndarray:
++        """Map actor output into the normalized residual domain.
++
++        The runner separately calls :meth:`clip_raw_action` when forming
++        ``last_action`` so feedback and target decoding use the same accepted value.
++        """
++        raw = self.clip_raw_action(raw_action)
+         if self.raw_action_transform == "identity":
+             return raw.copy()
+         if self.raw_action_transform == "tanh":
+@@ -81,6 +89,7 @@ class ActionAdapter:
+ 
+         default_q = _resolve_per_joint(doc["default_q"], "default_q")
+         raw_action_transform = _resolve_raw_action_transform(doc.get("raw_action_transform"))
++        action_clip = _resolve_action_clip(doc.get("action_clip"))
+ 
+         scale_spec = doc["action_scale"]
+         if isinstance(scale_spec, (int, float)):
+@@ -97,6 +106,7 @@ class ActionAdapter:
+             clamp_lower=clamp_lower,
+             clamp_upper=clamp_upper,
+             raw_action_transform=raw_action_transform,
++            action_clip=action_clip,
+         )
+ 
+ 
+@@ -122,3 +132,16 @@ def _resolve_raw_action_transform(spec) -> str:
+             f"got {spec!r}"
+         )
+     return transform
++
++
++def _resolve_action_clip(spec) -> tuple[float, float] | None:
++    """Normalize an optional global ``[lower, upper]`` raw-action clip."""
++    if spec is None:
++        return None
++    values = np.asarray(spec, dtype=np.float64).reshape(-1)
++    if values.shape != (2,) or not np.all(np.isfinite(values)):
++        raise ValueError("action_clip must contain two finite values: [lower, upper]")
++    lower, upper = float(values[0]), float(values[1])
++    if lower > upper:
++        raise ValueError("action_clip lower must be <= upper")
++    return lower, upper
+diff --git a/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/observation.py b/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/observation.py
+index 2f385c1..34200a5 100644
+--- a/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/observation.py
++++ b/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/observation.py
+@@ -23,9 +23,9 @@ There is exactly one layout; no normalization is applied (raw observation).
+ xy. It is NOT constant zero: the base drifts across rallies, and this term is the
+ in-place recentring feedback the policy uses to hold its station.
+ 
+-(*) ``last_action`` is the previous tick's APPLIED action: the actor's raw output
+-with the passive head columns (idx 3, 4) zeroed, exactly as training zeroes them
+-in its applied-action feedback. Those two columns are therefore always 0 here.
++(*) ``last_action`` is the previous tick's APPLIED action: the actor output clipped
++to the shared interval, with the passive head columns (idx 3, 4) zeroed, exactly as
++training processes its applied-action feedback. Those two columns are always 0 here.
+ """
+ 
+ from __future__ import annotations
+diff --git a/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/runner.py b/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/runner.py
+index 25b740c..49ffbb7 100644
+--- a/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/runner.py
++++ b/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/runner.py
+@@ -7,9 +7,9 @@ Per tick, in order:
+   2. poll the latest RacketCommand and emit the current swing goal;
+   3. assemble the 111-D observation;
+   4. run the ONNX actor -> raw_action[31];
+-  5. zero the passive head columns (idx 3, 4) to form the APPLIED action, and feed
+-     that back as the next last_action — matching training, where the zeroed
+-     applied action (not the actor's raw output) is the last_action observation;
++  5. clip the raw action to its shared interval, zero the passive head columns
++     (idx 3, 4), and feed that APPLIED action back as the next last_action —
++     matching training;
+   6. pass the applied action through the shared ActionAdapter -> 31 joint targets
+      (holding the passive neck at its default);
+   7. write the targets, step the sim, then advance the strike clock once.
+@@ -80,10 +80,10 @@ class PingPongReferenceRunner:
+                     state, target, self.last_action, self.default_q, self.fixed_station_xy
+                 )
+                 raw_action = self.policy.infer(obs)
+-                # The APPLIED action: with a passive neck the head columns are never
+-                # actuated, so they are zeroed before feedback — training exposes the
+-                # same zeroed columns in its last_action observation.
+-                applied_action = np.asarray(raw_action, dtype=np.float64).copy()
++                # The APPLIED action is clipped by the shared adapter before feedback.
++                # With a passive neck the head columns are then zeroed; training exposes
++                # the same clipped/zeroed columns in its last_action observation.
++                applied_action = self.cfg.action_adapter.clip_raw_action(raw_action)
+                 if self.cfg.passive_neck:
+                     applied_action[_HEAD_IDX] = 0.0
+                 self.last_action = applied_action.copy()
+diff --git a/docs/POLICY_INTERFACE.md b/docs/POLICY_INTERFACE.md
+index 4dcf72a..3979058 100644
+--- a/docs/POLICY_INTERFACE.md
++++ b/docs/POLICY_INTERFACE.md
+@@ -28,7 +28,7 @@ Assembled in this exact order every tick:
+ | `[0:3]`     | `base_ang_vel`           | 3  | pelvis body, rad/s | Pelvis angular velocity (IMU). |
+ | `[3:34]`    | `joint_pos`              | 31 | rad | `q - default_q`, joint order below. |
+ | `[34:65]`   | `joint_vel`              | 31 | rad/s | Encoder joint velocities. |
+-| `[65:96]`   | `last_action`            | 31 | raw | The action **applied** on the previous tick: `raw_action` with the passive head columns (idx 3, 4) zeroed. |
++| `[65:96]`   | `last_action`            | 31 | raw | Previous clipped **applied** action; passive head columns (idx 3, 4) are zero. |
+ | `[96:99]`   | `projected_gravity`      | 3  | base frame, unit | Gravity direction in the base frame (IMU). |
+ | `[99:101]`  | `base_forward_xy`        | 2  | world xy, unit | Base forward unit vector projected to world XY (from IMU yaw). |
+ | `[101:103]` | `fixed_station_error_xy` | 2  | world xy, m | Fixed station position (a startup constant) minus current base XY. |
+@@ -51,8 +51,9 @@ Notes:
+ 
+ ## Action (31 dims)
+ 
+-Each tick the actor emits `raw_action[31]` in the joint order below. The two passive head
+-columns (idx 3, 4) are zeroed to form the **applied action**, which is:
++Each tick the actor emits `raw_action[31]` in the joint order below. It is clipped to
++`[-100, 100]`, then the two passive head columns (idx 3, 4) are zeroed to form the
++**applied action**, which is:
+ 1. fed back as next tick's `last_action` (so those two columns are always 0 — exactly as
+    training zeroes them in its applied-action feedback), and
+ 2. passed through the **ActionAdapter** to produce 31 joint-position targets (the head is
+@@ -60,24 +61,25 @@ columns (idx 3, 4) are zeroed to form the **applied action**, which is:
+ 
+ ### ActionAdapter
+ 
+-The public example adapter is a smoothly bounded, per-joint joint-position residual:
++The public adapter is a linear joint-position residual with one scale shared by all 31 columns:
+ 
+ ```
+-adapter_action = tanh(raw_action)
+-q_des = default_q + adapter_action * action_scale
++applied_action = clip(raw_action, -100, 100)
++adapter_action = applied_action
++q_des = default_q + adapter_action * 0.25
+ q_des = clamp(q_des, q_min, q_max)      # deterministic numeric transform, not a gate
+ ```
+ 
+-The transform and constants (`default_q`, per-joint `action_scale`, clamp limits) live in a single shared
++The action clip, transform, and constants (`default_q`, uniform `action_scale`, clamp limits) live in a single shared
+ config, `a3_deploy/a3_deploy_example/config/action_adapter.yaml`, read by **both**
+-training and the reference runner so you edit them in one place. `tanh` affects only the
+-joint-target path: `last_action` remains the original actor output with the passive head
+-columns zeroed, so the 111-D observation contract is unchanged. The mechanical clamp is a
+-final numeric fallback and never emits a failure/rejection status.
++training and the reference runner so you edit them in one place. `identity` adds no nonlinear
++compression; `last_action` is the clipped action with the passive head columns zeroed. The
++mechanical clamp is the final target bound and never emits a failure/rejection status.
+ 
+ This mapping is part of the trained policy contract. Changing its transform, default pose,
+-or scales requires retraining. The frozen 29k deployment bundle retains its legacy
+-identity/uniform-0.25 adapter for reproducibility.
++or scale requires retraining. In particular, checkpoints trained with the former
++`tanh`/per-joint mapping are incompatible. The frozen 29k deployment bundle remains an
++independent reproducibility snapshot.
+ 
+ Vendor hard limits, motor protection, communication timeouts, and physical e-stop are the
+ robot backend's responsibility; the policy code does not probe, score, certify, or bypass
+diff --git a/docs/RUN_ON_AGIBOT.md b/docs/RUN_ON_AGIBOT.md
+index f953710..3cbbd3a 100644
+--- a/docs/RUN_ON_AGIBOT.md
++++ b/docs/RUN_ON_AGIBOT.md
+@@ -81,14 +81,15 @@ Both the reference runner and training read the same
+ `a3_deploy/a3_deploy_example/config/action_adapter.yaml`:
+ 
+ ```
+-adapter_action = tanh(raw_action)
+-q_des = default_q + adapter_action * action_scale   # then a deterministic joint clamp
++applied_action = clip(raw_action, -100, 100)
++adapter_action = applied_action
++q_des = default_q + adapter_action * 0.25   # then a deterministic joint clamp
+ ```
+ 
+-The shipped `default_q`, motion-informed per-joint scales, transform, and clamp limits form one
++The shipped action clip, `default_q`, uniform `0.25` scale, transform, and clamp limits form one
+ trained-policy contract. Editing this file keeps new training and deploy in sync, but changing
+-it requires retraining. See [POLICY_INTERFACE.md](POLICY_INTERFACE.md) for the full action
+-contract.
++it requires retraining; checkpoints trained with the former `tanh`/per-joint mapping cannot be
++mixed with it. See [POLICY_INTERFACE.md](POLICY_INTERFACE.md) for the full action contract.
+ 
+ ## Runtime config
+ 
+diff --git a/docs/TRAIN_POLICY.md b/docs/TRAIN_POLICY.md
+index a205871..1fe0759 100644
+--- a/docs/TRAIN_POLICY.md
++++ b/docs/TRAIN_POLICY.md
+@@ -10,9 +10,11 @@ covers the design; exact commands and the package layout are in the
+ There is a single Gym task, `HOPE-PingPong-AgibotA3-v0` (`task=HOPEPingPong`), defined by
+ `HOPEPingPongEnvCfg`:
+ 
+-- **Two motion clips** — clip 0 forehand, clip 1 backhand — imitated by the upper body. A new clip
++- **Two motion clips** — clip 0 forehand, clip 1 backhand — imitated by the pelvis, waist, legs,
++  torso, and arms. A new clip
+   (side) is chosen per swing, so all four adjacent transitions (FH→FH, FH→BH, BH→FH, BH→BH) appear
+-  across a batch. The lower body is free to balance and recentre.
++  across a batch. The body-pose reward is anchor-relative, so global XY/yaw remain available for
++  target-directed movement while the lower body learns the reference weight transfer.
+ - **A racket-target goal** (`RacketTargetCommand`): a sampled racket target position, target
+   velocity, and time-to-strike, plus the `swing_side`, all fed to the actor.
+ - **A fixed station**: a startup-constant base target. The observation carries
+@@ -32,7 +34,7 @@ errors, and the true racket state) for its value estimate. Those never enter the
+ The example reward is a simple sum of eleven terms with **illustrative weights** — tune them:
+ 
+ 1. upright / balance
+-2. forehand-or-backhand sample imitation (upper body, gated to the swing)
++2. forehand-or-backhand sample imitation (whole body, gated to the swing)
+ 3. racket position (at the strike)
+ 4. racket velocity (at the strike)
+ 5. simplified blade direction (at the strike)
+diff --git a/docs/interfaces/policy_io.md b/docs/interfaces/policy_io.md
+index 4f4283b..7f23a4b 100644
+--- a/docs/interfaces/policy_io.md
++++ b/docs/interfaces/policy_io.md
+@@ -29,8 +29,8 @@ The policy has no reference-motion stream, no ball state, and no spin inputs.
+ 
+ ## Action (31 dims) and applied-action head zeroing
+ 
+-Each tick the actor emits `raw_action[31]`. The two passive head columns
+-(indices 3, 4) are **zeroed** to form the *applied action*, which is:
++Each tick the actor emits `raw_action[31]`. It is clipped to `[-100, 100]`, then the two
++passive head columns (indices 3, 4) are **zeroed** to form the *applied action*, which is:
+ 
+ 1. fed back as next tick's `last_action` (so those two dims are always 0 —
+    exactly as training zeroes them), and
+@@ -38,16 +38,19 @@ Each tick the actor emits `raw_action[31]`. The two passive head columns
+    (the head is held at its default angle):
+ 
+ ```text
+-adapter_action = tanh(raw_action)
+-q_des = default_q + adapter_action * action_scale
++applied_action = clip(raw_action, -100, 100)
++adapter_action = applied_action
++q_des = default_q + adapter_action * 0.25
+ q_des = clamp(q_des, q_min, q_max)     # deterministic numeric transform
+ ```
+ 
+ The transform and adapter constants live in **one** shared config,
+ [`a3_deploy/a3_deploy_example/config/action_adapter.yaml`](../../a3_deploy/a3_deploy_example/config/action_adapter.yaml),
+ read by both training and the reference deploy runner — edit it in one place.
+-The transform only changes the target path; the next observation still receives the original
+-raw actor output with passive head columns zeroed. Any mapping change requires retraining.
++The identity transform leaves the target path linear; the next observation receives the clipped
++applied action with passive head columns zeroed. The uniform scale applies to all 31 columns,
++while the passive-head mechanism independently holds the two head targets at default. Any
++mapping change requires retraining.
+ 
+ ## Continuous operation
+ 
+diff --git a/hope_training/whole_body_tracking/README.md b/hope_training/whole_body_tracking/README.md
+index e003ce0..947f9e5 100644
+--- a/hope_training/whole_body_tracking/README.md
++++ b/hope_training/whole_body_tracking/README.md
+@@ -7,7 +7,8 @@ shared by forehand and backhand, that runs at **50 Hz** and drives a table-tenni
+ - **Observation:** `float32[111]` (raw — no normalization). See [`docs/POLICY_INTERFACE.md`](../../docs/POLICY_INTERFACE.md).
+ - **Action:** `float32[31]` raw joint-position residual (joint order in
+   [`hope_training/config/joint_order_agibot_a3.yaml`](../config/joint_order_agibot_a3.yaml)).
+-  The shared adapter maps it through `tanh` and motion-informed per-joint scales;
++  The shared adapter clips actions to `[-100, 100]`, keeps a linear (`identity`) transform,
++  and uses one `0.25` scale for all columns;
+   the two passive head columns remain held at their defaults.
+ - **Task:** one Gym task, `HOPE-PingPong-AgibotA3-v0`, selected with `task=HOPEPingPong`.
+ 
+@@ -87,9 +88,10 @@ from centered subsets to their complete ranges over 200k control steps. TensorBo
+ `target_curriculum_progress`, `feet_contact_fraction`, and `both_feet_contact`.
+ It also records `station_error` (m), `base_tilt` (rad), and `base_height` (m) for balance diagnosis.
+ 
+-The bounded, per-joint ActionAdapter replaces the legacy identity/uniform-0.25 mapping and therefore
+-requires training a new checkpoint. Do not resume a legacy checkpoint under the new mapping or pair
+-one with the canonical new adapter; the frozen 29k deployment bundle retains its own legacy config.
++The canonical ActionAdapter clips the applied action to `[-100, 100]`, then uses `identity` with a
++uniform `0.25` scale and a final mechanical joint clamp. This differs from checkpoints trained with
++the former `tanh`/per-joint mapping, so start a new training run rather than resuming one of those
++checkpoints. The frozen 29k deployment bundle remains an independent provenance snapshot.
+ 
+ ## Play a checkpoint
+ 
+diff --git a/hope_training/whole_body_tracking/cfg/algo/ppo.yaml b/hope_training/whole_body_tracking/cfg/algo/ppo.yaml
+index f88d8b9..d0c159c 100644
+--- a/hope_training/whole_body_tracking/cfg/algo/ppo.yaml
++++ b/hope_training/whole_body_tracking/cfg/algo/ppo.yaml
+@@ -27,8 +27,8 @@ policy:
+   actor_hidden_dims: [512, 256, 128]
+   critic_hidden_dims: [512, 256, 128]
+   activation: elu              # elu, relu, tanh, leaky_relu, gelu, selu
+-  # Moderate initial exploration for the bounded, per-joint target domain; this
+-  # avoids random ankle saturation overwhelming the early stand curriculum.
++  # Moderate initial exploration under the linear 0.25 residual scale; this
++  # avoids random ankle targets overwhelming the early stand curriculum.
+   init_noise_std: 0.6
+   # -------------------------------------------------------------------------
+ 
+diff --git a/hope_training/whole_body_tracking/cfg/task/HOPEPingPong.yaml b/hope_training/whole_body_tracking/cfg/task/HOPEPingPong.yaml
+index e315d4a..c5247cf 100644
+--- a/hope_training/whole_body_tracking/cfg/task/HOPEPingPong.yaml
++++ b/hope_training/whole_body_tracking/cfg/task/HOPEPingPong.yaml
+@@ -8,7 +8,7 @@
+ # knobs and an optional `overrides` map for tuning.
+ #
+ # Actor observation: 111-D (contract `hope_pingpong`, unchanged). Action: 31-D raw output,
+-# mapped by the shared tanh + per-joint ActionAdapter; legacy checkpoints require their old adapter.
++# clipped to [-100, 100], then mapped by the shared identity + uniform-0.25 ActionAdapter.
+ # Control rate: 50 Hz. Forehand + backhand are learned by one policy (swing_side is an observation).
+ # =============================================================================
+ 
+diff --git a/hope_training/whole_body_tracking/scripts/mujoco_eval_onnx.py b/hope_training/whole_body_tracking/scripts/mujoco_eval_onnx.py
+index 0031f95..c0b58c1 100644
+--- a/hope_training/whole_body_tracking/scripts/mujoco_eval_onnx.py
++++ b/hope_training/whole_body_tracking/scripts/mujoco_eval_onnx.py
+@@ -758,6 +758,7 @@ class _EvaluationDiagnostics:
+     falls: int = 0
+     nonfinite_observations: int = 0
+     nonfinite_actions: int = 0
++    clipped_action_ticks: int = 0
+     saturated_action_ticks: int = 0
+     tanh_saturated_action_ticks: int = 0
+     policy_ticks: int = 0
+@@ -787,6 +788,7 @@ class _EvaluationDiagnostics:
+             "falls": self.falls,
+             "nonfinite_observations": self.nonfinite_observations,
+             "nonfinite_actions": self.nonfinite_actions,
++            "clipped_action_ticks": self.clipped_action_ticks,
+             "saturated_action_ticks": self.saturated_action_ticks,
+             "policy_ticks": self.policy_ticks,
+             "action_saturation_fraction": self.saturated_action_ticks
+@@ -1063,9 +1065,11 @@ def run_eval(args) -> dict:
+         diagnostics.max_abs_raw_action = max(
+             diagnostics.max_abs_raw_action, float(np.max(np.abs(raw_action)))
+         )
+-        # Applied action = raw with the passive head columns zeroed, matching both
+-        # the deploy runner and training's zeroed last_action feedback.
+-        applied_action = np.asarray(raw_action, dtype=np.float64).copy()
++        # Applied action = shared raw-action clip followed by passive-head zeroing,
++        # matching both the deploy runner and training's last_action feedback.
++        applied_action = runtime_cfg.action_adapter.clip_raw_action(raw_action)
++        if not np.array_equal(applied_action, np.asarray(raw_action, dtype=np.float64)):
++            diagnostics.clipped_action_ticks += 1
+         if runtime_cfg.passive_neck:
+             applied_action[head_idx] = 0.0
+         adapter_action = runtime_cfg.action_adapter.transform_raw_action(applied_action)
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/robots/agibot_a3.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/robots/agibot_a3.py
+index a86a693..751b650 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/robots/agibot_a3.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/robots/agibot_a3.py
+@@ -93,9 +93,8 @@ A3_TRACKED_BODIES = [
+     "right_wrist_yaw_Link",
+ ]
+ 
+-# Upper-body subset (torso + both arms). Used by the swing-imitation reward: the legs are excluded so
+-# the lower body is free to step/shift toward different racket targets instead of copying the clip's
+-# fixed leg motion, while upper-body imitation still supplies the swing style.
++# Optional upper-body subset (torso + both arms) for ablations. The main HOPE task intentionally
++# uses A3_TRACKED_BODIES so its swing-imitation reward also teaches pelvis/waist and leg motion.
+ A3_UPPER_TRACKED = [
+     "torso_Link",
+     "left_shoulder_roll_Link",
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/actor_observation_contract.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/actor_observation_contract.py
+index 74665d5..3e3762d 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/actor_observation_contract.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/actor_observation_contract.py
+@@ -9,7 +9,7 @@ Layout (assembly order is fixed; slices are contiguous):
+     [0:3]      base_ang_vel            pelvis angular velocity, body frame (IMU)
+     [3:34]     joint_pos               q - default_q, joint order = canonical order (encoders)
+     [34:65]    joint_vel               joint velocities (encoders)
+-    [65:96]    last_action             previous tick's applied raw action (31)
++    [65:96]    last_action             previous tick's clipped/applied action (31)
+     [96:99]    projected_gravity       gravity direction in the base frame (IMU)
+     [99:101]   base_forward_xy         base forward unit vector e_base,x, world XY
+     [101:103]  fixed_station_error_xy  fixed startup station XY minus current base XY, world (m)
+@@ -65,7 +65,7 @@ HOPE_PINGPONG = ActorObservationContract(
+         ActorObservationTerm("base_ang_vel", 3, "imu", "pelvis angular velocity in the body frame"),
+         ActorObservationTerm("joint_pos", 31, "encoders", "joint position offset from default (q - default_q)"),
+         ActorObservationTerm("joint_vel", 31, "encoders", "joint velocities"),
+-        ActorObservationTerm("last_action", 31, "runtime_state", "previous tick's applied raw action"),
++        ActorObservationTerm("last_action", 31, "runtime_state", "previous tick's clipped/applied action"),
+         ActorObservationTerm("projected_gravity", 3, "imu", "gravity direction in the base frame"),
+         ActorObservationTerm("base_forward_xy", 2, "imu", "base forward unit vector e_base,x, world XY"),
+         ActorObservationTerm(
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/agents/ppo.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/agents/ppo.py
+index 84f3006..99a5f26 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/agents/ppo.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/agents/ppo.py
+@@ -16,9 +16,8 @@ class HOPEPingPongPPORunnerCfg(RslRlOnPolicyRunnerCfg):
+     experiment_name = "hope_pingpong"
+     empirical_normalization = False  # raw observations (observation_normalization: none)
+     policy = RslRlPpoActorCriticCfg(
+-        # The per-joint target ranges are now explicit and bounded; start with
+-        # moderate exploration so randomly saturated ankles do not dominate the
+-        # early stand/reset curriculum.
++        # Keep initial exploration moderate under the linear 0.25 residual scale
++        # so random ankle targets do not dominate the early stand/reset curriculum.
+         init_noise_std=0.6,
+         actor_hidden_dims=[512, 256, 128],
+         critic_hidden_dims=[512, 256, 128],
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/hope_env_cfg.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/hope_env_cfg.py
+index 4c087c6..fcc5b2b 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/hope_env_cfg.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/hope_env_cfg.py
+@@ -9,8 +9,8 @@ One environment config, :class:`HOPEPingPongEnvCfg`, wiring:
+   and a no-spin paddle-contact/outgoing-ball evaluation for the return rewards;
+ * the 111-D actor observation (``hope_pingpong`` contract) and a privileged critic that adds
+   the 62-D reference joint stream, reference errors, and the actual racket FK state (value function only);
+-* racket-task rewards plus always-on lower-body/base stability shaping;
+-* the smoothly bounded, per-joint joint-position residual action (passive head);
++* racket-task rewards plus whole-body reference imitation and always-on stability shaping;
++* a [-100, 100]-clipped linear joint-position residual with one shared 0.25 scale (passive head);
+ * physical-fall / time-out terminations and light domain randomization.
+ 
+ Control runs at 50 Hz. The default motion set is the equal-length 1.80 s
+@@ -41,7 +41,6 @@ from whole_body_tracking.robots.agibot_a3 import (
+     A3_ROOT_BODY,
+     A3_STAND_PELVIS_HEIGHT,
+     A3_TRACKED_BODIES,
+-    A3_UPPER_TRACKED,
+     AGIBOT_A3_CFG,
+     AGIBOT_A3_JOINT_NAMES,
+     AGIBOT_A3_PASSIVE_HEAD_JOINT_NAMES,
+@@ -165,7 +164,7 @@ class CommandsCfg:
+ 
+ @configclass
+ class ActionsCfg:
+-    """31-D bounded, per-joint joint-position residual action (passive head)."""
++    """31-D clipped linear joint-position residual with one shared scale (passive head)."""
+ 
+     joint_pos = mdp.ClampedJointPositionActionCfg(
+         asset_name="robot",
+@@ -319,11 +318,16 @@ class RewardsCfg:
+         },
+     )
+ 
+-    # Forehand/backhand sample imitation (upper body, swing-gated).
++    # Forehand/backhand sample imitation (pelvis, waist, legs and arms; swing-gated).
+     imitation = RewTerm(
+         func=mdp.sample_imitation,
+         weight=1.0,
+-        params={"command_name": "motion", "std_pos": 0.3, "std_ori": 0.4, "body_names": A3_UPPER_TRACKED},
++        params={
++            "command_name": "motion",
++            "std_pos": 0.3,
++            "std_ori": 0.4,
++            "body_names": A3_TRACKED_BODIES,
++        },
+     )
+     # 3. racket position (strike window)
+     racket_position = RewTerm(
+@@ -464,7 +468,7 @@ class HOPEPingPongEnvCfg(ManagerBasedRLEnvCfg):
+         self.sim.physics_material = self.scene.terrain.physics_material
+         self.sim.physx.gpu_max_rigid_patch_count = 10 * 2**15
+ 
+-        # Robot + shared action adapter. Transform/default_q/per-joint scale/joint clamp all come
++        # Robot + shared action adapter. Transform/default_q/scale/joint clamp all come
+         # from the ONE shared config the deploy runner reads (action_adapter.yaml), so the same raw
+         # action produces the same joint targets in training and deployment. The actor observation
+         # remains the established 111-D contract (see tests/test_action_adapter_parity.py).
+@@ -472,6 +476,7 @@ class HOPEPingPongEnvCfg(ManagerBasedRLEnvCfg):
+         self.scene.robot = AGIBOT_A3_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+         self.scene.robot.init_state.joint_pos = adapter.default_q_by_name()
+         self.actions.joint_pos.raw_action_transform = adapter.raw_action_transform
++        self.actions.joint_pos.action_clip = adapter.action_clip
+         self.actions.joint_pos.scale = adapter.action_scale_by_name()
+         self.actions.joint_pos.position_clamp = adapter.position_clamp_by_name()
+ 
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_actions.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_actions.py
+index 0e314e3..28ddc53 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_actions.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_actions.py
+@@ -2,7 +2,8 @@
+ 
+ :class:`ClampedJointPositionAction` is a 31-D joint-position residual action:
+ 
+-    adapter_action = transform(raw_action)
++    applied_action = clip(raw_action, action_clip)
++    adapter_action = transform(applied_action)
+     q_des = default_q + adapter_action * action_scale
+ 
+ followed by a deterministic clamp of the position targets (a numeric transform, not a rejection
+@@ -11,13 +12,12 @@ sets it from the shared deploy ``action_adapter.yaml``) the clamp bounds are tho
+ values, so training and deployment clamp identically; without it the term falls back to the
+ articulation's soft joint limits. The policy still emits 31 raw values, but the two passive head
+ joints (idx 3, 4) are held at their articulation default and their applied-action feedback is
+-zeroed, matching a deploy runner that holds the neck passive. ``applied_raw_actions`` remains the
+-actor's original output (with passive columns zeroed) and is fed back as the next tick's
+-``last_action`` observation. A configured ``tanh`` only bounds the target-mapping path, preserving
+-the 111-D observation contract and its last-action semantics.
++zeroed, matching a deploy runner that holds the neck passive. ``applied_raw_actions`` is the
++clipped actor output (with passive columns zeroed) and is fed back as the next tick's
++``last_action`` observation.
+ 
+-The transform, residual form, ``action_scale``, ``default_q`` offset, and clamp are the shared
+-public action adapter: transform/scale/default/clamp all come from ONE file
++The raw-action clip, transform, residual form, ``action_scale``, ``default_q`` offset, and clamp
++are the shared public action adapter: all come from ONE file
+ (``a3_deploy/a3_deploy_example/config/action_adapter.yaml``) and the reference runner
+ applies the identical transform, so training and deployment agree
+ (see ``tests/test_action_adapter_parity.py``).
+@@ -25,6 +25,8 @@ applies the identical transform, so training and deployment agree
+ 
+ from __future__ import annotations
+ 
++import math
++
+ import torch
+ 
+ from isaaclab.envs.mdp.actions.actions_cfg import JointPositionActionCfg
+@@ -75,11 +77,20 @@ class ClampedJointPositionAction(JointPositionAction):
+                 "raw_action_transform must be one of ['identity', 'tanh'], "
+                 f"got {self.cfg.raw_action_transform!r}"
+             )
+-        # The actor output accepted this tick (passive columns zeroed) — fed back
+-        # unchanged as ``last_action`` even when the target path is transformed.
++        self._action_clip: tuple[float, float] | None = None
++        if self.cfg.action_clip is not None:
++            if len(self.cfg.action_clip) != 2:
++                raise RuntimeError("action_clip must contain [lower, upper]")
++            lower, upper = (float(value) for value in self.cfg.action_clip)
++            if not math.isfinite(lower) or not math.isfinite(upper):
++                raise RuntimeError("action_clip bounds must be finite")
++            if lower > upper:
++                raise RuntimeError("action_clip lower must be <= upper")
++            self._action_clip = (lower, upper)
++        # The clipped actor output accepted this tick (passive columns zeroed) —
++        # fed back as ``last_action``.
+         self._applied_raw_actions = torch.zeros_like(self._raw_actions)
+-        # The normalized residual-domain action used for q_des. Unlike
+-        # ``applied_raw_actions``, this is bounded when tanh is configured.
++        # The residual-domain action used for q_des after clipping/transform.
+         self._transformed_actions = torch.zeros_like(self._raw_actions)
+ 
+         # Explicit per-joint clamp from the shared action-adapter config (exact joint names).
+@@ -118,21 +129,27 @@ class ClampedJointPositionAction(JointPositionAction):
+ 
+     def process_actions(self, actions: torch.Tensor):
+         super().process_actions(actions)
+-        if self._raw_action_transform == "tanh":
+-            self._transformed_actions.copy_(torch.tanh(self._raw_actions))
+-            # ``super`` deliberately stores the actor's original output in
+-            # ``_raw_actions``. Recompute only the target path from tanh(raw), so
+-            # last_action retains its established observation semantics.
+-            self._processed_actions = self._transformed_actions * self._scale + self._offset
+-            if self.cfg.clip is not None:
+-                self._processed_actions = torch.clamp(
+-                    self._processed_actions,
+-                    min=self._clip[:, :, 0],
+-                    max=self._clip[:, :, 1],
++        if self._action_clip is None:
++            self._applied_raw_actions.copy_(self._raw_actions)
++        else:
++            self._applied_raw_actions.copy_(
++                torch.clamp(
++                    self._raw_actions,
++                    min=self._action_clip[0],
++                    max=self._action_clip[1],
+                 )
++            )
++        if self._raw_action_transform == "tanh":
++            self._transformed_actions.copy_(torch.tanh(self._applied_raw_actions))
+         else:
+-            self._transformed_actions.copy_(self._raw_actions)
+-        self._applied_raw_actions.copy_(self._raw_actions)
++            self._transformed_actions.copy_(self._applied_raw_actions)
++        self._processed_actions = self._transformed_actions * self._scale + self._offset
++        if self.cfg.clip is not None:
++            self._processed_actions = torch.clamp(
++                self._processed_actions,
++                min=self._clip[:, :, 0],
++                max=self._clip[:, :, 1],
++            )
+         if self._clamp_lower is not None:
+             # Shared-adapter clamp: identical bounds to the deploy ActionAdapter.
+             self._processed_actions = torch.clamp(
+@@ -180,6 +197,9 @@ class ClampedJointPositionActionCfg(JointPositionActionCfg):
+     raw_action_transform: str = "identity"
+     """Transform before residual scaling: ``identity`` (legacy) or bounded ``tanh``."""
+ 
++    action_clip: tuple[float, float] | None = None
++    """Optional global raw-action clip ``(lower, upper)`` applied before transform and feedback."""
++
+     passive_joint_names: tuple[str, ...] = ()
+     """Exact joint names held at default q and zeroed in the applied-action feedback (e.g. the head)."""
+ 
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_observations.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_observations.py
+index b3c9bca..e14dd87 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_observations.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_observations.py
+@@ -57,10 +57,10 @@ def swing_side(env: ManagerBasedRLEnv, command_name: str) -> torch.Tensor:
+ 
+ 
+ def applied_last_action(env: ManagerBasedRLEnv, action_name: str = "joint_pos") -> torch.Tensor:
+-    """Previous tick's applied raw action (31), including the zeroed passive-head columns.
++    """Previous tick's clipped/applied action (31), including zeroed passive-head columns.
+ 
+     Reads the action term's deploy-faithful ``applied_raw_actions`` rather than Isaac Lab's global
+-    ``last_action`` so the passive-head zeroing is reflected in the feedback the actor sees.
++    ``last_action`` so raw-action clipping and passive-head zeroing are reflected in feedback.
+     """
+     action_term = env.action_manager.get_term(action_name)
+     applied = getattr(action_term, "applied_raw_actions", None)
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_rewards.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_rewards.py
+index 160927c..3fd4a76 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_rewards.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_rewards.py
+@@ -1,6 +1,6 @@
+ """HOPE racket-task and lower-body stability reward terms.
+ 
+-The task-specific functions here cover upper-body imitation, racket tracking, return outcome,
++The task-specific functions here cover whole-body imitation, racket tracking, return outcome,
+ in-place recovery, and always-on base/foot stability. Generic termination, root-velocity,
+ action, acceleration, and joint-limit penalties reuse ``isaaclab.envs.mdp`` terms directly.
+ Weights and kernel widths live in the environment config.
+@@ -41,11 +41,11 @@ def sample_imitation(
+     std_ori: float = 0.4,
+     body_names: list[str] | None = None,
+ ) -> torch.Tensor:
+-    """Track the imitated clip's (upper-)body pose during the swing.
++    """Track the selected bodies from the imitated clip during the swing.
+ 
+     Combines the anchor-relative body position and orientation tracking kernels and gates them to the
+     active swing (zero during the frozen pre-swing hold). ``body_names`` selects the tracked subset
+-    (the env config passes the upper-body bodies so the legs stay free to step)."""
++    (the HOPE env passes pelvis, waist-connected torso, both legs, and both arms)."""
+     rp = _imitation.motion_relative_body_position_error_exp(env, command_name, std_pos, body_names)
+     ro = _imitation.motion_relative_body_orientation_error_exp(env, command_name, std_ori, body_names)
+     motion = env.command_manager.get_term(command_name)
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/utils/action_adapter_config.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/utils/action_adapter_config.py
+index 013502f..a7a46d8 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/utils/action_adapter_config.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/utils/action_adapter_config.py
+@@ -7,7 +7,7 @@ the training package and the reference deploy runner:
+ 
+ This module resolves that file (walking up from here to the repo root), parses it
+ against the canonical 31-joint order, and exposes the resulting ``default_q``,
+-``raw_action_transform``, ``action_scale`` and joint-position clamp arrays so
++``raw_action_transform``, raw-action clip, ``action_scale`` and joint-position clamp arrays so
+ :class:`~whole_body_tracking.tasks.tracking.config.agibot_a3.hope_env_cfg.HOPEPingPongEnvCfg`
+ can wire them into the articulation default pose and the action term. The deploy
+ runner applies the identical transform through its own ``ActionAdapter``:
+@@ -197,20 +197,27 @@ class ActionAdapterConfig:
+     clamp_lower: np.ndarray   # (31,) rad
+     clamp_upper: np.ndarray   # (31,) rad
+     raw_action_transform: str = "identity"
++    action_clip: tuple[float, float] | None = None
+ 
+-    def transform_raw_action(self, raw_action: np.ndarray) -> np.ndarray:
+-        """Apply the configured bounded-domain transform without changing its shape.
+-
+-        ``identity`` is the backward-compatible behavior for legacy YAML files.
+-        ``tanh`` smoothly maps arbitrary actor outputs into ``(-1, 1)`` before the
+-        per-joint residual scale is applied. The actor's original output remains the
+-        ``last_action`` observation; this method only defines the joint-target path.
+-        """
++    def clip_raw_action(self, raw_action: np.ndarray) -> np.ndarray:
++        """Clip actor output to the configured applied-action interval."""
+         raw = np.asarray(raw_action, dtype=np.float64)
+         if raw.ndim == 0 or raw.shape[-1] != len(self.joint_names):
+             raise ValueError(
+                 f"raw_action trailing dimension must be {len(self.joint_names)}, got {raw.shape}"
+             )
++        if self.action_clip is None:
++            return raw.copy()
++        return np.clip(raw, self.action_clip[0], self.action_clip[1])
++
++    def transform_raw_action(self, raw_action: np.ndarray) -> np.ndarray:
++        """Apply the configured bounded-domain transform without changing its shape.
++
++        The optional action clip is applied first. ``identity`` is the
++        backward-compatible transform for legacy YAML files; ``tanh`` remains
++        available for checkpoints trained with that older contract.
++        """
++        raw = self.clip_raw_action(raw_action)
+         if self.raw_action_transform == "identity":
+             return raw.copy()
+         if self.raw_action_transform == "tanh":
+@@ -267,6 +274,19 @@ def _resolve_raw_action_transform(spec) -> str:
+     return transform
+ 
+ 
++def _resolve_action_clip(spec) -> tuple[float, float] | None:
++    """Normalize an optional global ``[lower, upper]`` raw-action clip."""
++    if spec is None:
++        return None
++    values = np.asarray(spec, dtype=np.float64).reshape(-1)
++    if values.shape != (2,) or not np.all(np.isfinite(values)):
++        raise ValueError("action_clip must contain two finite values: [lower, upper]")
++    lower, upper = float(values[0]), float(values[1])
++    if lower > upper:
++        raise ValueError("action_clip lower must be <= upper")
++    return lower, upper
++
++
+ def load_action_adapter_config(
+     path: str | None = None, joint_names: tuple[str, ...] | None = None
+ ) -> ActionAdapterConfig:
+@@ -278,6 +298,7 @@ def load_action_adapter_config(
+ 
+     default_q = _resolve_per_joint(doc["default_q"], joint_names, "default_q")
+     raw_action_transform = _resolve_raw_action_transform(doc.get("raw_action_transform"))
++    action_clip = _resolve_action_clip(doc.get("action_clip"))
+ 
+     scale_spec = doc["action_scale"]
+     if isinstance(scale_spec, (int, float)):
+@@ -298,4 +319,5 @@ def load_action_adapter_config(
+         clamp_lower=clamp_lower,
+         clamp_upper=clamp_upper,
+         raw_action_transform=raw_action_transform,
++        action_clip=action_clip,
+     )
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/utils/exporter.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/utils/exporter.py
+index c31990e..b7c8992 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/utils/exporter.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/utils/exporter.py
+@@ -29,7 +29,7 @@ CONTRACT_NAME = "hope_pingpong"
+ OBS_DIM = 111
+ ACTION_DIM = 31
+ CONTROL_RATE_HZ = 50
+-# The ActionAdapter transform/constants (raw transform, default_q, per-joint scales, clamp limits)
++# The ActionAdapter contract (action clip/transform, default_q, scale, joint clamp limits)
+ # are referenced by path and read by BOTH training and the reference runner. They are not baked
+ # into the policy.
+ ACTION_ADAPTER_CONFIG = "a3_deploy/a3_deploy_example/config/action_adapter.yaml"
+diff --git a/hope_training/whole_body_tracking/tests/test_action_adapter_parity.py b/hope_training/whole_body_tracking/tests/test_action_adapter_parity.py
+index 1ffc5e1..71f9a2a 100644
+--- a/hope_training/whole_body_tracking/tests/test_action_adapter_parity.py
++++ b/hope_training/whole_body_tracking/tests/test_action_adapter_parity.py
+@@ -4,7 +4,8 @@ Both sides must read the SAME shared configuration
+ (``a3_deploy/a3_deploy_example/config/action_adapter.yaml``) and map an identical
+ raw action to identical joint-position targets:
+ 
+-    adapter_action = transform(raw_action)
++    applied_action = clip(raw_action, shared action clip)
++    adapter_action = transform(applied_action)
+     q_des = default_q + adapter_action * action_scale
+     q_des = clip(q_des, shared per-joint clamp)
+ 
+@@ -84,9 +85,11 @@ def test_joint_order_matches_deploy():
+ 
+ def test_constants_identical():
+     deploy, training = _both()
+-    assert training.raw_action_transform == deploy.raw_action_transform == "tanh"
++    assert training.raw_action_transform == deploy.raw_action_transform == "identity"
++    assert training.action_clip == deploy.action_clip == (-100.0, 100.0)
+     np.testing.assert_array_equal(training.default_q, deploy.default_q)
+     np.testing.assert_array_equal(training.action_scale, deploy.action_scale)
++    np.testing.assert_array_equal(training.action_scale, np.full(NUM_JOINTS, 0.25))
+     np.testing.assert_array_equal(training.clamp_lower, deploy.clamp_lower)
+     np.testing.assert_array_equal(training.clamp_upper, deploy.clamp_upper)
+ 
+@@ -100,8 +103,8 @@ def test_decode_parity_on_representative_actions():
+         -np.ones(NUM_JOINTS),
+         rng.uniform(-3.0, 3.0, NUM_JOINTS),
+         rng.standard_normal(NUM_JOINTS) * 0.5,
+-        np.full(NUM_JOINTS, 50.0),    # saturates tanh at its positive residual bound
+-        np.full(NUM_JOINTS, -50.0),   # saturates tanh at its negative residual bound
++        np.full(NUM_JOINTS, 200.0),    # exercises action clip + positive joint clamp
++        np.full(NUM_JOINTS, -200.0),   # exercises action clip + negative joint clamp
+     ]
+     for raw in cases:
+         np.testing.assert_allclose(
+@@ -113,28 +116,32 @@ def test_decode_parity_on_representative_actions():
+         np.testing.assert_allclose(training.decode(raw), deploy.decode(raw), rtol=0, atol=0)
+ 
+ 
+-def test_tanh_bounds_target_mapping_but_not_the_public_raw_action():
+-    """Arbitrarily large actor output can only request one configured residual bound."""
++def test_linear_mapping_clips_actions_before_scale_and_mechanical_clamp():
++    """The shared mapping clips to [-100, 100], then applies the linear 0.25 scale."""
+     deploy, training = _both()
+-    raw = np.linspace(-1.0e6, 1.0e6, NUM_JOINTS)
+-    expected_adapter_action = np.tanh(raw)
++    raw = np.linspace(-200.0, 200.0, NUM_JOINTS)
++    expected_adapter_action = np.clip(raw, -100.0, 100.0)
+ 
+-    np.testing.assert_array_equal(training.transform_raw_action(raw), expected_adapter_action)
++    np.testing.assert_array_equal(training.clip_raw_action(raw), expected_adapter_action)
++    np.testing.assert_array_equal(deploy.clip_raw_action(raw), expected_adapter_action)
++    np.testing.assert_array_equal(
++        training.transform_raw_action(raw), expected_adapter_action
++    )
+     np.testing.assert_array_equal(deploy.transform_raw_action(raw), expected_adapter_action)
+-    assert np.max(np.abs(expected_adapter_action)) <= 1.0
+ 
+     expected_q = np.clip(
+-        training.default_q + expected_adapter_action * training.action_scale,
++        training.default_q + expected_adapter_action * 0.25,
+         training.clamp_lower,
+         training.clamp_upper,
+     )
+     np.testing.assert_array_equal(training.decode(raw), expected_q)
++    np.testing.assert_array_equal(deploy.decode(raw), expected_q)
+ 
+ 
+-def test_per_joint_scales_cover_guarded_reference_motion_with_bounded_legs():
+-    """The new bounds retain both guarded strokes without reopening mechanical ranges."""
++def test_uniform_scale_can_reconstruct_both_guarded_reference_motions():
++    """Identity + 0.25 can represent every reference pose before the safety clamp."""
+     _deploy, training = _both()
+-    assert np.unique(training.action_scale).size > 8
++    np.testing.assert_array_equal(training.action_scale, np.full(NUM_JOINTS, 0.25))
+ 
+     motion_dir = os.path.join(_REPO, "hope_training", "motions", "preprocessed")
+     clips = (
+@@ -143,39 +150,19 @@ def test_per_joint_scales_cover_guarded_reference_motion_with_bounded_legs():
+     )
+     for clip in clips:
+         joint_pos = np.load(os.path.join(motion_dir, clip))["joint_pos"]
+-        residual = np.abs(joint_pos - training.default_q)
+-        assert np.all(
+-            residual < training.action_scale + 1.0e-6
+-        ), f"{clip} exceeds one or more configured residual bounds"
+-
+-    scales = training.action_scale_by_name()
+-    assert scales["head_yaw_joint"] == scales["head_pitch_joint"] == 0.0
+-    for name in JOINT_NAMES[19:]:
+-        assert scales[name] <= 0.58, name
+-        index = JOINT_NAMES.index(name)
+-        # Every bounded lower-body target stays inside the mechanical fallback,
+-        # so the policy cannot exploit a hidden leg/ankle clamp plateau.
+-        assert (
+-            training.default_q[index] - training.action_scale[index]
+-            >= training.clamp_lower[index]
+-        ), name
+-        assert (
+-            training.default_q[index] + training.action_scale[index]
+-            <= training.clamp_upper[index]
+-        ), name
+-    for name in (
+-        "left_ankle_roll_joint",
+-        "right_ankle_pitch_joint",
+-        "right_ankle_roll_joint",
+-    ):
+-        assert scales[name] <= 0.24, name
+-
+-
+-def test_legacy_yaml_without_transform_keeps_identity_and_scalar_scale():
+-    """Old private configs load exactly as the pre-tanh adapter did."""
++        assert np.all(joint_pos >= training.clamp_lower - 1.0e-6), clip
++        assert np.all(joint_pos <= training.clamp_upper + 1.0e-6), clip
++        raw_action = (joint_pos - training.default_q) / 0.25
++        decoded = np.stack([training.decode(raw) for raw in raw_action])
++        np.testing.assert_allclose(decoded, joint_pos, rtol=0, atol=1.0e-6)
++
++
++def test_legacy_yaml_without_transform_or_action_clip_remains_supported():
++    """Older configs without the two optional fields retain their original behavior."""
+     with open(_SHARED_YAML, "r", encoding="utf-8") as fh:
+         legacy = yaml.safe_load(fh)
+     legacy.pop("raw_action_transform", None)
++    legacy.pop("action_clip", None)
+     legacy["action_scale"] = 0.25
+ 
+     with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", encoding="utf-8") as fh:
+@@ -185,6 +172,7 @@ def test_legacy_yaml_without_transform_keeps_identity_and_scalar_scale():
+         training = train_side.load_action_adapter_config(path=fh.name)
+ 
+     assert deploy.raw_action_transform == training.raw_action_transform == "identity"
++    assert deploy.action_clip is training.action_clip is None
+     np.testing.assert_array_equal(training.action_scale, np.full(NUM_JOINTS, 0.25))
+     raw = np.linspace(-2.0, 2.0, NUM_JOINTS)
+     expected = np.clip(
+@@ -201,6 +189,7 @@ def test_frozen_29k_bundle_keeps_its_legacy_action_contract():
+     assert os.path.isfile(_LEGACY_BUNDLE_YAML)
+     legacy = ActionAdapter.from_yaml(_LEGACY_BUNDLE_YAML)
+     assert legacy.raw_action_transform == "identity"
++    assert legacy.action_clip is None
+     np.testing.assert_array_equal(legacy.action_scale, np.full(NUM_JOINTS, 0.25))
+ 
+ 
+diff --git a/hope_training/whole_body_tracking/tests/test_balance_configuration.py b/hope_training/whole_body_tracking/tests/test_balance_configuration.py
+index 4787953..b28e1ef 100644
+--- a/hope_training/whole_body_tracking/tests/test_balance_configuration.py
++++ b/hope_training/whole_body_tracking/tests/test_balance_configuration.py
+@@ -20,6 +20,11 @@ ENV_CFG = (
+     / "source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3"
+     / "hope_env_cfg.py"
+ )
++ROBOT_CFG = (
++    ROOT
++    / "source/whole_body_tracking/whole_body_tracking/robots"
++    / "agibot_a3.py"
++)
+ 
+ 
+ def _tree() -> ast.Module:
+@@ -52,6 +57,13 @@ def _call_keyword(call: ast.Call, keyword: str):
+     raise AssertionError(f"call is missing {keyword}=...")
+ 
+ 
++def _call_keyword_node(call: ast.Call, keyword: str) -> ast.AST:
++    for item in call.keywords:
++        if item.arg == keyword:
++            return item.value
++    raise AssertionError(f"call is missing {keyword}=...")
++
++
+ def _mdp_function(call: ast.Call) -> str:
+     func_keyword = next(item.value for item in call.keywords if item.arg == "func")
+     assert isinstance(func_keyword, ast.Attribute)
+@@ -103,6 +115,46 @@ def test_stability_rewards_and_earlier_fall_boundaries_are_wired():
+     assert _call_keyword(too_low, "params") == {"min_height": 0.75}
+ 
+ 
++def test_motion_reward_imitates_pelvis_waist_legs_and_arms():
++    tree = _tree()
++    commands = _class(tree, "CommandsCfg")
++    motion = _assignment(commands, "motion")
++    rewards = _class(tree, "RewardsCfg")
++    imitation = _assignment(rewards, "imitation")
++    assert isinstance(motion, ast.Call) and isinstance(imitation, ast.Call)
++
++    motion_bodies = _call_keyword_node(motion, "body_names")
++    assert isinstance(motion_bodies, ast.Name) and motion_bodies.id == "A3_TRACKED_BODIES"
++
++    params = _call_keyword_node(imitation, "params")
++    assert isinstance(params, ast.Dict)
++    body_names = next(
++        value
++        for key, value in zip(params.keys, params.values)
++        if isinstance(key, ast.Constant) and key.value == "body_names"
++    )
++    assert isinstance(body_names, ast.Name) and body_names.id == "A3_TRACKED_BODIES"
++
++    robot_tree = ast.parse(ROBOT_CFG.read_text(encoding="utf-8"))
++    tracked_node = next(
++        node.value
++        for node in robot_tree.body
++        if isinstance(node, ast.Assign)
++        and any(isinstance(target, ast.Name) and target.id == "A3_TRACKED_BODIES" for target in node.targets)
++    )
++    tracked = set(ast.literal_eval(tracked_node))
++    assert {
++        "pelvis_link",
++        "torso_Link",
++        "left_hip_roll_Link",
++        "left_knee_Link",
++        "left_ankle_roll_Link",
++        "right_hip_roll_Link",
++        "right_knee_Link",
++        "right_ankle_roll_Link",
++    } <= tracked
++
++
+ def test_actor_observation_terms_remain_the_111d_contract():
+     observations = _class(_tree(), "ObservationsCfg")
+     policy = _nested_class(observations, "PolicyCfg")
+@@ -128,12 +180,13 @@ def test_actor_observation_terms_remain_the_111d_contract():
+     ]
+ 
+ 
+-def test_env_wires_the_shared_action_transform_without_touching_observations():
++def test_env_wires_the_shared_action_transform_clip_and_scale():
+     source = ENV_CFG.read_text(encoding="utf-8")
+     assert (
+         "self.actions.joint_pos.raw_action_transform = adapter.raw_action_transform"
+         in source
+     )
++    assert "self.actions.joint_pos.action_clip = adapter.action_clip" in source
+     assert "self.actions.joint_pos.scale = adapter.action_scale_by_name()" in source
+ 
+ 
+diff --git a/hope_training/whole_body_tracking/tests/test_passive_head_feedback.py b/hope_training/whole_body_tracking/tests/test_passive_head_feedback.py
+index ffb5bf8..bebe257 100644
+--- a/hope_training/whole_body_tracking/tests/test_passive_head_feedback.py
++++ b/hope_training/whole_body_tracking/tests/test_passive_head_feedback.py
+@@ -2,8 +2,8 @@
+ 
+ Training zeroes the passive head columns (idx 3, 4) in the applied action before it is
+ exposed as the ``last_action`` observation. The deploy runner and the MuJoCo evaluator
+-must do the same — the actor must never see nonzero values in observation columns that
+-were always zero during training.
++must first apply the same shared raw-action clip and then do the same head zeroing — the
++actor must never see values that the target path did not accept.
+ 
+ This drives the REAL ``PingPongReferenceRunner`` tick loop with a fake bridge and a fake
+ policy (no MuJoCo / onnxruntime needed) and asserts:
+@@ -117,20 +117,26 @@ def test_head_targets_written_at_default():
+         np.testing.assert_allclose(q_des[_HEAD], cfg.action_adapter.default_q[_HEAD])
+ 
+ 
+-def test_tanh_bounds_targets_without_changing_last_action_feedback():
+-    raw_value = 20.0
++def test_action_clip_is_reflected_in_targets_and_last_action_feedback():
++    raw_value = 200.0
+     cfg, bridge, policy, runner = _run_ticks(2, raw_value=raw_value)
+-    expected_raw = np.full(NUM_JOINTS, raw_value, dtype=np.float64)
+-    expected_raw[_HEAD] = 0.0
+-
+-    # Observation semantics are deliberately unchanged: raw actor output is fed
+-    # back, while only the target path passes through tanh.
+-    np.testing.assert_array_equal(runner.last_action, expected_raw)
+-    np.testing.assert_array_equal(policy.seen_obs[1][_LAST_ACTION_SLICE], expected_raw)
+-    np.testing.assert_array_equal(bridge.written_q_des[-1], cfg.action_adapter.decode(expected_raw))
+-
+-    target_residual = np.abs(bridge.written_q_des[-1] - cfg.action_adapter.default_q)
+-    assert np.all(target_residual <= cfg.action_adapter.action_scale + 1.0e-12)
++    expected_applied = np.full(NUM_JOINTS, 100.0, dtype=np.float64)
++    expected_applied[_HEAD] = 0.0
++
++    # Training and deploy both feed back the action that was actually accepted:
++    # global [-100, 100] clipping followed by passive-head zeroing.
++    assert cfg.action_adapter.raw_action_transform == "identity"
++    assert cfg.action_adapter.action_clip == (-100.0, 100.0)
++    np.testing.assert_array_equal(runner.last_action, expected_applied)
++    np.testing.assert_array_equal(policy.seen_obs[1][_LAST_ACTION_SLICE], expected_applied)
++    np.testing.assert_array_equal(
++        bridge.written_q_des[-1], cfg.action_adapter.decode(expected_applied)
++    )
++
++    target = bridge.written_q_des[-1]
++    assert np.all(target >= cfg.action_adapter.clamp_lower)
++    assert np.all(target <= cfg.action_adapter.clamp_upper)
++    assert np.any(target[_ACTUATED] == cfg.action_adapter.clamp_upper[_ACTUATED])
+ 
+ 
+ def main() -> int:

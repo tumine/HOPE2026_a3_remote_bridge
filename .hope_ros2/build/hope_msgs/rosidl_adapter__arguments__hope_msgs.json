@@ -1,0 +1,6 @@
+{
+  "package_name": "hope_msgs",
+  "non_idl_tuples": [
+    "/home/bth/workspace/a3_remote_bridge/26.7.25发球部署/pingpang_ustc-srf/hope_ws/src/hope_msgs:msg/RacketCommand.msg"
+  ]
+}

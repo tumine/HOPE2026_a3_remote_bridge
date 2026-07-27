@@ -1,0 +1,13 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/hope_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/hope_msgs/msg/detail/dds_fastrtps/racket_command__type_support.cpp.o"
+  "CMakeFiles/hope_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/hope_msgs/msg/detail/dds_fastrtps/racket_command__type_support.cpp.o.d"
+  "libhope_msgs__rosidl_typesupport_fastrtps_cpp.pdb"
+  "libhope_msgs__rosidl_typesupport_fastrtps_cpp.so"
+  "rosidl_typesupport_fastrtps_cpp/hope_msgs/msg/detail/dds_fastrtps/racket_command__type_support.cpp"
+  "rosidl_typesupport_fastrtps_cpp/hope_msgs/msg/detail/racket_command__rosidl_typesupport_fastrtps_cpp.hpp"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/hope_msgs__rosidl_typesupport_fastrtps_cpp.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

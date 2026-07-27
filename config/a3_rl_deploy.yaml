@@ -1,0 +1,83 @@
+# PC-side commissioning limits for model_21500 + PPMocap live deployment.
+
+control_hz: 50.0
+policy_blend: 1.0
+
+default_pose:
+  ramp_s: 5.0
+  settle_s: 1.0
+  max_position_error_rad: 0.15
+  max_velocity_rad_s: 0.25
+  # Used only for P/default-pose acquisition. D restores exact training gains.
+  kp_scale: 2.0
+  kd_scale: 2.0
+
+policy_warmup_s: 3.0
+stop_ready_duration_s: 2.0
+zero_gain_ticks: 15
+
+safety:
+  max_state_age_s: 0.08
+  max_mocap_age_s: 1.0
+  # Policy dynamic lean can exceed the former 20.05 deg commissioning limit.
+  # Keep a finite fall guard at 30 deg instead of disabling attitude safety.
+  max_base_tilt_rad: 0.5235987756
+  # This is a numerical-fault limit, not the ActionAdapter clip. The trained
+  # mapping itself clips each raw action to [-100,100] before feedback/decoding.
+  max_abs_raw_action: 1000.0
+  max_inference_time_ms: 15.0
+  max_pending_acks: 25
+
+mocap:
+  input_topic: /ppmocap/frame
+  planner_input_topic: /a3_mocap/ball_poses
+  planner_command_topic: /racket/command
+  canonical_frame: hope_table
+
+  # Lock the table only after a short stable synchronized sample window.
+  calibration_samples: 20
+  calibration_translation_jitter_m: 0.02
+  calibration_rotation_jitter_deg: 2.0
+
+  table:
+    length_m: 2.74
+    width_m: 1.525
+    # PPMocap's tracked table origin is 1 cm above the physical surface.
+    surface_down_offset_m: 0.01
+
+  # Pose of the pelvis origin expressed in the FZMotion BotA3 rigid-body frame.
+  # These zeros are valid ONLY if BotA3 was authored with its origin/orientation
+  # coincident with the pelvis frame. Measure and update before real ball tests.
+  robot_marker_to_pelvis:
+    translation_m: [0.0, 0.0, 0.0]
+    rpy_rad: [0.0, 0.0, 0.0]
+
+  validation:
+    # HOPE planner/training station in canonical table coordinates. Only XY is
+    # fixed here; pelvis Z is checked separately below.
+    expected_station_xy: [-0.50, -0.7625]
+    # MuJoCo/Isaac first-frame pelvis [0,0,1.0664] expressed in the canonical
+    # table frame by subtracting table->simulation [0.5,0.7625,0.76]. READY
+    # locks one virtual world target at this base plus ready_target_rel_base_w.
+    sim_reference_base_table_xyz: [-0.50, -0.7625, 0.3064]
+    # Training reset is only +/-0.02 m per axis.  The live commissioning gate
+    # is deliberately wider to admit the currently suspended setup; this does
+    # not make a 0.55 m station offset part of the trained distribution.
+    station_tolerance_m: 0.55
+    # Table-surface-relative pelvis height. Training stand is
+    # 1.0664 m above floor and the tabletop is 0.76 m above floor, hence
+    # 0.3064 m in this canonical frame (reset noise is only +/-0.005 m).
+    # Keep this gate narrow enough to reject an uncalibrated BotA3 marker origin.
+    base_height_range_m: [0.25, 0.36]
+    # Training reset yaw range is +/-0.08 rad (~4.6 deg).  The live gate is
+    # wider for commissioning, but still requires the pelvis forward axis to
+    # face generally toward the opponent side of the table.
+    max_heading_error_deg: 90.0
+    require_planner: true
+
+visualization:
+  # The canonical hope_table origin is on the tabletop.  The training/MuJoCo
+  # ground is 0.76 m below it, so the robot feet and RViz floor align.
+  mocap_world_frame: world
+  ground_frame: hope_ground
+  ground_z_m: -0.76

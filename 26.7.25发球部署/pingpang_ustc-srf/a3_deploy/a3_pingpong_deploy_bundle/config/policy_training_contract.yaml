@@ -1,0 +1,108 @@
+# Frozen command, motion, and action summary for the bundled model_21500.pt.
+# The authoritative unabridged snapshots are in ../provenance/.
+
+policy_generation: full_body_uniform_action_return_physics_v1
+source_run: 2026-07-26_01-47-04
+source_checkpoint: model_21500.pt
+checkpoint_iteration: 21500
+source_base_commit: 42530cac9717642176a70d43bafdce0a2b0c5e08
+
+motion:
+  forehand: hope_training/motions/preprocessed/ours_forehand_guarded_1p8s_wrist_x.npz
+  backhand: hope_training/motions/preprocessed/ours_backhand_guarded_1p8s.npz
+  sample_rate_hz: 50
+  frames_per_clip: [91, 91]
+  strike_frame_per_clip: [50, 50]
+  strike_phase_per_clip: [0.5555555555555556, 0.5555555555555556]
+  strike_window_s: 0.12
+  lead_time_s: 1.0
+  follow_through_s: 0.8
+  hold_steps_range: [0, 100]
+  mount_normal_axis: 1
+  mount_normal_sign_per_clip: [1.0, -1.0]
+  imitation_bodies:
+    - pelvis_link
+    - left_hip_roll_Link
+    - left_knee_Link
+    - left_ankle_roll_Link
+    - right_hip_roll_Link
+    - right_knee_Link
+    - right_ankle_roll_Link
+    - torso_Link
+    - left_shoulder_roll_Link
+    - left_elbow_Link
+    - left_wrist_yaw_Link
+    - right_shoulder_roll_Link
+    - right_elbow_Link
+    - right_wrist_yaw_Link
+
+action:
+  raw_action_transform: identity
+  action_clip: [-100.0, 100.0]
+  action_scale: 0.25
+  passive_joint_indices: [3, 4]
+  passive_joint_names: [head_yaw_joint, head_pitch_joint]
+
+# x/y are fixed-station-relative; z is world height.
+racket_position_box:
+  forehand:
+    x: [0.18, 0.40]
+    y: [-0.76, -0.52]
+    z: [1.00, 1.21]
+  backhand:
+    x: [0.45, 0.75]
+    y: [-0.30, 0.10]
+    z: [0.84, 1.10]
+
+# World-axis target racket velocity.
+racket_velocity_box:
+  forehand:
+    x: [1.75, 3.40]
+    y: [0.25, 1.10]
+    z: [0.35, 1.45]
+  backhand:
+    x: [1.05, 3.00]
+    y: [-0.25, 0.50]
+    z: [0.45, 1.45]
+
+incoming_ball_velocity_box:
+  forehand:
+    x: [-2.40, -0.90]
+    y: [-0.35, 0.35]
+    z: [-2.20, 1.00]
+  backhand:
+    x: [-2.30, -0.80]
+    y: [-0.35, 0.35]
+    z: [-2.80, 1.00]
+
+target_curriculum:
+  duration_steps: 200000
+  position_initial_fraction: 0.35
+  incoming_velocity_initial_fraction: 0.40
+  racket_velocity_initial_fraction: 0.50
+
+planner_target:
+  enabled_during_training: true
+  landing_table_surface_xyz: [2.055, -0.7625, 0.02]
+  flight_time_s: 0.5
+
+return_evaluator:
+  contact_radius_m: 0.095
+  min_relative_normal_speed_mps: 0.3
+  integration_dt_s: 0.01
+  max_time_s: 2.0
+  success_sequence: contact_at_strike_then_net_clear_then_first_opponent_bounce
+
+ready_observation_anchor:
+  racket_target_rel_base_w: [0.3201315701007843, -0.6952511668205261, -0.057795558124780655]
+  racket_target_vel_w: [2.3803303241729736, 0.6271703243255615, 1.0374835729599]
+  time_to_strike_s: 1.0
+  swing_side: 1
+
+table:
+  near_edge_x_relative_to_station_m: 0.5
+  surface_z_m: 0.76
+  length_m: 2.74
+  width_m: 1.525
+  net_x_from_near_edge_m: 1.37
+  net_height_m: 0.1525

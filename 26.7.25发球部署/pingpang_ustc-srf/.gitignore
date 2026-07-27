@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Isaac Lab / training outputs
+logs/
+outputs/
+checkpoints/
+*.pt
+*.pth
+
+# Exported policies (regenerate with scripts/export_onnx.py)
+*.onnx
+!**/tests/**/*.onnx
+# The reviewed A3 handoff bundle intentionally carries its deployable actor.
+!a3_deploy/a3_pingpong_deploy_bundle/policy/hope_pingpong.onnx
+# The runnable clean-room example carries the same reviewed actor at its default path.
+!a3_deploy/a3_deploy_example/models/hope_pingpong.onnx
+
+# ROS 2 workspace build artifacts
+hope_ws/build/
+hope_ws/install/
+hope_ws/log/
+
+# Generated / downloaded robot assets (see docs/RUN_ON_AGIBOT.md)
+hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/assets/**/*.usd
+a3_deploy/URDF/A3*/
+
+# Machine-local Isaac paths (copied from setup_train_env.local.example.sh)
+hope_training/whole_body_tracking/setup_train_env.local.sh
+
+# OS / editor
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/

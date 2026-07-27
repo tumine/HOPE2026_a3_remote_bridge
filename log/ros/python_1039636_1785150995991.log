@@ -1,0 +1,31 @@
+[WARN] [1785150996.357834024] [a3_pc_rl_deploy]: model_21500 runner in OBSERVE: actuation=ENABLED; waiting for synchronized MDU state + PPMocap table/base calibration; P then D are both required
+[INFO] [1785150996.358002917] [a3_pc_rl_deploy]: HOTKEYS (no Enter): P=default pose; D=enter live policy after all gates; I=status; C=recalibrate table (OBSERVE only); S=normal stop; X=immediate halt; H=help; Q=quit (OBSERVE only). There are no F/B synthetic-ball keys: live planner commands select each swing.
+[WARN] [1785150996.515158569] [a3_pc_rl_deploy]: PPMOCAP CALIBRATED: canonical origin=near-left tabletop; +X=robot-to-opponent +Y=robot-left +Z=up
+[WARN] [1785150999.049247599] [a3_pc_rl_deploy]: DEFAULT POSE START: 5.0s ramp; D remains locked until pose and PPMocap/planner gates are ready
+[WARN] [1785151004.029434636] [a3_pc_rl_deploy]: DEFAULT_HOLD: waiting for pose settling
+[WARN] [1785151012.149568079] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; mocap/planner_ready=yes
+[WARN] [1785151016.549663026] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; mocap/planner_ready=yes
+[WARN] [1785151019.369815689] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; mocap/planner_ready=yes
+[INFO] [1785151046.909269414] [a3_pc_rl_deploy]: already holding the training default pose
+[WARN] [1785151049.729329596] [a3_pc_rl_deploy]: POLICY ARMED BY D: 3.0s READY warmup; live planner commands remain blocked until warmup completes; base pose/yaw now come from PPMocap
+[WARN] [1785151052.709731487] [a3_pc_rl_deploy]: POLICY_ACTIVE: validated READY is running; live /racket/command enabled
+[WARN] [1785151114.429779862] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=1 side=forehand tts=0.870s
+[WARN] [1785151116.089808185] [a3_pc_rl_deploy]: BALL COMPLETE: task=1 total=1; READY restored
+[WARN] [1785151177.549798461] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=2 side=backhand tts=0.599s
+[WARN] [1785151179.449784692] [a3_pc_rl_deploy]: BALL COMPLETE: task=2 total=2; READY restored
+[WARN] [1785151208.569788054] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=3 side=backhand tts=0.855s
+[WARN] [1785151209.929674534] [a3_pc_rl_deploy]: BALL COMPLETE: task=3 total=3; READY restored
+[WARN] [1785151270.270109354] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=4 side=backhand tts=0.860s
+[WARN] [1785151271.849789625] [a3_pc_rl_deploy]: BALL COMPLETE: task=4 total=4; READY restored
+[WARN] [1785151304.089969497] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=5 side=backhand tts=0.568s
+[WARN] [1785151305.469791618] [a3_pc_rl_deploy]: BALL COMPLETE: task=5 total=5; READY restored
+[WARN] [1785151305.549655462] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=6 side=backhand tts=0.818s
+[WARN] [1785151307.189801493] [a3_pc_rl_deploy]: BALL COMPLETE: task=6 total=6; READY restored
+[WARN] [1785151386.049839163] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=7 side=backhand tts=0.573s
+[WARN] [1785151387.589792256] [a3_pc_rl_deploy]: BALL COMPLETE: task=7 total=7; READY restored
+[WARN] [1785151459.729726888] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=8 side=forehand tts=0.494s
+[WARN] [1785151461.129788216] [a3_pc_rl_deploy]: BALL COMPLETE: task=8 total=8; READY restored
+[WARN] [1785151550.429743201] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=9 side=backhand tts=0.459s
+[WARN] [1785151551.689694588] [a3_pc_rl_deploy]: BALL COMPLETE: task=9 total=9; READY restored
+[ERROR] [1785151674.529347164] [a3_pc_rl_deploy]: HALT: operator immediate halt
+[WARN] [1785151674.809473744] [a3_pc_rl_deploy]: zero-gain stop complete

@@ -1,0 +1,16 @@
+[WARN] [1785147225.261511484] [a3_pc_rl_deploy]: model_21500 runner in OBSERVE: actuation=ENABLED; waiting for synchronized MDU state + PPMocap table/base calibration; P then D are both required
+[INFO] [1785147225.261664160] [a3_pc_rl_deploy]: HOTKEYS (no Enter): P=default pose; D=enter live policy after all gates; I=status; C=recalibrate table (OBSERVE only); S=normal stop; X=immediate halt; H=help; Q=quit (OBSERVE only). There are no F/B synthetic-ball keys: live planner commands select each swing.
+[WARN] [1785147225.414727078] [a3_pc_rl_deploy]: PPMOCAP CALIBRATED: canonical origin=near-left tabletop; +X=robot-to-opponent +Y=robot-left +Z=up
+[WARN] [1785147225.913083371] [a3_pc_rl_deploy]: DEFAULT POSE START: 5.0s ramp; D remains locked until pose and PPMocap/planner gates are ready
+[WARN] [1785147230.893435668] [a3_pc_rl_deploy]: DEFAULT_HOLD: waiting for pose settling
+[WARN] [1785147231.893507339] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; mocap/planner_ready=yes
+[WARN] [1785147256.053169810] [a3_pc_rl_deploy]: POLICY ARMED BY D: 3.0s READY warmup; live planner commands remain blocked until warmup completes; base pose/yaw now come from PPMocap
+[WARN] [1785147259.033484690] [a3_pc_rl_deploy]: POLICY_ACTIVE: validated READY is running; live /racket/command enabled
+[WARN] [1785147314.613631724] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=1 side=forehand tts=0.882s
+[WARN] [1785147316.733391450] [a3_pc_rl_deploy]: BALL COMPLETE: task=1 total=1; READY restored
+[WARN] [1785147448.133964909] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=2 side=forehand tts=0.807s
+[WARN] [1785147449.793381500] [a3_pc_rl_deploy]: BALL COMPLETE: task=2 total=2; READY restored
+[WARN] [1785147468.813625866] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=3 side=forehand tts=0.842s
+[WARN] [1785147470.473756789] [a3_pc_rl_deploy]: BALL COMPLETE: task=3 total=3; READY restored
+[ERROR] [1785147470.972997288] [a3_pc_rl_deploy]: HALT: PPMocap/planner gate lost: BotA3 marker heading error 30.1deg; calibrate robot_marker_to_pelvis.rpy_rad
+[WARN] [1785147471.273738286] [a3_pc_rl_deploy]: zero-gain stop complete

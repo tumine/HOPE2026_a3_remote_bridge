@@ -1,0 +1,75 @@
+[0.279s] Invoking command in '/home/bth/workspace/a3_remote_bridge/26.7.25发球部署/pingpang_ustc-srf/hope_ws/src/hope_planner': AMENT_PREFIX_PATH=/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs:${CMAKE_PREFIX_PATH} LD_LIBRARY_PATH=/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages:/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../../../.hope_ros2/build/hope_planner build --build-base /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build install --record /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/install.log --single-version-externally-managed install_data
+[0.393s] running egg_info
+[0.393s] creating ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info
+[0.393s] writing ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/PKG-INFO
+[0.393s] writing dependency_links to ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/dependency_links.txt
+[0.393s] writing entry points to ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/entry_points.txt
+[0.393s] writing requirements to ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/requires.txt
+[0.393s] writing top-level names to ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/top_level.txt
+[0.393s] writing manifest file '../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/SOURCES.txt'
+[0.394s] reading manifest file '../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/SOURCES.txt'
+[0.394s] writing manifest file '../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/SOURCES.txt'
+[0.394s] running build
+[0.394s] running build_py
+[0.394s] creating /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build
+[0.394s] creating /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib
+[0.394s] creating /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner
+[0.394s] copying hope_planner/node.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner
+[0.394s] copying hope_planner/constants.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner
+[0.394s] copying hope_planner/quaternion_utils.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner
+[0.394s] copying hope_planner/task_timing.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner
+[0.394s] copying hope_planner/planner.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner
+[0.394s] copying hope_planner/__init__.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner
+[0.394s] copying hope_planner/ball_trajectory_predictor.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner
+[0.395s] copying hope_planner/strike_selection.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner
+[0.395s] copying hope_planner/side_selection.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner
+[0.395s] copying hope_planner/ball_contact.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner
+[0.395s] copying hope_planner/racket_target_planner.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner
+[0.395s] copying hope_planner/bag_to_csv.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner
+[0.395s] copying hope_planner/ball_state_estimator.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner
+[0.395s] running install
+[0.395s] running install_lib
+[0.395s] creating /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner
+[0.395s] copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/node.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner
+[0.396s] copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/constants.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner
+[0.396s] copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/quaternion_utils.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner
+[0.396s] copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/task_timing.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner
+[0.396s] copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/planner.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner
+[0.396s] copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/__init__.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner
+[0.396s] copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/ball_trajectory_predictor.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner
+[0.396s] copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/strike_selection.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner
+[0.396s] copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/side_selection.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner
+[0.396s] copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/ball_contact.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner
+[0.396s] copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/racket_target_planner.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner
+[0.396s] copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/bag_to_csv.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner
+[0.396s] copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/ball_state_estimator.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner
+[0.396s] byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/node.py to node.cpython-310.pyc
+[0.397s] byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/constants.py to constants.cpython-310.pyc
+[0.398s] byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/quaternion_utils.py to quaternion_utils.cpython-310.pyc
+[0.398s] byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/task_timing.py to task_timing.cpython-310.pyc
+[0.398s] byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/planner.py to planner.cpython-310.pyc
+[0.398s] byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/__init__.py to __init__.cpython-310.pyc
+[0.399s] byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/ball_trajectory_predictor.py to ball_trajectory_predictor.cpython-310.pyc
+[0.399s] byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/strike_selection.py to strike_selection.cpython-310.pyc
+[0.400s] byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/side_selection.py to side_selection.cpython-310.pyc
+[0.400s] byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/ball_contact.py to ball_contact.cpython-310.pyc
+[0.400s] byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/racket_target_planner.py to racket_target_planner.cpython-310.pyc
+[0.400s] byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/bag_to_csv.py to bag_to_csv.cpython-310.pyc
+[0.401s] byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/ball_state_estimator.py to ball_state_estimator.cpython-310.pyc
+[0.402s] running install_data
+[0.402s] creating /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/share/ament_index
+[0.402s] creating /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/share/ament_index/resource_index
+[0.402s] creating /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/share/ament_index/resource_index/packages
+[0.402s] copying resource/hope_planner -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/share/ament_index/resource_index/packages
+[0.402s] copying package.xml -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/share/hope_planner
+[0.402s] creating /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/share/hope_planner/config
+[0.402s] copying config/hope_planner.yaml -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/share/hope_planner/config
+[0.402s] creating /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/share/hope_planner/launch
+[0.402s] copying launch/hope_planner.launch.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/share/hope_planner/launch
+[0.402s] running install_egg_info
+[0.402s] Copying ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info to /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner-0.0.0-py3.10.egg-info
+[0.403s] running install_scripts
+[0.412s] Installing hope_bag_to_csv script to /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/hope_planner
+[0.412s] Installing hope_planner_node script to /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/hope_planner
+[0.412s] writing list of installed files to '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/install.log'
+[0.425s] Invoked command in '/home/bth/workspace/a3_remote_bridge/26.7.25发球部署/pingpang_ustc-srf/hope_ws/src/hope_planner' returned '0': AMENT_PREFIX_PATH=/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs:${CMAKE_PREFIX_PATH} LD_LIBRARY_PATH=/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages:/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../../../.hope_ros2/build/hope_planner build --build-base /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build install --record /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/install.log --single-version-externally-managed install_data

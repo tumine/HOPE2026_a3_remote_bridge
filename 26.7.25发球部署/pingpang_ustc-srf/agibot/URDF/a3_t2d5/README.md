@@ -1,0 +1,1 @@
+- 实际机器人腰部的 waist_pitch_joint & waist_roll_joint 以及脚踝的 ankle_roll_Link & ankle_roll_joint 为并联结构，urdf中的转速、扭矩等相关参数均已做过串联等效，训练时可以按照串联进行计算和训练，部署时的并联解算可由部署代码直接完成。

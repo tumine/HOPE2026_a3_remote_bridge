@@ -1,0 +1,63 @@
+[INFO] [1785147943.197127063] [hope_planner]: HOPE planner started: strike_planes=FH:-0.210,BH:0.100 m, landing=[ 2.055  -0.7625], split_y=-1.173 m, new_task_tts=[0.300,1.000] s, solve_period=0.020 s, ball_pose_index=0
+[WARN] [1785148015.008879148] [hope_planner]: BALL_REARM ball=5 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148015.511836322] [hope_planner]: BALL_REARM ball=6 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148016.113897434] [hope_planner]: BALL_REARM ball=7 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148016.735234596] [hope_planner]: BALL_REARM ball=8 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148019.282511887] [hope_planner]: BALL_REARM ball=9 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148020.136087713] [hope_planner]: BALL_REARM ball=10 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148020.358863971] [hope_planner]: BALL_REARM ball=11 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148021.635092578] [hope_planner]: BALL_REARM ball=12 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148022.961194792] [hope_planner]: BALL_REARM ball=13 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148023.177768138] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: y=-1.0631 outside [-1.0625, -0.6625], z=0.4216 outside [0.0800, 0.3400])
+[WARN] [1785148024.899655816] [hope_planner]: BALL_REARM ball=15 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148028.067953351] [hope_planner]: BALL_REARM ball=16 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148031.268842068] [hope_planner]: BALL_REARM ball=20 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148031.620019911] [hope_planner]: BALL_REARM ball=21 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148035.643433725] [hope_planner]: BALL_REARM ball=22 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148038.060184279] [hope_planner]: BALL_REARM ball=23 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148041.286786311] [hope_planner]: BALL_REARM ball=24 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148041.584719516] [hope_planner]: BALL_REARM ball=25 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148041.913482978] [hope_planner]: BALL_REARM ball=26 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148042.389359513] [hope_planner]: BALL_REARM ball=27 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148042.505186950] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: y=-1.2205 outside [-1.0625, -0.6625], z=0.4923 outside [0.0800, 0.3400])
+[WARN] [1785148045.998617555] [hope_planner]: BALL_REARM ball=29 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148048.347295624] [hope_planner]: BALL_REARM ball=30 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148048.769692246] [hope_planner]: BALL_REARM ball=31 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148049.015958316] [hope_planner]: TTS_GATE ball=31 side=FOREHAND decision=WAIT tts=1.8106s window=[0.3000, 1.0000]s
+[WARN] [1785148049.035257414] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: z=0.6891 outside [0.2400, 0.4500]; BH: y=-1.3784 outside [-1.0625, -0.6625], z=0.5161 outside [0.0800, 0.3400])
+[WARN] [1785148051.611997072] [hope_planner]: BALL_REARM ball=33 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148057.914833913] [hope_planner]: BALL_REARM ball=35 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148058.539960124] [hope_planner]: BALL_REARM ball=36 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148059.712664323] [hope_planner]: BALL_REARM ball=37 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148060.065867420] [hope_planner]: BALL_REARM ball=38 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148060.414105643] [hope_planner]: BALL_REARM ball=39 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148060.788144954] [hope_planner]: BALL_REARM ball=40 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148061.135691025] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: y=-1.1116 outside [-1.0625, -0.6625])
+[WARN] [1785148072.438787508] [hope_planner]: BALL_REARM ball=43 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148073.521874383] [hope_planner]: BALL_REARM ball=45 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148074.622069454] [hope_planner]: BALL_REARM ball=46 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148074.898569421] [hope_planner]: BALL_REARM ball=47 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148075.042866653] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: z=0.4775 outside [0.0800, 0.3400])
+[WARN] [1785148075.086884013] [hope_planner]: TTS_GATE ball=47 side=BACKHAND decision=ACCEPT tts=0.6528s window=[0.3000, 1.0000]s
+[WARN] [1785148081.839734625] [hope_planner]: STRIKE_PLANE_CROSS ball=49 plane=BACKHAND x=0.100 measured_y=-0.3225 measured_z=-0.7376 result=WAIT: estimator needs at least 6 samples
+[WARN] [1785148082.058021568] [hope_planner]: BALL_REARM ball=50 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148084.055423745] [hope_planner]: BALL_REARM ball=52 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148084.387996065] [hope_planner]: BALL_REARM ball=53 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148086.643564704] [hope_planner]: BALL_REARM ball=54 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148087.151209746] [hope_planner]: BALL_REARM ball=55 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148088.113708646] [hope_planner]: BALL_REARM ball=56 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148089.846405967] [hope_planner]: BALL_REARM ball=57 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148090.058560063] [hope_planner]: BALL_REARM ball=58 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148091.783474888] [hope_planner]: BALL_REARM ball=59 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148092.723632830] [hope_planner]: BALL_REARM ball=60 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148093.489310593] [hope_planner]: BALL_REARM ball=61 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148098.324718637] [hope_planner]: BALL_REARM ball=62 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148100.214539359] [hope_planner]: BALL_REARM ball=63 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148102.246130217] [hope_planner]: BALL_REARM ball=64 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148102.941017777] [hope_planner]: BALL_REARM ball=65 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148106.404130336] [hope_planner]: BALL_REARM ball=66 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148107.981997773] [hope_planner]: BALL_REARM ball=67 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148109.798070085] [hope_planner]: BALL_REARM ball=68 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148113.082018270] [hope_planner]: BALL_REARM ball=69 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148114.139995409] [hope_planner]: BALL_REARM ball=70 reason=estimated direction changed from non-incoming to incoming
+[WARN] [1785148116.414350704] [hope_planner]: BALL_REARM ball=71 reason=estimated direction changed from non-incoming to incoming

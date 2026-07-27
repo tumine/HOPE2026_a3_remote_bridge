@@ -1,0 +1,10 @@
+[WARN] [1785144859.891147032] [a3_pc_rl_deploy]: model_21500 runner in OBSERVE: actuation=ENABLED; waiting for synchronized MDU state + PPMocap table/base calibration; P then D are both required
+[INFO] [1785144859.891305887] [a3_pc_rl_deploy]: HOTKEYS (no Enter): P=default pose; D=enter live policy after all gates; I=status; C=recalibrate table (OBSERVE only); S=normal stop; X=immediate halt; H=help; Q=quit (OBSERVE only). There are no F/B synthetic-ball keys: live planner commands select each swing.
+[WARN] [1785144861.657718788] [a3_pc_rl_deploy]: PPMOCAP CALIBRATED: canonical origin=near-left tabletop; +X=robot-to-opponent +Y=robot-left +Z=up
+[WARN] [1785144930.722654041] [a3_pc_rl_deploy]: DEFAULT POSE START: 5.0s ramp; D remains locked until pose and PPMocap/planner gates are ready
+[WARN] [1785144935.702957634] [a3_pc_rl_deploy]: DEFAULT_HOLD: waiting for pose settling
+[WARN] [1785144936.703089381] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; D still locked: BotA3 marker heading error 9.2deg; calibrate robot_marker_to_pelvis.rpy_rad
+[ERROR] [1785144940.162771284] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: BotA3 marker heading error 9.6deg; calibrate robot_marker_to_pelvis.rpy_rad
+[WARN] [1785144963.543046492] [a3_pc_rl_deploy]: POLICY ARMED BY D: 3.0s READY warmup; live planner commands remain blocked until warmup completes; base pose/yaw now come from PPMocap
+[ERROR] [1785144963.843076310] [a3_pc_rl_deploy]: HALT: PPMocap/planner gate lost: BotA3 marker heading error 8.4deg; calibrate robot_marker_to_pelvis.rpy_rad
+[WARN] [1785144964.142956289] [a3_pc_rl_deploy]: zero-gain stop complete

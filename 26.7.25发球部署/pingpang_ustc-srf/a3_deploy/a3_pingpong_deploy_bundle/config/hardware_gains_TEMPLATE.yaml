@@ -1,0 +1,47 @@
+# MUST_FILL_FROM_AGIBOT_VENDOR_BACKEND
+#
+# Do not enable motors with null values. Isaac/MuJoCo gains are intentionally
+# not copied here because they are simulation parameters, not hardware approval.
+
+status: INCOMPLETE_DO_NOT_DEPLOY
+control_mode: null
+policy_command_hz: 50.0
+vendor_servo_hz: null
+watchdog_timeout_s: null
+safe_stop_mode: null
+max_base_tilt_rad: null
+
+# For every joint fill values approved for the exact A3 hardware/firmware.
+# max_position_step is the deterministic per-20-ms slew limit.
+joints:
+  waist_yaw_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  waist_roll_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  waist_pitch_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  head_yaw_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  head_pitch_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  left_shoulder_pitch_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  left_shoulder_roll_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  left_shoulder_yaw_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  left_elbow_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  left_wrist_roll_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  left_wrist_pitch_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  left_wrist_yaw_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  right_shoulder_pitch_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  right_shoulder_roll_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  right_shoulder_yaw_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  right_elbow_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  right_wrist_roll_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  right_wrist_pitch_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  right_wrist_yaw_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  left_hip_pitch_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  left_hip_roll_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  left_hip_yaw_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  left_knee_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  left_ankle_pitch_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  left_ankle_roll_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  right_hip_pitch_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  right_hip_roll_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  right_hip_yaw_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  right_knee_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  right_ankle_pitch_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}
+  right_ankle_roll_joint: {kp: null, kd: null, torque_limit: null, velocity_limit: null, max_position_step: null}

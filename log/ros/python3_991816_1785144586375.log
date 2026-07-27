@@ -1,0 +1,7 @@
+[INFO] [1785144586.447114621] [hope_planner]: HOPE planner started: strike_planes=FH:-0.210,BH:0.100 m, landing=[ 2.055  -0.7625], split_y=-1.173 m, solve_period=0.020 s, ball_pose_index=0
+[WARN] [1785145066.193804917] [hope_planner]: incoming ball reached the planner too late for a new task; dropping this ball without consuming task_id
+[WARN] [1785145066.221777593] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-0.7943 outside [-1.5225, -1.2825], z=0.9039 outside [0.2400, 0.4500]; BH: z=1.0420 outside [0.0800, 0.3400])
+[WARN] [1785145076.301251674] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: y=-1.1882 outside [-1.0625, -0.6625])
+[WARN] [1785145076.643538483] [hope_planner]: incoming ball reached the planner too late for a new task; dropping this ball without consuming task_id
+[WARN] [1785145101.025033331] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: y=-1.1181 outside [-1.0625, -0.6625], z=0.4913 outside [0.0800, 0.3400])
+[WARN] [1785145101.118387207] [hope_planner]: incoming ball reached the planner too late for a new task; dropping this ball without consuming task_id

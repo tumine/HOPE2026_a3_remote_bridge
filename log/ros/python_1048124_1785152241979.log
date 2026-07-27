@@ -1,0 +1,42 @@
+[WARN] [1785152242.013192670] [a3_pc_rl_deploy]: model_21500 runner in OBSERVE: actuation=ENABLED; waiting for synchronized MDU state + PPMocap table/base calibration; P then D are both required
+[INFO] [1785152242.013344198] [a3_pc_rl_deploy]: HOTKEYS (no Enter): P=default pose; D=enter live policy after all gates; I=status; C=recalibrate table (OBSERVE only); S=normal stop; X=immediate halt; H=help; Q=quit (OBSERVE only). There are no F/B synthetic-ball keys: live planner commands select each swing.
+[WARN] [1785152242.013941616] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=1 initial=yes sequence=2138214
+[WARN] [1785152242.170823050] [a3_pc_rl_deploy]: PPMOCAP CALIBRATED: canonical origin=near-left tabletop; +X=robot-to-opponent +Y=robot-left +Z=up
+[WARN] [1785152242.985449188] [a3_pc_rl_deploy]: DEFAULT POSE START: 5.0s ramp; D remains locked until pose and PPMocap/planner gates are ready
+[WARN] [1785152247.965056050] [a3_pc_rl_deploy]: DEFAULT_HOLD: waiting for pose settling
+[ERROR] [1785152251.364863606] [a3_pc_rl_deploy]: D requires DEFAULT_HOLD pose_ready=yes; press P first
+[INFO] [1785152255.664846501] [a3_pc_rl_deploy]: already holding the training default pose
+[ERROR] [1785152258.384867244] [a3_pc_rl_deploy]: D requires DEFAULT_HOLD pose_ready=yes; press P first
+[WARN] [1785152261.825221613] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; mocap/planner_ready=yes
+[WARN] [1785152263.904816437] [a3_pc_rl_deploy]: POLICY ARMED BY D: 3.0s READY warmup; live planner commands remain blocked until warmup completes; base pose/yaw now come from PPMocap
+[WARN] [1785152266.885317087] [a3_pc_rl_deploy]: POLICY_ACTIVE: validated READY is running; live /racket/command enabled
+[WARN] [1785152277.004795678] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=1 sequence=2142413
+[WARN] [1785152277.812818593] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=2 gap=0.808s sequence=2142510
+[WARN] [1785152278.096661129] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=2 sequence=2142544
+[WARN] [1785152278.746752354] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=3 gap=0.650s sequence=2142622
+[WARN] [1785152278.839118496] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=3 sequence=2142633
+[WARN] [1785152280.812849157] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=4 gap=1.974s sequence=2142870
+[WARN] [1785152281.030760235] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=4 sequence=2142896
+[WARN] [1785152332.351361297] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=5 gap=51.321s sequence=2149054
+[WARN] [1785152343.025543699] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=1 side=backhand tts=0.904s
+[WARN] [1785152344.465498619] [a3_pc_rl_deploy]: BALL COMPLETE: task=1 total=1; READY restored
+[WARN] [1785152344.805438719] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=2 side=forehand tts=0.380s
+[WARN] [1785152346.005147428] [a3_pc_rl_deploy]: BALL COMPLETE: task=2 total=2; READY restored
+[WARN] [1785152347.935934238] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=5 sequence=2150924
+[WARN] [1785152348.477951920] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=6 gap=0.542s sequence=2150989
+[WARN] [1785152350.536459405] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=6 sequence=2151236
+[WARN] [1785152350.635824110] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=7 gap=0.100s sequence=2151248
+[WARN] [1785152354.125115959] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=3 side=backhand tts=0.841s
+[WARN] [1785152355.485161612] [a3_pc_rl_deploy]: BALL COMPLETE: task=3 total=3; READY restored
+[WARN] [1785152355.720287591] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=7 sequence=2151858
+[WARN] [1785152355.820103090] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=8 gap=0.100s sequence=2151870
+[WARN] [1785152355.987944789] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=8 sequence=2151890
+[WARN] [1785152356.168181934] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=9 gap=0.180s sequence=2151912
+[WARN] [1785152357.325174468] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=4 side=backhand tts=0.554s
+[WARN] [1785152358.685337695] [a3_pc_rl_deploy]: BALL COMPLETE: task=4 total=4; READY restored
+[WARN] [1785152358.805064959] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=5 side=forehand tts=0.518s
+[WARN] [1785152360.505131694] [a3_pc_rl_deploy]: BALL COMPLETE: task=5 total=5; READY restored
+[WARN] [1785152364.805247300] [a3_pc_rl_deploy]: LIVE BALL ENGAGED: task=6 side=backhand tts=0.740s
+[WARN] [1785152366.225085084] [a3_pc_rl_deploy]: BALL COMPLETE: task=6 total=6; READY restored
+[ERROR] [1785152368.185299887] [a3_pc_rl_deploy]: HALT: PPMocap/planner gate lost: base height 0.246m outside [0.250,0.360]
+[WARN] [1785152368.485153166] [a3_pc_rl_deploy]: zero-gain stop complete

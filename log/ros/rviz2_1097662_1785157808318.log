@@ -1,0 +1,8 @@
+[INFO] [1785157808.683632881] [rviz2]: Stereo is NOT SUPPORTED
+[INFO] [1785157808.683700749] [rviz2]: OpenGl version: 4.6 (GLSL 4.6)
+[INFO] [1785157808.750950828] [rviz2]: Stereo is NOT SUPPORTED
+[INFO] [1785157809.146348226] [rviz2]: Stereo is NOT SUPPORTED
+[INFO] [1785157838.751263253] [rviz]: Message Filter dropping message: frame 'world' at time 1785157838.555 for reason 'discarding message because the queue is full'
+[INFO] [1785157841.263587312] [rviz]: Message Filter dropping message: frame 'world' at time 1785157841.071 for reason 'discarding message because the queue is full'
+[INFO] [1785157843.776252523] [rviz]: Message Filter dropping message: frame 'world' at time 1785157843.579 for reason 'discarding message because the queue is full'
+[INFO] [1785157904.001569866] [rclcpp]: signal_handler(SIGINT/SIGTERM)

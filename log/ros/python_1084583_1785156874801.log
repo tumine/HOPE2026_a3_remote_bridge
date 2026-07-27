@@ -1,0 +1,19 @@
+[WARN] [1785156875.170553087] [a3_pc_rl_deploy]: model_21500 runner in OBSERVE: actuation=ENABLED; waiting for synchronized MDU state + PPMocap table/base calibration; P then D are both required
+[INFO] [1785156875.170717450] [a3_pc_rl_deploy]: HOTKEYS (no Enter): P=default pose; D=enter live policy after all gates; I=status; C=recalibrate table (OBSERVE only); S=normal stop; X=immediate halt; H=help; Q=quit (OBSERVE only). There are no F/B synthetic-ball keys: live planner commands select each swing.
+[WARN] [1785156875.171698891] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=1 initial=yes sequence=2694181
+[WARN] [1785156875.326893545] [a3_pc_rl_deploy]: PPMOCAP CALIBRATED: canonical origin=near-left tabletop; +X=robot-to-opponent +Y=robot-left +Z=up
+[WARN] [1785156877.004790023] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=1 sequence=2694402
+[WARN] [1785156877.446529976] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=2 gap=0.442s sequence=2694455
+[WARN] [1785156878.195661403] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=2 sequence=2694545
+[WARN] [1785156878.379724317] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=3 gap=0.184s sequence=2694567
+[WARN] [1785156880.501887034] [a3_pc_rl_deploy]: DEFAULT POSE START: 5.0s ramp; D remains locked until pose and PPMocap/planner gates are ready
+[WARN] [1785156880.787795610] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=3 sequence=2694856
+[WARN] [1785156880.829581296] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=4 gap=0.042s sequence=2694861
+[WARN] [1785156880.853668241] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=4 sequence=2694864
+[WARN] [1785156880.871612501] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=5 gap=0.018s sequence=2694866
+[WARN] [1785156880.878383967] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=5 sequence=2694867
+[ERROR] [1785156881.021874353] [a3_pc_rl_deploy]: HALT: command ACK backlog 26 exceeds 25
+[WARN] [1785156881.029483011] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=6 gap=0.151s sequence=2694885
+[WARN] [1785156881.072238701] [a3_pc_rl_deploy]: BALL_TRACK_LOST cycle=6 sequence=2694890
+[WARN] [1785156881.121545563] [a3_pc_rl_deploy]: BALL_TRACK_ACQUIRED cycle=7 gap=0.049s sequence=2694896
+[WARN] [1785156881.322002016] [a3_pc_rl_deploy]: zero-gain stop complete

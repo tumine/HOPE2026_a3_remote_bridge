@@ -1,0 +1,5 @@
+[INFO] [1785157225.409270966] [hope_planner]: HOPE planner started: strike_planes=FH:-0.210,BH:0.100 m, landing=[ 2.055  -0.7625], split_y=-1.173 m, new_task_tts=[0.250,1.000] s, ball_rearm=(vx_in<=-0.50, vx_out>=-0.10 m/s, confirm=5/10, x>=0.30 m), live_margins=(y=0.070m, z=0.040m, racket_v=0.150m/s), solve_period=0.020 s, ball_pose_index=0
+[WARN] [1785157259.654072372] [hope_planner]: TTS_GATE ball=14 side=BACKHAND decision=WAIT tts=1.0792s window=[0.2500, 1.0000]s est_x=2.2670m est_vx=-2.9181m/s
+[WARN] [1785157259.675962112] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-0.9628 outside [-1.5925, -1.2125])
+[WARN] [1785157259.773826877] [hope_planner]: TTS_GATE ball=14 side=BACKHAND decision=ACCEPT tts=0.5280s window=[0.2500, 1.0000]s est_x=1.8530m est_vx=-3.7428m/s
+[WARN] [1785157259.787930473] [hope_planner]: PLANNER_TASK_PUBLISHED ball=14 task=1 side=BACKHAND tts=0.5280s target=[0.1000,-0.9844,0.1135] racket_v=[1.1083,0.0745,0.7565]

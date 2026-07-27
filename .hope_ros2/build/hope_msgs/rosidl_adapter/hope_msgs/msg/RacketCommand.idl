@@ -1,0 +1,55 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hope_msgs/msg/RacketCommand.msg
+// generated code does not contain a copyright notice
+
+#include "geometry_msgs/msg/Point.idl"
+#include "geometry_msgs/msg/Vector3.idl"
+#include "std_msgs/msg/Header.idl"
+
+module hope_msgs {
+  module msg {
+    module RacketCommand_Constants {
+      @verbatim (language="comment", text=
+        "swing_side values.")
+      const int8 FOREHAND = 1;
+      const int8 BACKHAND = -1;
+    };
+    @verbatim (language="comment", text=
+      "Racket target command published by the HOPE planner." "\n"
+      "" "\n"
+      "One task_id is created per incoming ball. Pre-strike updates keep the same" "\n"
+      "task_id and increase task_revision. swing_side is chosen once per task_id and" "\n"
+      "stays fixed within it. All fields refer to the world frame (+x forward," "\n"
+      "+y left, +z up; metres, seconds).")
+    struct RacketCommand {
+      std_msgs::msg::Header header;
+
+      @verbatim (language="comment", text=
+        "Identifies the incoming ball this command belongs to (new ball -> new id).")
+      uint64 task_id;
+
+      @verbatim (language="comment", text=
+        "Monotonically increasing within a task_id as the pre-strike plan is refined.")
+      uint32 task_revision;
+
+      @verbatim (language="comment", text=
+        "Selected swing side for this task (FOREHAND or BACKHAND). Formal side channel.")
+      int8 swing_side;
+
+      @verbatim (language="comment", text=
+        "The header stamp is the capture/planning time at which time_to_strike is" "\n"
+        "defined. Consumers subtract transport and queue age before observation use." "\n"
+        "A zero/invalid/future stamp must never be used to increase time_to_strike." "\n"
+        "Target racket position at the strike, world frame (m).")
+      geometry_msgs::msg::Point position;
+
+      @verbatim (language="comment", text=
+        "Target racket velocity at the strike, world frame (m/s).")
+      geometry_msgs::msg::Vector3 velocity;
+
+      @verbatim (language="comment", text=
+        "Remaining time from header.stamp until the strike (s).")
+      double time_to_strike;
+    };
+  };
+};

@@ -1,0 +1,3 @@
+[INFO] [1785156286.586132568] [a3_rviz_pose_bridge]: RViz pose bridge waiting for /ppmocap/frame; hope_table -> a3/pelvis_link, ground z=-0.760m
+[INFO] [1785156286.750062184] [a3_rviz_pose_bridge]: RVIZ CALIBRATED: using the same canonical-table transform as the policy
+[INFO] [1785156286.750523132] [a3_rviz_pose_bridge]: BotA3 tracked: pelvis=[-0.378 -0.909 0.363] in hope_table

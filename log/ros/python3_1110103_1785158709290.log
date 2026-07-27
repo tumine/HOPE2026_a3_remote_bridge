@@ -1,0 +1,3 @@
+[INFO] [1785158709.329302446] [a3_rviz_pose_bridge]: RViz pose bridge waiting for /ppmocap/frame; world -> hope_table -> a3/pelvis_link, ground z=-0.760m
+[INFO] [1785158709.488759662] [a3_rviz_pose_bridge]: RVIZ CALIBRATED: world -> hope_table uses the same locked transform as the policy
+[INFO] [1785158709.488985277] [a3_rviz_pose_bridge]: BotA3 tracked: pelvis=[-0.365 -1.063 0.349] in hope_table

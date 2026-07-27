@@ -1,0 +1,11 @@
+[WARN] [1785144344.653736441] [a3_pc_rl_deploy]: model_21500 runner in OBSERVE: actuation=ENABLED; waiting for synchronized MDU state + PPMocap table/base calibration; P then D are both required
+[INFO] [1785144344.653899584] [a3_pc_rl_deploy]: HOTKEYS (no Enter): P=default pose; D=enter live policy after all gates; I=status; C=recalibrate table (OBSERVE only); S=normal stop; X=immediate halt; H=help; Q=quit (OBSERVE only). There are no F/B synthetic-ball keys: live planner commands select each swing.
+[WARN] [1785144344.811889556] [a3_pc_rl_deploy]: PPMOCAP CALIBRATED: canonical origin=near-left tabletop; +X=robot-to-opponent +Y=robot-left +Z=up
+[WARN] [1785144349.004769865] [a3_pc_rl_deploy]: DEFAULT POSE START: 5.0s ramp; D remains locked until pose and PPMocap/planner gates are ready
+[WARN] [1785144353.985511176] [a3_pc_rl_deploy]: DEFAULT_HOLD: waiting for pose settling
+[WARN] [1785144355.426101478] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; D still locked: station mismatch 0.192m; base_xy=[-0.319 -0.827] expected=[-0.5   -0.762]
+[WARN] [1785144357.586041804] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; D still locked: station mismatch 0.195m; base_xy=[-0.315 -0.824] expected=[-0.5   -0.762]
+[WARN] [1785144370.884963884] [a3_pc_rl_deploy]: DEFAULT POSE READY: pose_ready=yes; D still locked: station mismatch 0.158m; base_xy=[-0.348 -0.807] expected=[-0.5   -0.762]
+[ERROR] [1785144373.104850117] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.125m; base_xy=[-0.385 -0.811] expected=[-0.5   -0.762]
+[ERROR] [1785144375.064969685] [a3_pc_rl_deploy]: D rejected: PPMocap/planner gate: station mismatch 0.125m; base_xy=[-0.384 -0.81 ] expected=[-0.5   -0.762]
+[ERROR] [1785144376.293355378] [a3_pc_rl_deploy]: Ctrl-C: immediate zero-gain stop

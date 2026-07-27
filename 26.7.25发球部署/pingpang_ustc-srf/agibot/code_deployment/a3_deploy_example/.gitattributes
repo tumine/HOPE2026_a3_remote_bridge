@@ -1,0 +1,22 @@
+# A3 deploy-example assets are stored as raw bytes in git (NOT Git LFS).
+# Mark them as binary so they are not EOL/diff-normalized.
+*.a -text
+*so.1 -text
+*so.1.20.1 -text
+.so -text
+*.so.0 -text
+*.so -text
+*.so.* -text
+*.onnx -text
+*.rknn -text
+*.pkl -text
+*.csv -text
+*.tar.gz -text
+*.tgz -text
+*.tar.xz -text
+*.zip -text
+*.stl -text
+*.STL -text
+*.png -text
+mujoco_sim_standalone/bin/aimrt_main -text
+mujoco_sim_standalone/bin/iox-* -text

@@ -1,0 +1,7 @@
+[WARN] [1785147883.554980109] [a3_pc_rl_deploy]: model_21500 runner in OBSERVE: actuation=ENABLED; waiting for synchronized MDU state + PPMocap table/base calibration; P then D are both required
+[INFO] [1785147883.555128991] [a3_pc_rl_deploy]: HOTKEYS (no Enter): P=default pose; D=enter live policy after all gates; I=status; C=recalibrate table (OBSERVE only); S=normal stop; X=immediate halt; H=help; Q=quit (OBSERVE only). There are no F/B synthetic-ball keys: live planner commands select each swing.
+[WARN] [1785147883.709655556] [a3_pc_rl_deploy]: PPMOCAP CALIBRATED: canonical origin=near-left tabletop; +X=robot-to-opponent +Y=robot-left +Z=up
+[WARN] [1785147931.486196083] [a3_pc_rl_deploy]: DEFAULT POSE START: 5.0s ramp; D remains locked until pose and PPMocap/planner gates are ready
+[WARN] [1785147936.466511975] [a3_pc_rl_deploy]: DEFAULT_HOLD: waiting for pose settling
+[ERROR] [1785147938.666143360] [a3_pc_rl_deploy]: HALT: base tilt 20.32deg exceeds 20.05deg
+[WARN] [1785147938.966305288] [a3_pc_rl_deploy]: zero-gain stop complete

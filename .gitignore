@@ -1,0 +1,10 @@
+/build/
+/dist/
+/.venv_rl/
+/thirdparty/rockchip_sysroot/*.tar.gz
+/thirdparty/rockchip_sysroot/*.tar.gz.sha256
+__pycache__/
+*.pyc
+*.pyo
+.idea/
+.vscode/

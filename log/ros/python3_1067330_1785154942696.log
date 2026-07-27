@@ -1,0 +1,13 @@
+[INFO] [1785154942.772009688] [hope_planner]: HOPE planner started: strike_planes=FH:-0.210,BH:0.100 m, landing=[ 2.055  -0.7625], split_y=-1.173 m, new_task_tts=[0.250,1.000] s, ball_rearm=(vx_in<=-0.50, vx_out>=-0.10 m/s, confirm=5/10, x>=0.30 m), live_margins=(y=0.070m, z=0.040m, racket_v=0.150m/s), solve_period=0.020 s, ball_pose_index=0
+[WARN] [1785154947.785879840] [hope_planner]: STRIKE_PLANE_CROSS ball=1 plane=FOREHAND x=-0.210 measured_y=-0.8072 measured_z=0.1443 result=REJECT: no usable future crossing within 2.00s (plane not reached or dead-ball crossing)
+[WARN] [1785154947.786064622] [hope_planner]: STRIKE_PLANE_CROSS ball=1 plane=BACKHAND x=0.100 measured_y=-0.7880 measured_z=0.1733 result=REJECT: no usable future crossing within 2.00s (plane not reached or dead-ball crossing)
+[WARN] [1785154947.794310784] [hope_planner]: TTS_GATE ball=1 side=BACKHAND decision=DROP tts=0.0124s window=[0.2500, 1.0000]s est_x=0.8429m est_vx=-62.9835m/s
+[WARN] [1785154947.794478333] [hope_planner]: incoming ball reached the planner too late for a new task; dropping this ball without consuming task_id
+[WARN] [1785155016.482538728] [hope_planner]: TTS_GATE ball=21 side=BACKHAND decision=ACCEPT tts=0.8702s window=[0.2500, 1.0000]s est_x=2.1291m est_vx=-3.2539m/s
+[WARN] [1785155016.496387998] [hope_planner]: PLANNER_TASK_PUBLISHED ball=21 task=1 side=BACKHAND tts=0.8702s target=[0.1000,-0.9803,0.3041] racket_v=[1.9644,0.1915,0.9562]
+[WARN] [1785155016.529456904] [hope_planner]: locked BH task has no admitted same-side revision; command not published (FH: y=-0.9679 outside [-1.5925, -1.2125], z=0.5886 outside [0.2000, 0.4900]; BH: z=0.7464 outside [0.0400, 0.3800])
+[WARN] [1785155018.358075435] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-1.0945 outside [-1.5925, -1.2125], z=0.5570 outside [0.2000, 0.4900]; BH: z=0.4959 outside [0.0400, 0.3800])
+[WARN] [1785155018.405576768] [hope_planner]: BALL_REARM ball=22 reason=confirmed incoming cycle x=2.629m vx=-6.517m/s (hysteresis+consecutive-sample gate)
+[WARN] [1785155018.456162048] [hope_planner]: TTS_GATE ball=22 side=BACKHAND decision=ACCEPT tts=0.5041s window=[0.2500, 1.0000]s est_x=2.4592m est_vx=-5.4847m/s
+[WARN] [1785155018.547459298] [hope_planner]: PLANNER_TASK_PUBLISHED ball=22 task=2 side=BACKHAND tts=0.9681s target=[0.1000,-1.1139,0.1815] racket_v=[1.6105,0.2780,1.0723]
+[WARN] [1785155019.325990995] [hope_planner]: STRIKE_PLANE_CROSS ball=22 plane=BACKHAND x=0.100 measured_y=-1.1992 measured_z=0.4588 result=ACCEPT: task_id=2 revision=2 side=BACKHAND tts=0.8981s target=[0.1000,-1.1228,0.2336] racket_v=[1.6546,0.2930,1.0325]

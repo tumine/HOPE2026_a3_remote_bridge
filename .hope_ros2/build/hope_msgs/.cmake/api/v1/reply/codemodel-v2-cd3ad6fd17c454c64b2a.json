@@ -1,0 +1,233 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-7cae7a0d8e81d796b27f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17
+					]
+				},
+				{
+					"build" : "hope_msgs__py",
+					"jsonFile" : "directory-hope_msgs__py-1ee36e3d803b35d81c73.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs/hope_msgs__py",
+					"targetIndexes" : 
+					[
+						4
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1
+					],
+					"name" : "hope_msgs",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_build_hope_msgs_egg::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_build_hope_msgs_egg-1accbb53083583e786fb.json",
+					"name" : "ament_cmake_python_build_hope_msgs_egg",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_copy_hope_msgs::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_copy_hope_msgs-5b21e673a8fded287b6a.json",
+					"name" : "ament_cmake_python_copy_hope_msgs",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hope_msgs::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hope_msgs-081301446f9a85882add.json",
+					"name" : "hope_msgs",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hope_msgs__cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hope_msgs__cpp-c7741dce36117d007589.json",
+					"name" : "hope_msgs__cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "hope_msgs__py::@4d3a0e90c4a60772f094",
+					"jsonFile" : "target-hope_msgs__py-f250d0ae08fb4a4c6c35.json",
+					"name" : "hope_msgs__py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hope_msgs__rosidl_generator_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hope_msgs__rosidl_generator_c-223cc5218a16b4f4bfb4.json",
+					"name" : "hope_msgs__rosidl_generator_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hope_msgs__rosidl_generator_py::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hope_msgs__rosidl_generator_py-de2c95e47f4aaadbed7d.json",
+					"name" : "hope_msgs__rosidl_generator_py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hope_msgs__rosidl_typesupport_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hope_msgs__rosidl_typesupport_c-0dc02c1a071751ddd2ad.json",
+					"name" : "hope_msgs__rosidl_typesupport_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hope_msgs__rosidl_typesupport_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hope_msgs__rosidl_typesupport_c__pyext-054981df01463acb09e1.json",
+					"name" : "hope_msgs__rosidl_typesupport_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hope_msgs__rosidl_typesupport_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hope_msgs__rosidl_typesupport_cpp-f12497a0f87f386fc486.json",
+					"name" : "hope_msgs__rosidl_typesupport_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hope_msgs__rosidl_typesupport_fastrtps_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hope_msgs__rosidl_typesupport_fastrtps_c-fa8ffda0c791119bebcb.json",
+					"name" : "hope_msgs__rosidl_typesupport_fastrtps_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hope_msgs__rosidl_typesupport_fastrtps_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hope_msgs__rosidl_typesupport_fastrtps_c__pyext-9ebcffb73dd5327a3e37.json",
+					"name" : "hope_msgs__rosidl_typesupport_fastrtps_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hope_msgs__rosidl_typesupport_fastrtps_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hope_msgs__rosidl_typesupport_fastrtps_cpp-f99db2348bc0e9824e22.json",
+					"name" : "hope_msgs__rosidl_typesupport_fastrtps_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hope_msgs__rosidl_typesupport_introspection_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hope_msgs__rosidl_typesupport_introspection_c-245857fc56bb01f5e90d.json",
+					"name" : "hope_msgs__rosidl_typesupport_introspection_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hope_msgs__rosidl_typesupport_introspection_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hope_msgs__rosidl_typesupport_introspection_c__pyext-dabf99b90b3ddf6eea5c.json",
+					"name" : "hope_msgs__rosidl_typesupport_introspection_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hope_msgs__rosidl_typesupport_introspection_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hope_msgs__rosidl_typesupport_introspection_cpp-623d15741acb49f3dca1.json",
+					"name" : "hope_msgs__rosidl_typesupport_introspection_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hope_msgs_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hope_msgs_uninstall-948c864ed3a14bc859d4.json",
+					"name" : "hope_msgs_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-0c28af14393c55bdbd67.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs",
+		"source" : "/home/bth/workspace/a3_remote_bridge/26.7.25\u53d1\u7403\u90e8\u7f72/pingpang_ustc-srf/hope_ws/src/hope_msgs"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}
