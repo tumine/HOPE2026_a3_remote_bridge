@@ -34,7 +34,7 @@ export ROS_DOMAIN_ID="${A3_ROS_DOMAIN_ID:-232}"
 export ROS_LOCALHOST_ONLY=0
 export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
 export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
-export FASTRTPS_DEFAULT_PROFILES_FILE="${ROOT_DIR}/config/fastrtps_pc_direct_mdu.xml"
+export FASTRTPS_DEFAULT_PROFILES_FILE="${A3_PLANNER_FASTRTPS_PROFILE:-${ROOT_DIR}/config/fastrtps_pc_planner_mdu.xml}"
 export ROS_LOG_DIR="${A3_ROS_LOG_DIR:-${ROOT_DIR}/log/ros}"
 unset FASTDDS_DEFAULT_PROFILES_FILE CYCLONEDDS_URI
 mkdir -p -- "${ROS_LOG_DIR}"

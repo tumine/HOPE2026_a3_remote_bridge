@@ -1,0 +1,109 @@
+#include "a3_pingpong/pingpong_action_adapter.hpp"
+#include "a3_pingpong/receive_controller.hpp"
+
+#include <cmath>
+#include <fstream>
+#include <limits>
+
+#define CHECK(condition)              \
+  do {                                \
+    if (!(condition)) return __LINE__; \
+  } while (false)
+
+#ifndef A3_ACTION_GOLDEN_PATH
+#error "A3_ACTION_GOLDEN_PATH must be defined"
+#endif
+
+#ifndef A3_Q_DES_GOLDEN_PATH
+#error "A3_Q_DES_GOLDEN_PATH must be defined"
+#endif
+
+int main() {
+  a3_pingpong::PingpongAction raw_action{};
+  std::ifstream action_fixture(A3_ACTION_GOLDEN_PATH);
+  CHECK(action_fixture.good());
+  for (float& value : raw_action) {
+    double parsed = 0.0;
+    CHECK(static_cast<bool>(action_fixture >> parsed));
+    value = static_cast<float>(parsed);
+  }
+
+  a3_pingpong::PingpongActionAdapter adapter(
+      a3_pingpong::Model21500ActionAdapterConfig());
+  a3_pingpong::PingpongAction applied{};
+  robot_io::RobotCommand command;
+  a3_pingpong::PingpongActionDiagnostics diagnostics;
+  std::string reason;
+  CHECK(adapter.BuildZeroGainDryRunCommand(
+      raw_action, applied, command, &diagnostics, &reason));
+  CHECK(diagnostics.raw_clip_count == 0);
+  CHECK(diagnostics.position_clip_count == 3);
+  CHECK(applied[3] == 0.0F);
+  CHECK(applied[4] == 0.0F);
+
+  std::ifstream q_des_fixture(A3_Q_DES_GOLDEN_PATH);
+  CHECK(q_des_fixture.good());
+  CHECK(command.q_des.size() == 31);
+  for (Eigen::Index index = 0; index < command.q_des.size(); ++index) {
+    double expected = 0.0;
+    CHECK(static_cast<bool>(q_des_fixture >> expected));
+    CHECK(std::abs(command.q_des[index] - expected) <= 1.0e-7);
+  }
+  CHECK(command.dq_des.norm() == 0.0);
+  CHECK(command.tau_ff.norm() == 0.0);
+  CHECK(command.kp.norm() == 0.0);
+  CHECK(command.kd.norm() == 0.0);
+  CHECK(a3_pingpong::ValidateRobotCommand(command, 31));
+
+  CHECK(adapter.BuildPolicyCommand(
+      raw_action, applied, command, &diagnostics, &reason));
+  CHECK(command.kp[0] == 85.0);
+  CHECK(command.kd[0] == 3.0);
+  CHECK(command.kp[3] == 40.0);
+  CHECK(command.kd[4] == 2.0);
+  CHECK(command.kp[20] == 120.0);
+  CHECK(command.kp[22] == 250.0);
+  CHECK(command.kd[22] == 8.0);
+  CHECK(command.kp[28] == 250.0);
+  CHECK(command.dq_des.norm() == 0.0);
+  CHECK(command.tau_ff.norm() == 0.0);
+  CHECK(a3_pingpong::ValidateRobotCommand(command, 31));
+
+  std::array<double, a3_pingpong::kPingpongActionDim> start_q{};
+  start_q.fill(1.0);
+  const auto target_q =
+      a3_pingpong::Model21500ActionAdapterConfig().default_q;
+  bool stand_ready = true;
+  CHECK(a3_pingpong::BuildPdStandCommand(
+      start_q, target_q, 0, 150, command, &stand_ready, &reason));
+  CHECK(!stand_ready);
+  CHECK(command.q_des[0] == 1.0);
+  CHECK(command.q_des[3] == 0.0);
+  CHECK(command.kp[0] == 400.0);
+  CHECK(command.kp[3] == 40.0);
+  CHECK(command.kp[22] == 2000.0);
+  CHECK(command.kd[22] == 8.0);
+  CHECK(a3_pingpong::BuildPdStandCommand(
+      start_q, target_q, 75, 150, command, &stand_ready, &reason));
+  CHECK(!stand_ready);
+  CHECK(std::abs(command.q_des[0] - 0.5) <= 1.0e-12);
+  CHECK(std::abs(command.q_des[5] - 0.6) <= 1.0e-12);
+  CHECK(a3_pingpong::BuildPdStandCommand(
+      start_q, target_q, 150, 150, command, &stand_ready, &reason));
+  CHECK(stand_ready);
+  for (std::size_t index = 0; index < target_q.size(); ++index) {
+    CHECK(std::abs(command.q_des[static_cast<Eigen::Index>(index)] -
+                   target_q[index]) <= 1.0e-12);
+  }
+
+  raw_action[0] = 150.0F;
+  CHECK(adapter.BuildZeroGainDryRunCommand(
+      raw_action, applied, command, &diagnostics, &reason));
+  CHECK(diagnostics.raw_clip_count == 1);
+  CHECK(applied[0] == 100.0F);
+
+  raw_action[0] = std::numeric_limits<float>::quiet_NaN();
+  CHECK(!adapter.BuildPolicyCommand(
+      raw_action, applied, command, &diagnostics, &reason));
+  return 0;
+}

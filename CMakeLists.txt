@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.16)
 
 project(a3_remote_bridge VERSION 0.1.0 LANGUAGES CXX)
 
+include(CTest)
+option(A3_BUILD_TESTS "Build a3_remote_bridge focused tests" ON)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -18,15 +21,19 @@ FetchContent_Declare(fmt
 find_package(Threads REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(ament_cmake REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 
 add_subdirectory(thirdparty/joint_msgs)
+add_subdirectory(thirdparty/hope_msgs)
 
 foreach(_suffix
     rosidl_generator_cpp
+    rosidl_typesupport_cpp
+    rosidl_typesupport_fastrtps_cpp
     rosidl_typesupport_introspection_cpp)
   if(TARGET joint_msgs__${_suffix}
      AND NOT TARGET joint_msgs::joint_msgs__${_suffix})
@@ -35,8 +42,19 @@ foreach(_suffix
   endif()
 endforeach()
 
+foreach(_suffix
+    rosidl_generator_cpp
+    rosidl_typesupport_introspection_cpp)
+  if(TARGET hope_msgs__${_suffix}
+     AND NOT TARGET hope_msgs::hope_msgs__${_suffix})
+    add_library(hope_msgs::hope_msgs__${_suffix} ALIAS
+                hope_msgs__${_suffix})
+  endif()
+endforeach()
+
 include(cmake/GetAimRT.cmake)
 
 add_subdirectory(src/a3_robot_io)
 add_subdirectory(src/mdu_state_bridge)
 add_subdirectory(src/hdu_command_relay)
+add_subdirectory(src/a3_pingpong_deploy)

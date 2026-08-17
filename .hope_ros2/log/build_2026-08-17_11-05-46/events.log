@@ -1,0 +1,1757 @@
+[0.000000] (-) TimerEvent: {}
+[0.000991] (-) JobUnselected: {'identifier': 'hope_bringup'}
+[0.001041] (-) JobUnselected: {'identifier': 'vrpn_mocap'}
+[0.001065] (hope_msgs) JobQueued: {'identifier': 'hope_msgs', 'dependencies': OrderedDict()}
+[0.001086] (hope_planner) JobQueued: {'identifier': 'hope_planner', 'dependencies': OrderedDict([('hope_msgs', '/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs')])}
+[0.001675] (hope_msgs) JobStarted: {'identifier': 'hope_msgs'}
+[0.100833] (-) TimerEvent: {}
+[0.201122] (-) TimerEvent: {}
+[0.301555] (-) TimerEvent: {}
+[0.401812] (-) TimerEvent: {}
+[0.502071] (-) TimerEvent: {}
+[0.602333] (-) TimerEvent: {}
+[0.702543] (-) TimerEvent: {}
+[0.802748] (-) TimerEvent: {}
+[0.902944] (-) TimerEvent: {}
+[1.003122] (-) TimerEvent: {}
+[1.103382] (-) TimerEvent: {}
+[1.203567] (-) TimerEvent: {}
+[1.303763] (-) TimerEvent: {}
+[1.403953] (-) TimerEvent: {}
+[1.504156] (-) TimerEvent: {}
+[1.604350] (-) TimerEvent: {}
+[1.704546] (-) TimerEvent: {}
+[1.804752] (-) TimerEvent: {}
+[1.904946] (-) TimerEvent: {}
+[2.005204] (-) TimerEvent: {}
+[2.105513] (-) TimerEvent: {}
+[2.205706] (-) TimerEvent: {}
+[2.305900] (-) TimerEvent: {}
+[2.406182] (-) TimerEvent: {}
+[2.506475] (-) TimerEvent: {}
+[2.606687] (-) TimerEvent: {}
+[2.706890] (-) TimerEvent: {}
+[2.807188] (-) TimerEvent: {}
+[2.907400] (-) TimerEvent: {}
+[3.007603] (-) TimerEvent: {}
+[3.107799] (-) TimerEvent: {}
+[3.207994] (-) TimerEvent: {}
+[3.308191] (-) TimerEvent: {}
+[3.408389] (-) TimerEvent: {}
+[3.508693] (-) TimerEvent: {}
+[3.608877] (-) TimerEvent: {}
+[3.709139] (-) TimerEvent: {}
+[3.809333] (-) TimerEvent: {}
+[3.909598] (-) TimerEvent: {}
+[4.009789] (-) TimerEvent: {}
+[4.109979] (-) TimerEvent: {}
+[4.210272] (-) TimerEvent: {}
+[4.310480] (-) TimerEvent: {}
+[4.410782] (-) TimerEvent: {}
+[4.510987] (-) TimerEvent: {}
+[4.611242] (-) TimerEvent: {}
+[4.711539] (-) TimerEvent: {}
+[4.811819] (-) TimerEvent: {}
+[4.912153] (-) TimerEvent: {}
+[5.012453] (-) TimerEvent: {}
+[5.112742] (-) TimerEvent: {}
+[5.213004] (-) TimerEvent: {}
+[5.313252] (-) TimerEvent: {}
+[5.413568] (-) TimerEvent: {}
+[5.513807] (-) TimerEvent: {}
+[5.613999] (-) TimerEvent: {}
+[5.714317] (-) TimerEvent: {}
+[5.814627] (-) TimerEvent: {}
+[5.914827] (-) TimerEvent: {}
+[6.015043] (-) TimerEvent: {}
+[6.115306] (-) TimerEvent: {}
+[6.215550] (-) TimerEvent: {}
+[6.315729] (-) TimerEvent: {}
+[6.415914] (-) TimerEvent: {}
+[6.516131] (-) TimerEvent: {}
+[6.616341] (-) TimerEvent: {}
+[6.716537] (-) TimerEvent: {}
+[6.816736] (-) TimerEvent: {}
+[6.916934] (-) TimerEvent: {}
+[7.017134] (-) TimerEvent: {}
+[7.117333] (-) TimerEvent: {}
+[7.217561] (-) TimerEvent: {}
+[7.317793] (-) TimerEvent: {}
+[7.418009] (-) TimerEvent: {}
+[7.518169] (-) TimerEvent: {}
+[7.618352] (-) TimerEvent: {}
+[7.718730] (-) TimerEvent: {}
+[7.818926] (-) TimerEvent: {}
+[7.919104] (-) TimerEvent: {}
+[8.019312] (-) TimerEvent: {}
+[8.119472] (-) TimerEvent: {}
+[8.219633] (-) TimerEvent: {}
+[8.319919] (-) TimerEvent: {}
+[8.420118] (-) TimerEvent: {}
+[8.520308] (-) TimerEvent: {}
+[8.620621] (-) TimerEvent: {}
+[8.720799] (-) TimerEvent: {}
+[8.820970] (-) TimerEvent: {}
+[8.921146] (-) TimerEvent: {}
+[9.021503] (-) TimerEvent: {}
+[9.121694] (-) TimerEvent: {}
+[9.222020] (-) TimerEvent: {}
+[9.322307] (-) TimerEvent: {}
+[9.422569] (-) TimerEvent: {}
+[9.522824] (-) TimerEvent: {}
+[9.623077] (-) TimerEvent: {}
+[9.723381] (-) TimerEvent: {}
+[9.823638] (-) TimerEvent: {}
+[9.923973] (-) TimerEvent: {}
+[10.024292] (-) TimerEvent: {}
+[10.124735] (-) TimerEvent: {}
+[10.225072] (-) TimerEvent: {}
+[10.325439] (-) TimerEvent: {}
+[10.425689] (-) TimerEvent: {}
+[10.525884] (-) TimerEvent: {}
+[10.626155] (-) TimerEvent: {}
+[10.726353] (-) TimerEvent: {}
+[10.826610] (-) TimerEvent: {}
+[10.926888] (-) TimerEvent: {}
+[11.027166] (-) TimerEvent: {}
+[11.127513] (-) TimerEvent: {}
+[11.227734] (-) TimerEvent: {}
+[11.327931] (-) TimerEvent: {}
+[11.428240] (-) TimerEvent: {}
+[11.528414] (-) TimerEvent: {}
+[11.628559] (-) TimerEvent: {}
+[11.728701] (-) TimerEvent: {}
+[11.828856] (-) TimerEvent: {}
+[11.929005] (-) TimerEvent: {}
+[12.029164] (-) TimerEvent: {}
+[12.129336] (-) TimerEvent: {}
+[12.229476] (-) TimerEvent: {}
+[12.329640] (-) TimerEvent: {}
+[12.429830] (-) TimerEvent: {}
+[12.530025] (-) TimerEvent: {}
+[12.630269] (-) TimerEvent: {}
+[12.730428] (-) TimerEvent: {}
+[12.830584] (-) TimerEvent: {}
+[12.930800] (-) TimerEvent: {}
+[13.031023] (-) TimerEvent: {}
+[13.131198] (-) TimerEvent: {}
+[13.231366] (-) TimerEvent: {}
+[13.331573] (-) TimerEvent: {}
+[13.431924] (-) TimerEvent: {}
+[13.532110] (-) TimerEvent: {}
+[13.632295] (-) TimerEvent: {}
+[13.732439] (-) TimerEvent: {}
+[13.832612] (-) TimerEvent: {}
+[13.932768] (-) TimerEvent: {}
+[14.032952] (-) TimerEvent: {}
+[14.133166] (-) TimerEvent: {}
+[14.233433] (-) TimerEvent: {}
+[14.333643] (-) TimerEvent: {}
+[14.433855] (-) TimerEvent: {}
+[14.534075] (-) TimerEvent: {}
+[14.634272] (-) TimerEvent: {}
+[14.734526] (-) TimerEvent: {}
+[14.835922] (-) TimerEvent: {}
+[14.936205] (-) TimerEvent: {}
+[15.036710] (-) TimerEvent: {}
+[15.136939] (-) TimerEvent: {}
+[15.237210] (-) TimerEvent: {}
+[15.337519] (-) TimerEvent: {}
+[15.437814] (-) TimerEvent: {}
+[15.538066] (-) TimerEvent: {}
+[15.638350] (-) TimerEvent: {}
+[15.738658] (-) TimerEvent: {}
+[15.838988] (-) TimerEvent: {}
+[15.939260] (-) TimerEvent: {}
+[16.039575] (-) TimerEvent: {}
+[16.139892] (-) TimerEvent: {}
+[16.240187] (-) TimerEvent: {}
+[16.340481] (-) TimerEvent: {}
+[16.440766] (-) TimerEvent: {}
+[16.541027] (-) TimerEvent: {}
+[16.641291] (-) TimerEvent: {}
+[16.741582] (-) TimerEvent: {}
+[16.841784] (-) TimerEvent: {}
+[16.942051] (-) TimerEvent: {}
+[17.042323] (-) TimerEvent: {}
+[17.142578] (-) TimerEvent: {}
+[17.242788] (-) TimerEvent: {}
+[17.343004] (-) TimerEvent: {}
+[17.443212] (-) TimerEvent: {}
+[17.543472] (-) TimerEvent: {}
+[17.643730] (-) TimerEvent: {}
+[17.744020] (-) TimerEvent: {}
+[17.844322] (-) TimerEvent: {}
+[17.944650] (-) TimerEvent: {}
+[18.044967] (-) TimerEvent: {}
+[18.145236] (-) TimerEvent: {}
+[18.245547] (-) TimerEvent: {}
+[18.345794] (-) TimerEvent: {}
+[18.446093] (-) TimerEvent: {}
+[18.546372] (-) TimerEvent: {}
+[18.646652] (-) TimerEvent: {}
+[18.746970] (-) TimerEvent: {}
+[18.847250] (-) TimerEvent: {}
+[18.947456] (-) TimerEvent: {}
+[19.047731] (-) TimerEvent: {}
+[19.147948] (-) TimerEvent: {}
+[19.248262] (-) TimerEvent: {}
+[19.348508] (-) TimerEvent: {}
+[19.448809] (-) TimerEvent: {}
+[19.549018] (-) TimerEvent: {}
+[19.649316] (-) TimerEvent: {}
+[19.749587] (-) TimerEvent: {}
+[19.849795] (-) TimerEvent: {}
+[19.949990] (-) TimerEvent: {}
+[20.050263] (-) TimerEvent: {}
+[20.150543] (-) TimerEvent: {}
+[20.250814] (-) TimerEvent: {}
+[20.351069] (-) TimerEvent: {}
+[20.451320] (-) TimerEvent: {}
+[20.551673] (-) TimerEvent: {}
+[20.651875] (-) TimerEvent: {}
+[20.752136] (-) TimerEvent: {}
+[20.852404] (-) TimerEvent: {}
+[20.952632] (-) TimerEvent: {}
+[21.052838] (-) TimerEvent: {}
+[21.153043] (-) TimerEvent: {}
+[21.253307] (-) TimerEvent: {}
+[21.353603] (-) TimerEvent: {}
+[21.453801] (-) TimerEvent: {}
+[21.553998] (-) TimerEvent: {}
+[21.654191] (-) TimerEvent: {}
+[21.754373] (-) TimerEvent: {}
+[21.854567] (-) TimerEvent: {}
+[21.954774] (-) TimerEvent: {}
+[22.054984] (-) TimerEvent: {}
+[22.155274] (-) TimerEvent: {}
+[22.255555] (-) TimerEvent: {}
+[22.355745] (-) TimerEvent: {}
+[22.455935] (-) TimerEvent: {}
+[22.556243] (-) TimerEvent: {}
+[22.656552] (-) TimerEvent: {}
+[22.756799] (-) TimerEvent: {}
+[22.856999] (-) TimerEvent: {}
+[22.957206] (-) TimerEvent: {}
+[23.057417] (-) TimerEvent: {}
+[23.157711] (-) TimerEvent: {}
+[23.258011] (-) TimerEvent: {}
+[23.358291] (-) TimerEvent: {}
+[23.458551] (-) TimerEvent: {}
+[23.558733] (-) TimerEvent: {}
+[23.658992] (-) TimerEvent: {}
+[23.759301] (-) TimerEvent: {}
+[23.859493] (-) TimerEvent: {}
+[23.959686] (-) TimerEvent: {}
+[24.059874] (-) TimerEvent: {}
+[24.160184] (-) TimerEvent: {}
+[24.260643] (-) TimerEvent: {}
+[24.360834] (-) TimerEvent: {}
+[24.461101] (-) TimerEvent: {}
+[24.561410] (-) TimerEvent: {}
+[24.661593] (-) TimerEvent: {}
+[24.761890] (-) TimerEvent: {}
+[24.862161] (-) TimerEvent: {}
+[24.962494] (-) TimerEvent: {}
+[25.062704] (-) TimerEvent: {}
+[25.162983] (-) TimerEvent: {}
+[25.263244] (-) TimerEvent: {}
+[25.363547] (-) TimerEvent: {}
+[25.463805] (-) TimerEvent: {}
+[25.564110] (-) TimerEvent: {}
+[25.664465] (-) TimerEvent: {}
+[25.764776] (-) TimerEvent: {}
+[25.865046] (-) TimerEvent: {}
+[25.965310] (-) TimerEvent: {}
+[26.065652] (-) TimerEvent: {}
+[26.165965] (-) TimerEvent: {}
+[26.266278] (-) TimerEvent: {}
+[26.366600] (-) TimerEvent: {}
+[26.466922] (-) TimerEvent: {}
+[26.567222] (-) TimerEvent: {}
+[26.667510] (-) TimerEvent: {}
+[26.767796] (-) TimerEvent: {}
+[26.868096] (-) TimerEvent: {}
+[26.968430] (-) TimerEvent: {}
+[27.068738] (-) TimerEvent: {}
+[27.168979] (-) TimerEvent: {}
+[27.269266] (-) TimerEvent: {}
+[27.369517] (-) TimerEvent: {}
+[27.469773] (-) TimerEvent: {}
+[27.569962] (-) TimerEvent: {}
+[27.670221] (-) TimerEvent: {}
+[27.770403] (-) TimerEvent: {}
+[27.870626] (-) TimerEvent: {}
+[27.970834] (-) TimerEvent: {}
+[28.071112] (-) TimerEvent: {}
+[28.171402] (-) TimerEvent: {}
+[28.271683] (-) TimerEvent: {}
+[28.371925] (-) TimerEvent: {}
+[28.472189] (-) TimerEvent: {}
+[28.572455] (-) TimerEvent: {}
+[28.672742] (-) TimerEvent: {}
+[28.772944] (-) TimerEvent: {}
+[28.873222] (-) TimerEvent: {}
+[28.973501] (-) TimerEvent: {}
+[29.073709] (-) TimerEvent: {}
+[29.173921] (-) TimerEvent: {}
+[29.274131] (-) TimerEvent: {}
+[29.374362] (-) TimerEvent: {}
+[29.474679] (-) TimerEvent: {}
+[29.574966] (-) TimerEvent: {}
+[29.675244] (-) TimerEvent: {}
+[29.775543] (-) TimerEvent: {}
+[29.875760] (-) TimerEvent: {}
+[29.976061] (-) TimerEvent: {}
+[30.032187] (hope_msgs) JobProgress: {'identifier': 'hope_msgs', 'progress': 'cmake'}
+[30.033261] (hope_msgs) JobProgress: {'identifier': 'hope_msgs', 'progress': 'build'}
+[30.033364] (hope_msgs) Command: {'cmd': ['/usr/bin/cmake', '--build', '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs', '--', '-j20', '-l20'], 'cwd': '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('VSCODE_CWD', '/home/bth/workspace/a3_remote_bridge'), ('VSCODE_ESM_ENTRYPOINT', 'vs/workbench/api/node/extensionHostProcess'), ('HTTPS_PROXY', 'http://127.0.0.1:7897/'), ('CODEX_CI', '1'), ('no_proxy', 'localhost,127.0.0.1,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,::1'), ('LANGUAGE', 'zh_CN:zh'), ('USER', 'bth'), ('CODEX_INTERNAL_ORIGINATOR_OVERRIDE', 'codex_vscode'), ('VSCODE_NLS_CONFIG', '{"userLocale":"zh-cn","osLocale":"zh-cn","resolvedLanguage":"zh-cn","defaultMessagesFile":"/usr/share/code/resources/app/out/nls.messages.json","languagePack":{"translationsConfigFile":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/tcf.json","messagesFile":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/1e3c50d64110be466c0b4a45222e81d2c9352888/nls.messages.json","corruptMarkerFile":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/corrupted.info"},"locale":"zh-cn","availableLanguages":{"*":"zh-cn"},"_languagePackId":"08e3eb26a94cfe99087efc53c5a0cebc.zh-cn","_languagePackSupport":true,"_translationsConfigFile":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/tcf.json","_cacheRoot":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn","_resolvedLanguagePackCoreLocation":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/1e3c50d64110be466c0b4a45222e81d2c9352888","_corruptedFile":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/corrupted.info"}'), ('all_proxy', 'socks://127.0.0.1:7897/'), ('VSCODE_HANDLES_UNCAUGHT_ERRORS', 'true'), ('XDG_SESSION_TYPE', 'x11'), ('DEBUG', 'release'), ('SHLVL', '2'), ('LD_LIBRARY_PATH', '/opt/openrobots/lib:/home/bth/TensorRT/targets/x86_64-linux-gnu/lib:/usr/local/cuda/lib64:/home/bth/workspace/Mocap/install/ppmocap_driver/lib:/home/bth/workspace/Mocap/install/ppmocap_msgs/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/bth'), ('CHROME_DESKTOP', 'code.desktop'), ('CONDA_SHLVL', '0'), ('OLDPWD', '/home/bth/workspace/a3_remote_bridge'), ('DESKTOP_SESSION', 'ubuntu'), ('NO_PROXY', 'localhost,127.0.0.1,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,::1'), ('VSCODE_IPC_HOOK', '/run/user/1000/vscode-ab841786-1.10-main.sock'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('PAGER', 'cat'), ('LC_CTYPE', 'C.UTF-8'), ('DBUS_STARTER_BUS_TYPE', 'session'), ('SYSTEMD_EXEC_PID', '1654'), ('NO_COLOR', '1'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus,guid=9afd1542fe1674c30f6049e76a826bc7'), ('COLORTERM', ''), ('PYTHONNOUSERSITE', '1'), ('_CONDA_ROOT', '/home/bth/miniconda3'), ('VSCODE_CRASH_REPORTER_PROCESS_TYPE', 'extensionHost'), ('https_proxy', 'http://127.0.0.1:7897/'), ('COLCON_PREFIX_PATH', '/home/bth/workspace/Mocap/install'), ('CODEX_PERMISSION_PROFILE', ':workspace'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'fcitx'), ('LOGNAME', 'bth'), ('ALL_PROXY', 'socks://127.0.0.1:7897/'), ('http_proxy', 'http://127.0.0.1:7897/'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('PKG_CONFIG_PATH', '/opt/openrobots/lib/pkgconfig:'), ('XDG_SESSION_CLASS', 'user'), ('RUST_LOG', 'warn'), ('USERNAME', 'bth'), ('TERM', 'dumb'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/usr/bin:/bin:/usr/sbin:/sbin:/home/bth/.local/bin:/home/bth/.codex/tmp/arg0/codex-arg09UbUJ4:/home/bth/.local/bin:/opt/openrobots/bin:/usr/local/cuda/bin:/home/bth/miniconda3/condabin:/opt/ros/humble/bin:/home/bth/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/bth/.vscode/extensions/openai.chatgpt-26.810.52044-linux-x64/bin/linux-x86_64'), ('SESSION_MANAGER', 'local/bth-TX-Gaming-FX608LM-FX608LM:@/tmp/.ICE-unix/1654,unix/bth-TX-Gaming-FX608LM-FX608LM:/tmp/.ICE-unix/1654'), ('CODEX_SESSION_ID', '01a00da8-e5b3-7213-a1d3-6ab8a46b25fb'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/0870bbf6_8840_4e5e_9a59_7fe8084eb43d'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('GDK_BACKEND', 'x11'), ('CUDAToolkit_ROOT', '/usr/local/cuda'), ('DISPLAY', ':0'), ('CODEX_SANDBOX_NETWORK_DISABLED', '1'), ('LANG', 'C.UTF-8'), ('XDG_CURRENT_DESKTOP', 'Unity'), ('CYCLONEDDS_HOME', '/usr/local'), ('XMODIFIERS', '@im=fcitx'), ('GH_PAGER', 'cat'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.155'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/bth/workspace/Mocap/install/ppmocap_tools:/home/bth/workspace/Mocap/install/ppmocap_prediction:/home/bth/workspace/Mocap/install/ppmocap_driver:/home/bth/workspace/Mocap/install/ppmocap_msgs:/opt/ros/humble'), ('CONDA_PYTHON_EXE', '/home/bth/miniconda3/bin/python'), ('ORIGINAL_XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('ELECTRON_RUN_AS_NODE', '1'), ('GDMSESSION', 'ubuntu'), ('TensorRT_ROOT', '/home/bth/TensorRT'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('CODEX_THREAD_ID', '01a00da8-e5b3-7213-a1d3-6ab8a46b25fb'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('_CONDA_EXE', '/home/bth/miniconda3/bin/conda'), ('GIT_PAGER', 'cat'), ('QT_IM_MODULE', 'fcitx'), ('PWD', '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs'), ('VSCODE_CLI', '1'), ('LC_ALL', 'C.UTF-8'), ('CUDA_HOME', '/usr/local/cuda'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('CONDA_EXE', '/home/bth/miniconda3/bin/conda'), ('VSCODE_CODE_CACHE_PATH', '/home/bth/.config/Code/CachedData/1e3c50d64110be466c0b4a45222e81d2c9352888'), ('DBUS_STARTER_ADDRESS', 'unix:path=/run/user/1000/bus,guid=9afd1542fe1674c30f6049e76a826bc7'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/opt/openrobots/lib/python3.10/site-packages:/home/bth/workspace/Mocap/build/ppmocap_tools:/home/bth/workspace/Mocap/install/ppmocap_tools/lib/python3.10/site-packages:/home/bth/workspace/Mocap/build/ppmocap_prediction:/home/bth/workspace/Mocap/install/ppmocap_prediction/lib/python3.10/site-packages:/home/bth/workspace/Mocap/install/ppmocap_msgs/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('HTTP_PROXY', 'http://127.0.0.1:7897/'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('ELECTRON_NO_ATTACH_CONSOLE', '1'), ('CMAKE_PREFIX_PATH', '/usr/local:/opt/openrobots:/home/bth/workspace/Mocap/install/ppmocap_driver:/home/bth/workspace/Mocap/install/ppmocap_msgs:/home/bth/workspace/Mocap/install/ppmocap_tools:/home/bth/workspace/Mocap/install/ppmocap_prediction:/opt/ros/humble'), ('VSCODE_PID', '4084')]), 'shell': False}
+[30.069589] (hope_msgs) StdoutLine: {'line': b'Consolidate compiler generated dependencies of target hope_msgs__rosidl_generator_c\n'}
+[30.076125] (-) TimerEvent: {}
+[30.078618] (hope_msgs) StdoutLine: {'line': b'[  3%] Built target hope_msgs__cpp\n'}
+[30.079512] (hope_msgs) StdoutLine: {'line': b'[ 12%] Built target hope_msgs__rosidl_generator_c\n'}
+[30.087746] (hope_msgs) StdoutLine: {'line': b'Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_fastrtps_cpp\n'}
+[30.087868] (hope_msgs) StdoutLine: {'line': b'Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_introspection_cpp\n'}
+[30.087896] (hope_msgs) StdoutLine: {'line': b'[ 12%] Built target ament_cmake_python_copy_hope_msgs\n'}
+[30.087921] (hope_msgs) StdoutLine: {'line': b'[ 16%] Generating C type support for eProsima Fast-RTPS\n'}
+[30.087982] (hope_msgs) StdoutLine: {'line': b'[ 19%] Generating C type support dispatch for ROS interfaces\n'}
+[30.089046] (hope_msgs) StdoutLine: {'line': b'[ 22%] Generating C introspection for ROS interfaces\n'}
+[30.089117] (hope_msgs) StdoutLine: {'line': b'Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_cpp\n'}
+[30.094865] (hope_msgs) StdoutLine: {'line': b'[ 32%] Built target hope_msgs__rosidl_typesupport_fastrtps_cpp\n'}
+[30.096737] (hope_msgs) StdoutLine: {'line': b'[ 41%] Built target hope_msgs__rosidl_typesupport_introspection_cpp\n'}
+[30.096824] (hope_msgs) StdoutLine: {'line': b'[ 51%] Built target hope_msgs__rosidl_typesupport_cpp\n'}
+[30.176362] (-) TimerEvent: {}
+[30.208100] (hope_msgs) StdoutLine: {'line': b'running egg_info\n'}
+[30.208272] (hope_msgs) StdoutLine: {'line': b'writing hope_msgs.egg-info/PKG-INFO\n'}
+[30.208347] (hope_msgs) StdoutLine: {'line': b'writing dependency_links to hope_msgs.egg-info/dependency_links.txt\n'}
+[30.208410] (hope_msgs) StdoutLine: {'line': b'writing top-level names to hope_msgs.egg-info/top_level.txt\n'}
+[30.209747] (hope_msgs) StdoutLine: {'line': b"reading manifest file 'hope_msgs.egg-info/SOURCES.txt'\n"}
+[30.209790] (hope_msgs) StdoutLine: {'line': b"writing manifest file 'hope_msgs.egg-info/SOURCES.txt'\n"}
+[30.227471] (hope_msgs) StdoutLine: {'line': b'Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_c\n'}
+[30.229001] (hope_msgs) StdoutLine: {'line': b'[ 51%] Built target ament_cmake_python_build_hope_msgs_egg\n'}
+[30.236618] (hope_msgs) StdoutLine: {'line': b'[ 54%] Building CXX object CMakeFiles/hope_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/hope_msgs/msg/racket_command__type_support.cpp.o\n'}
+[30.236755] (hope_msgs) StdoutLine: {'line': b'Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_introspection_c\n'}
+[30.244052] (hope_msgs) StdoutLine: {'line': b'[ 58%] Building C object CMakeFiles/hope_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/hope_msgs/msg/detail/racket_command__type_support.c.o\n'}
+[30.245000] (hope_msgs) StdoutLine: {'line': b'Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_fastrtps_c\n'}
+[30.252996] (hope_msgs) StdoutLine: {'line': b'[ 61%] Building CXX object CMakeFiles/hope_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/hope_msgs/msg/detail/racket_command__type_support_c.cpp.o\n'}
+[30.259858] (hope_msgs) StdoutLine: {'line': b'[ 64%] Linking CXX shared library libhope_msgs__rosidl_typesupport_c.so\n'}
+[30.271059] (hope_msgs) StdoutLine: {'line': b'[ 67%] Linking C shared library libhope_msgs__rosidl_typesupport_introspection_c.so\n'}
+[30.276509] (-) TimerEvent: {}
+[30.285664] (hope_msgs) StdoutLine: {'line': b'[ 67%] Built target hope_msgs__rosidl_typesupport_c\n'}
+[30.292899] (hope_msgs) StdoutLine: {'line': b'[ 67%] Built target hope_msgs__rosidl_typesupport_introspection_c\n'}
+[30.376608] (-) TimerEvent: {}
+[30.398666] (hope_msgs) StdoutLine: {'line': b'[ 70%] Linking CXX shared library libhope_msgs__rosidl_typesupport_fastrtps_c.so\n'}
+[30.451690] (hope_msgs) StdoutLine: {'line': b'[ 70%] Built target hope_msgs__rosidl_typesupport_fastrtps_c\n'}
+[30.469755] (hope_msgs) StdoutLine: {'line': b'[ 70%] Built target hope_msgs\n'}
+[30.476670] (-) TimerEvent: {}
+[30.487206] (hope_msgs) StdoutLine: {'line': b'[ 74%] Built target hope_msgs__py\n'}
+[30.496388] (hope_msgs) StdoutLine: {'line': b'Consolidate compiler generated dependencies of target hope_msgs__rosidl_generator_py\n'}
+[30.504547] (hope_msgs) StdoutLine: {'line': b'[ 77%] Building C object CMakeFiles/hope_msgs__rosidl_generator_py.dir/rosidl_generator_py/hope_msgs/msg/_racket_command_s.c.o\n'}
+[30.576775] (-) TimerEvent: {}
+[30.588899] (hope_msgs) StdoutLine: {'line': b'[ 80%] Linking C shared library rosidl_generator_py/hope_msgs/libhope_msgs__rosidl_generator_py.so\n'}
+[30.624467] (hope_msgs) StdoutLine: {'line': b'[ 80%] Built target hope_msgs__rosidl_generator_py\n'}
+[30.632439] (hope_msgs) StdoutLine: {'line': b'Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_c__pyext\n'}
+[30.633400] (hope_msgs) StdoutLine: {'line': b'Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_introspection_c__pyext\n'}
+[30.636340] (hope_msgs) StdoutLine: {'line': b'Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_fastrtps_c__pyext\n'}
+[30.640447] (hope_msgs) StdoutLine: {'line': b'[ 83%] Building C object CMakeFiles/hope_msgs__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/hope_msgs/_hope_msgs_s.ep.rosidl_typesupport_c.c.o\n'}
+[30.642359] (hope_msgs) StdoutLine: {'line': b'[ 87%] Building C object CMakeFiles/hope_msgs__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/hope_msgs/_hope_msgs_s.ep.rosidl_typesupport_introspection_c.c.o\n'}
+[30.648114] (hope_msgs) StdoutLine: {'line': b'[ 90%] Building C object CMakeFiles/hope_msgs__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/hope_msgs/_hope_msgs_s.ep.rosidl_typesupport_fastrtps_c.c.o\n'}
+[30.676873] (-) TimerEvent: {}
+[30.690606] (hope_msgs) StdoutLine: {'line': b'[ 93%] Linking C shared library rosidl_generator_py/hope_msgs/hope_msgs_s__rosidl_typesupport_introspection_c.cpython-311-x86_64-linux-gnu.so\n'}
+[30.693047] (hope_msgs) StdoutLine: {'line': b'[ 96%] Linking C shared library rosidl_generator_py/hope_msgs/hope_msgs_s__rosidl_typesupport_c.cpython-311-x86_64-linux-gnu.so\n'}
+[30.700644] (hope_msgs) StdoutLine: {'line': b'[100%] Linking C shared library rosidl_generator_py/hope_msgs/hope_msgs_s__rosidl_typesupport_fastrtps_c.cpython-311-x86_64-linux-gnu.so\n'}
+[30.719577] (hope_msgs) StdoutLine: {'line': b'[100%] Built target hope_msgs__rosidl_typesupport_c__pyext\n'}
+[30.719970] (hope_msgs) StdoutLine: {'line': b'[100%] Built target hope_msgs__rosidl_typesupport_introspection_c__pyext\n'}
+[30.729168] (hope_msgs) StdoutLine: {'line': b'[100%] Built target hope_msgs__rosidl_typesupport_fastrtps_c__pyext\n'}
+[30.776972] (-) TimerEvent: {}
+[30.877207] (-) TimerEvent: {}
+[30.977541] (-) TimerEvent: {}
+[31.077860] (-) TimerEvent: {}
+[31.178142] (-) TimerEvent: {}
+[31.278408] (-) TimerEvent: {}
+[31.378685] (-) TimerEvent: {}
+[31.478971] (-) TimerEvent: {}
+[31.579250] (-) TimerEvent: {}
+[31.679527] (-) TimerEvent: {}
+[31.779797] (-) TimerEvent: {}
+[31.880045] (-) TimerEvent: {}
+[31.980322] (-) TimerEvent: {}
+[32.080622] (-) TimerEvent: {}
+[32.180920] (-) TimerEvent: {}
+[32.281082] (-) TimerEvent: {}
+[32.381244] (-) TimerEvent: {}
+[32.481402] (-) TimerEvent: {}
+[32.581584] (-) TimerEvent: {}
+[32.681791] (-) TimerEvent: {}
+[32.781978] (-) TimerEvent: {}
+[32.882777] (-) TimerEvent: {}
+[32.982953] (-) TimerEvent: {}
+[33.083323] (-) TimerEvent: {}
+[33.183544] (-) TimerEvent: {}
+[33.283716] (-) TimerEvent: {}
+[33.383880] (-) TimerEvent: {}
+[33.484042] (-) TimerEvent: {}
+[33.584205] (-) TimerEvent: {}
+[33.684553] (-) TimerEvent: {}
+[33.784784] (-) TimerEvent: {}
+[33.884936] (-) TimerEvent: {}
+[33.985101] (-) TimerEvent: {}
+[34.085278] (-) TimerEvent: {}
+[34.185457] (-) TimerEvent: {}
+[34.285635] (-) TimerEvent: {}
+[34.385782] (-) TimerEvent: {}
+[34.485944] (-) TimerEvent: {}
+[34.586139] (-) TimerEvent: {}
+[34.686318] (-) TimerEvent: {}
+[34.786477] (-) TimerEvent: {}
+[34.886655] (-) TimerEvent: {}
+[34.986895] (-) TimerEvent: {}
+[35.087119] (-) TimerEvent: {}
+[35.187343] (-) TimerEvent: {}
+[35.287595] (-) TimerEvent: {}
+[35.387830] (-) TimerEvent: {}
+[35.489121] (-) TimerEvent: {}
+[35.589284] (-) TimerEvent: {}
+[35.689473] (-) TimerEvent: {}
+[35.789713] (-) TimerEvent: {}
+[35.889836] (-) TimerEvent: {}
+[35.990015] (-) TimerEvent: {}
+[36.090196] (-) TimerEvent: {}
+[36.190453] (-) TimerEvent: {}
+[36.290621] (-) TimerEvent: {}
+[36.390778] (-) TimerEvent: {}
+[36.490957] (-) TimerEvent: {}
+[36.591140] (-) TimerEvent: {}
+[36.691321] (-) TimerEvent: {}
+[36.791754] (-) TimerEvent: {}
+[36.891919] (-) TimerEvent: {}
+[36.992368] (-) TimerEvent: {}
+[37.092545] (-) TimerEvent: {}
+[37.192712] (-) TimerEvent: {}
+[37.292887] (-) TimerEvent: {}
+[37.393473] (-) TimerEvent: {}
+[37.493648] (-) TimerEvent: {}
+[37.593819] (-) TimerEvent: {}
+[37.694029] (-) TimerEvent: {}
+[37.794254] (-) TimerEvent: {}
+[37.894554] (-) TimerEvent: {}
+[37.994782] (-) TimerEvent: {}
+[38.094980] (-) TimerEvent: {}
+[38.195245] (-) TimerEvent: {}
+[38.295500] (-) TimerEvent: {}
+[38.395675] (-) TimerEvent: {}
+[38.495940] (-) TimerEvent: {}
+[38.596128] (-) TimerEvent: {}
+[38.696284] (-) TimerEvent: {}
+[38.796545] (-) TimerEvent: {}
+[38.896719] (-) TimerEvent: {}
+[38.996883] (-) TimerEvent: {}
+[39.097075] (-) TimerEvent: {}
+[39.197462] (-) TimerEvent: {}
+[39.297689] (-) TimerEvent: {}
+[39.397833] (-) TimerEvent: {}
+[39.498003] (-) TimerEvent: {}
+[39.598282] (-) TimerEvent: {}
+[39.698542] (-) TimerEvent: {}
+[39.798712] (-) TimerEvent: {}
+[39.898898] (-) TimerEvent: {}
+[39.999194] (-) TimerEvent: {}
+[40.099513] (-) TimerEvent: {}
+[40.199744] (-) TimerEvent: {}
+[40.299910] (-) TimerEvent: {}
+[40.400067] (-) TimerEvent: {}
+[40.500344] (-) TimerEvent: {}
+[40.600641] (-) TimerEvent: {}
+[40.700791] (-) TimerEvent: {}
+[40.800966] (-) TimerEvent: {}
+[40.901189] (-) TimerEvent: {}
+[41.001384] (-) TimerEvent: {}
+[41.101559] (-) TimerEvent: {}
+[41.201745] (-) TimerEvent: {}
+[41.301902] (-) TimerEvent: {}
+[41.402050] (-) TimerEvent: {}
+[41.502220] (-) TimerEvent: {}
+[41.602385] (-) TimerEvent: {}
+[41.702558] (-) TimerEvent: {}
+[41.802743] (-) TimerEvent: {}
+[41.902952] (-) TimerEvent: {}
+[42.003366] (-) TimerEvent: {}
+[42.103585] (-) TimerEvent: {}
+[42.203797] (-) TimerEvent: {}
+[42.304015] (-) TimerEvent: {}
+[42.404217] (-) TimerEvent: {}
+[42.504516] (-) TimerEvent: {}
+[42.604678] (-) TimerEvent: {}
+[42.704842] (-) TimerEvent: {}
+[42.804996] (-) TimerEvent: {}
+[42.905284] (-) TimerEvent: {}
+[43.005625] (-) TimerEvent: {}
+[43.105855] (-) TimerEvent: {}
+[43.206172] (-) TimerEvent: {}
+[43.306417] (-) TimerEvent: {}
+[43.406624] (-) TimerEvent: {}
+[43.506826] (-) TimerEvent: {}
+[43.607032] (-) TimerEvent: {}
+[43.707285] (-) TimerEvent: {}
+[43.807599] (-) TimerEvent: {}
+[43.907872] (-) TimerEvent: {}
+[44.008115] (-) TimerEvent: {}
+[44.108312] (-) TimerEvent: {}
+[44.208577] (-) TimerEvent: {}
+[44.308767] (-) TimerEvent: {}
+[44.408960] (-) TimerEvent: {}
+[44.509186] (-) TimerEvent: {}
+[44.609479] (-) TimerEvent: {}
+[44.709690] (-) TimerEvent: {}
+[44.809934] (-) TimerEvent: {}
+[44.910266] (-) TimerEvent: {}
+[45.010522] (-) TimerEvent: {}
+[45.110772] (-) TimerEvent: {}
+[45.211019] (-) TimerEvent: {}
+[45.311246] (-) TimerEvent: {}
+[45.411505] (-) TimerEvent: {}
+[45.511952] (-) TimerEvent: {}
+[45.612206] (-) TimerEvent: {}
+[45.712458] (-) TimerEvent: {}
+[45.812641] (-) TimerEvent: {}
+[45.912834] (-) TimerEvent: {}
+[46.013030] (-) TimerEvent: {}
+[46.113279] (-) TimerEvent: {}
+[46.213459] (-) TimerEvent: {}
+[46.313661] (-) TimerEvent: {}
+[46.413964] (-) TimerEvent: {}
+[46.514169] (-) TimerEvent: {}
+[46.614583] (-) TimerEvent: {}
+[46.714803] (-) TimerEvent: {}
+[46.815068] (-) TimerEvent: {}
+[46.915481] (-) TimerEvent: {}
+[47.015713] (-) TimerEvent: {}
+[47.115950] (-) TimerEvent: {}
+[47.216250] (-) TimerEvent: {}
+[47.316498] (-) TimerEvent: {}
+[47.416748] (-) TimerEvent: {}
+[47.517056] (-) TimerEvent: {}
+[47.617328] (-) TimerEvent: {}
+[47.717543] (-) TimerEvent: {}
+[47.817785] (-) TimerEvent: {}
+[47.918027] (-) TimerEvent: {}
+[48.018360] (-) TimerEvent: {}
+[48.118570] (-) TimerEvent: {}
+[48.218782] (-) TimerEvent: {}
+[48.319097] (-) TimerEvent: {}
+[48.419449] (-) TimerEvent: {}
+[48.519672] (-) TimerEvent: {}
+[48.619996] (-) TimerEvent: {}
+[48.720329] (-) TimerEvent: {}
+[48.820569] (-) TimerEvent: {}
+[48.920823] (-) TimerEvent: {}
+[49.021180] (-) TimerEvent: {}
+[49.121508] (-) TimerEvent: {}
+[49.221782] (-) TimerEvent: {}
+[49.322041] (-) TimerEvent: {}
+[49.422385] (-) TimerEvent: {}
+[49.522729] (-) TimerEvent: {}
+[49.623062] (-) TimerEvent: {}
+[49.723383] (-) TimerEvent: {}
+[49.823802] (-) TimerEvent: {}
+[49.924129] (-) TimerEvent: {}
+[50.024449] (-) TimerEvent: {}
+[50.124748] (-) TimerEvent: {}
+[50.225042] (-) TimerEvent: {}
+[50.325386] (-) TimerEvent: {}
+[50.425790] (-) TimerEvent: {}
+[50.526072] (-) TimerEvent: {}
+[50.626412] (-) TimerEvent: {}
+[50.726615] (-) TimerEvent: {}
+[50.826764] (-) TimerEvent: {}
+[50.926881] (-) TimerEvent: {}
+[51.026993] (-) TimerEvent: {}
+[51.127108] (-) TimerEvent: {}
+[51.227261] (-) TimerEvent: {}
+[51.327411] (-) TimerEvent: {}
+[51.427549] (-) TimerEvent: {}
+[51.527825] (-) TimerEvent: {}
+[51.628133] (-) TimerEvent: {}
+[51.728463] (-) TimerEvent: {}
+[51.828747] (-) TimerEvent: {}
+[51.929039] (-) TimerEvent: {}
+[52.029331] (-) TimerEvent: {}
+[52.129689] (-) TimerEvent: {}
+[52.229980] (-) TimerEvent: {}
+[52.330177] (-) TimerEvent: {}
+[52.430504] (-) TimerEvent: {}
+[52.530764] (-) TimerEvent: {}
+[52.631046] (-) TimerEvent: {}
+[52.731334] (-) TimerEvent: {}
+[52.831531] (-) TimerEvent: {}
+[52.931738] (-) TimerEvent: {}
+[53.031947] (-) TimerEvent: {}
+[53.132184] (-) TimerEvent: {}
+[53.232598] (-) TimerEvent: {}
+[53.332798] (-) TimerEvent: {}
+[53.432992] (-) TimerEvent: {}
+[53.533299] (-) TimerEvent: {}
+[53.633478] (-) TimerEvent: {}
+[53.733669] (-) TimerEvent: {}
+[53.833828] (-) TimerEvent: {}
+[53.934002] (-) TimerEvent: {}
+[54.034168] (-) TimerEvent: {}
+[54.134334] (-) TimerEvent: {}
+[54.234608] (-) TimerEvent: {}
+[54.334785] (-) TimerEvent: {}
+[54.434956] (-) TimerEvent: {}
+[54.535117] (-) TimerEvent: {}
+[54.635295] (-) TimerEvent: {}
+[54.735896] (-) TimerEvent: {}
+[54.836189] (-) TimerEvent: {}
+[54.936391] (-) TimerEvent: {}
+[55.036778] (-) TimerEvent: {}
+[55.136973] (-) TimerEvent: {}
+[55.237232] (-) TimerEvent: {}
+[55.337485] (-) TimerEvent: {}
+[55.437665] (-) TimerEvent: {}
+[55.537849] (-) TimerEvent: {}
+[55.638038] (-) TimerEvent: {}
+[55.738314] (-) TimerEvent: {}
+[55.838547] (-) TimerEvent: {}
+[55.938734] (-) TimerEvent: {}
+[56.038927] (-) TimerEvent: {}
+[56.139127] (-) TimerEvent: {}
+[56.239377] (-) TimerEvent: {}
+[56.339561] (-) TimerEvent: {}
+[56.439851] (-) TimerEvent: {}
+[56.540108] (-) TimerEvent: {}
+[56.640382] (-) TimerEvent: {}
+[56.740594] (-) TimerEvent: {}
+[56.840787] (-) TimerEvent: {}
+[56.940976] (-) TimerEvent: {}
+[57.041255] (-) TimerEvent: {}
+[57.141475] (-) TimerEvent: {}
+[57.241665] (-) TimerEvent: {}
+[57.341849] (-) TimerEvent: {}
+[57.442049] (-) TimerEvent: {}
+[57.542308] (-) TimerEvent: {}
+[57.642568] (-) TimerEvent: {}
+[57.742766] (-) TimerEvent: {}
+[57.842962] (-) TimerEvent: {}
+[57.943247] (-) TimerEvent: {}
+[58.043469] (-) TimerEvent: {}
+[58.143648] (-) TimerEvent: {}
+[58.243918] (-) TimerEvent: {}
+[58.344148] (-) TimerEvent: {}
+[58.444319] (-) TimerEvent: {}
+[58.544580] (-) TimerEvent: {}
+[58.644763] (-) TimerEvent: {}
+[58.744952] (-) TimerEvent: {}
+[58.845253] (-) TimerEvent: {}
+[58.945522] (-) TimerEvent: {}
+[59.045819] (-) TimerEvent: {}
+[59.146113] (-) TimerEvent: {}
+[59.246391] (-) TimerEvent: {}
+[59.346569] (-) TimerEvent: {}
+[59.446748] (-) TimerEvent: {}
+[59.546934] (-) TimerEvent: {}
+[59.647147] (-) TimerEvent: {}
+[59.747401] (-) TimerEvent: {}
+[59.847699] (-) TimerEvent: {}
+[59.947895] (-) TimerEvent: {}
+[60.048094] (-) TimerEvent: {}
+[60.063222] (hope_msgs) CommandEnded: {'returncode': 0}
+[60.063640] (hope_msgs) JobProgress: {'identifier': 'hope_msgs', 'progress': 'install'}
+[60.070395] (hope_msgs) Command: {'cmd': ['/usr/bin/cmake', '--install', '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs'], 'cwd': '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('VSCODE_CWD', '/home/bth/workspace/a3_remote_bridge'), ('VSCODE_ESM_ENTRYPOINT', 'vs/workbench/api/node/extensionHostProcess'), ('HTTPS_PROXY', 'http://127.0.0.1:7897/'), ('CODEX_CI', '1'), ('no_proxy', 'localhost,127.0.0.1,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,::1'), ('LANGUAGE', 'zh_CN:zh'), ('USER', 'bth'), ('CODEX_INTERNAL_ORIGINATOR_OVERRIDE', 'codex_vscode'), ('VSCODE_NLS_CONFIG', '{"userLocale":"zh-cn","osLocale":"zh-cn","resolvedLanguage":"zh-cn","defaultMessagesFile":"/usr/share/code/resources/app/out/nls.messages.json","languagePack":{"translationsConfigFile":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/tcf.json","messagesFile":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/1e3c50d64110be466c0b4a45222e81d2c9352888/nls.messages.json","corruptMarkerFile":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/corrupted.info"},"locale":"zh-cn","availableLanguages":{"*":"zh-cn"},"_languagePackId":"08e3eb26a94cfe99087efc53c5a0cebc.zh-cn","_languagePackSupport":true,"_translationsConfigFile":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/tcf.json","_cacheRoot":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn","_resolvedLanguagePackCoreLocation":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/1e3c50d64110be466c0b4a45222e81d2c9352888","_corruptedFile":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/corrupted.info"}'), ('all_proxy', 'socks://127.0.0.1:7897/'), ('VSCODE_HANDLES_UNCAUGHT_ERRORS', 'true'), ('XDG_SESSION_TYPE', 'x11'), ('DEBUG', 'release'), ('SHLVL', '2'), ('LD_LIBRARY_PATH', '/opt/openrobots/lib:/home/bth/TensorRT/targets/x86_64-linux-gnu/lib:/usr/local/cuda/lib64:/home/bth/workspace/Mocap/install/ppmocap_driver/lib:/home/bth/workspace/Mocap/install/ppmocap_msgs/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/bth'), ('CHROME_DESKTOP', 'code.desktop'), ('CONDA_SHLVL', '0'), ('OLDPWD', '/home/bth/workspace/a3_remote_bridge'), ('DESKTOP_SESSION', 'ubuntu'), ('NO_PROXY', 'localhost,127.0.0.1,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,::1'), ('VSCODE_IPC_HOOK', '/run/user/1000/vscode-ab841786-1.10-main.sock'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('PAGER', 'cat'), ('LC_CTYPE', 'C.UTF-8'), ('DBUS_STARTER_BUS_TYPE', 'session'), ('SYSTEMD_EXEC_PID', '1654'), ('NO_COLOR', '1'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus,guid=9afd1542fe1674c30f6049e76a826bc7'), ('COLORTERM', ''), ('PYTHONNOUSERSITE', '1'), ('_CONDA_ROOT', '/home/bth/miniconda3'), ('VSCODE_CRASH_REPORTER_PROCESS_TYPE', 'extensionHost'), ('https_proxy', 'http://127.0.0.1:7897/'), ('COLCON_PREFIX_PATH', '/home/bth/workspace/Mocap/install'), ('CODEX_PERMISSION_PROFILE', ':workspace'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'fcitx'), ('LOGNAME', 'bth'), ('ALL_PROXY', 'socks://127.0.0.1:7897/'), ('http_proxy', 'http://127.0.0.1:7897/'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('PKG_CONFIG_PATH', '/opt/openrobots/lib/pkgconfig:'), ('XDG_SESSION_CLASS', 'user'), ('RUST_LOG', 'warn'), ('USERNAME', 'bth'), ('TERM', 'dumb'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/usr/bin:/bin:/usr/sbin:/sbin:/home/bth/.local/bin:/home/bth/.codex/tmp/arg0/codex-arg09UbUJ4:/home/bth/.local/bin:/opt/openrobots/bin:/usr/local/cuda/bin:/home/bth/miniconda3/condabin:/opt/ros/humble/bin:/home/bth/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/bth/.vscode/extensions/openai.chatgpt-26.810.52044-linux-x64/bin/linux-x86_64'), ('SESSION_MANAGER', 'local/bth-TX-Gaming-FX608LM-FX608LM:@/tmp/.ICE-unix/1654,unix/bth-TX-Gaming-FX608LM-FX608LM:/tmp/.ICE-unix/1654'), ('CODEX_SESSION_ID', '01a00da8-e5b3-7213-a1d3-6ab8a46b25fb'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/0870bbf6_8840_4e5e_9a59_7fe8084eb43d'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('GDK_BACKEND', 'x11'), ('CUDAToolkit_ROOT', '/usr/local/cuda'), ('DISPLAY', ':0'), ('CODEX_SANDBOX_NETWORK_DISABLED', '1'), ('LANG', 'C.UTF-8'), ('XDG_CURRENT_DESKTOP', 'Unity'), ('CYCLONEDDS_HOME', '/usr/local'), ('XMODIFIERS', '@im=fcitx'), ('GH_PAGER', 'cat'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.155'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/bth/workspace/Mocap/install/ppmocap_tools:/home/bth/workspace/Mocap/install/ppmocap_prediction:/home/bth/workspace/Mocap/install/ppmocap_driver:/home/bth/workspace/Mocap/install/ppmocap_msgs:/opt/ros/humble'), ('CONDA_PYTHON_EXE', '/home/bth/miniconda3/bin/python'), ('ORIGINAL_XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('ELECTRON_RUN_AS_NODE', '1'), ('GDMSESSION', 'ubuntu'), ('TensorRT_ROOT', '/home/bth/TensorRT'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('CODEX_THREAD_ID', '01a00da8-e5b3-7213-a1d3-6ab8a46b25fb'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('_CONDA_EXE', '/home/bth/miniconda3/bin/conda'), ('GIT_PAGER', 'cat'), ('QT_IM_MODULE', 'fcitx'), ('PWD', '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs'), ('VSCODE_CLI', '1'), ('LC_ALL', 'C.UTF-8'), ('CUDA_HOME', '/usr/local/cuda'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('CONDA_EXE', '/home/bth/miniconda3/bin/conda'), ('VSCODE_CODE_CACHE_PATH', '/home/bth/.config/Code/CachedData/1e3c50d64110be466c0b4a45222e81d2c9352888'), ('DBUS_STARTER_ADDRESS', 'unix:path=/run/user/1000/bus,guid=9afd1542fe1674c30f6049e76a826bc7'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/opt/openrobots/lib/python3.10/site-packages:/home/bth/workspace/Mocap/build/ppmocap_tools:/home/bth/workspace/Mocap/install/ppmocap_tools/lib/python3.10/site-packages:/home/bth/workspace/Mocap/build/ppmocap_prediction:/home/bth/workspace/Mocap/install/ppmocap_prediction/lib/python3.10/site-packages:/home/bth/workspace/Mocap/install/ppmocap_msgs/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('HTTP_PROXY', 'http://127.0.0.1:7897/'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('ELECTRON_NO_ATTACH_CONSOLE', '1'), ('CMAKE_PREFIX_PATH', '/usr/local:/opt/openrobots:/home/bth/workspace/Mocap/install/ppmocap_driver:/home/bth/workspace/Mocap/install/ppmocap_msgs:/home/bth/workspace/Mocap/install/ppmocap_tools:/home/bth/workspace/Mocap/install/ppmocap_prediction:/opt/ros/humble'), ('VSCODE_PID', '4084')]), 'shell': False}
+[60.079294] (hope_msgs) StdoutLine: {'line': b'-- Install configuration: ""\n'}
+[60.079379] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/ament_index/resource_index/rosidl_interfaces/hope_msgs\n'}
+[60.079415] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs\n'}
+[60.079448] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg\n'}
+[60.079475] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/rosidl_generator_c__visibility_control.h\n'}
+[60.079501] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail\n'}
+[60.079526] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__struct.h\n'}
+[60.079550] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__type_support.h\n'}
+[60.079573] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__functions.h\n'}
+[60.079597] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__functions.c\n'}
+[60.079625] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/racket_command.h\n'}
+[60.079649] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/environment/library_path.sh\n'}
+[60.079672] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/environment/library_path.dsv\n'}
+[60.113431] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_generator_c.so\n'}
+[60.113550] (hope_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_generator_c.so" to ""\n'}
+[60.113608] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs\n'}
+[60.113655] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg\n'}
+[60.113698] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail\n'}
+[60.113753] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__rosidl_typesupport_fastrtps_c.h\n'}
+[60.113795] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/rosidl_typesupport_fastrtps_c__visibility_control.h\n'}
+[60.113835] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_fastrtps_c.so\n'}
+[60.113941] (hope_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_fastrtps_c.so" to ""\n'}
+[60.113985] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs\n'}
+[60.114026] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg\n'}
+[60.114065] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail\n'}
+[60.114102] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__struct.hpp\n'}
+[60.114140] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__traits.hpp\n'}
+[60.114226] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__type_support.hpp\n'}
+[60.114270] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__builder.hpp\n'}
+[60.114310] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/racket_command.hpp\n'}
+[60.114351] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/rosidl_generator_cpp__visibility_control.hpp\n'}
+[60.114438] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs\n'}
+[60.114484] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg\n'}
+[60.114552] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h\n'}
+[60.114594] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail\n'}
+[60.114634] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__rosidl_typesupport_fastrtps_cpp.hpp\n'}
+[60.114675] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/dds_fastrtps\n'}
+[60.114715] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_fastrtps_cpp.so\n'}
+[60.114798] (hope_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_fastrtps_cpp.so" to ""\n'}
+[60.114839] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs\n'}
+[60.114876] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg\n'}
+[60.114916] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail\n'}
+[60.114952] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__type_support.c\n'}
+[60.114988] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__rosidl_typesupport_introspection_c.h\n'}
+[60.115029] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/rosidl_typesupport_introspection_c__visibility_control.h\n'}
+[60.115100] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_introspection_c.so\n'}
+[60.115143] (hope_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_introspection_c.so" to ""\n'}
+[60.116446] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_c.so\n'}
+[60.116466] (hope_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_c.so" to ""\n'}
+[60.116484] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs\n'}
+[60.116500] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg\n'}
+[60.116518] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail\n'}
+[60.116534] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__type_support.cpp\n'}
+[60.116550] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__rosidl_typesupport_introspection_cpp.hpp\n'}
+[60.116567] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_introspection_cpp.so\n'}
+[60.116584] (hope_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_introspection_cpp.so" to ""\n'}
+[60.116599] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_cpp.so\n'}
+[60.116617] (hope_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_cpp.so" to ""\n'}
+[60.116634] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/environment/pythonpath.sh\n'}
+[60.116652] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/environment/pythonpath.dsv\n'}
+[60.116667] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs-0.0.0-py3.10.egg-info\n'}
+[60.116685] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs-0.0.0-py3.10.egg-info/top_level.txt\n'}
+[60.116702] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs-0.0.0-py3.10.egg-info/PKG-INFO\n'}
+[60.116746] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs-0.0.0-py3.10.egg-info/SOURCES.txt\n'}
+[60.116806] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs-0.0.0-py3.10.egg-info/dependency_links.txt\n'}
+[60.116829] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs\n'}
+[60.116848] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_fastrtps_c.cpython-311-x86_64-linux-gnu.so\n'}
+[60.116866] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/libhope_msgs__rosidl_generator_py.so\n'}
+[60.116883] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/_hope_msgs_s.ep.rosidl_typesupport_c.c\n'}
+[60.116900] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/_hope_msgs_s.ep.rosidl_typesupport_fastrtps_c.c\n'}
+[60.116916] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/__init__.py\n'}
+[60.116933] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_introspection_c.cpython-311-x86_64-linux-gnu.so\n'}
+[60.117332] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/_hope_msgs_s.ep.rosidl_typesupport_introspection_c.c\n'}
+[60.117356] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_c.cpython-311-x86_64-linux-gnu.so\n'}
+[60.117376] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/msg\n'}
+[60.117393] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/msg/_racket_command_s.c\n'}
+[60.117410] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/msg/__init__.py\n'}
+[60.117435] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/msg/_racket_command.py\n'}
+[60.138229] (hope_msgs) StdoutLine: {'line': b"Listing '/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs'...\n"}
+[60.138319] (hope_msgs) StdoutLine: {'line': b"Compiling '/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/__init__.py'...\n"}
+[60.138348] (hope_msgs) StdoutLine: {'line': b"Listing '/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/msg'...\n"}
+[60.140774] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_fastrtps_c.cpython-311-x86_64-linux-gnu.so\n'}
+[60.141338] (hope_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_fastrtps_c.cpython-311-x86_64-linux-gnu.so" to ""\n'}
+[60.141453] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_introspection_c.cpython-311-x86_64-linux-gnu.so\n'}
+[60.141614] (hope_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_introspection_c.cpython-311-x86_64-linux-gnu.so" to ""\n'}
+[60.141722] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_c.cpython-311-x86_64-linux-gnu.so\n'}
+[60.141859] (hope_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_c.cpython-311-x86_64-linux-gnu.so" to ""\n'}
+[60.142162] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_generator_py.so\n'}
+[60.142304] (hope_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_generator_py.so" to ""\n'}
+[60.142349] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/msg/RacketCommand.idl\n'}
+[60.142396] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/msg/RacketCommand.msg\n'}
+[60.142454] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/ament_index/resource_index/package_run_dependencies/hope_msgs\n'}
+[60.142505] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/ament_index/resource_index/parent_prefix_path/hope_msgs\n'}
+[60.142568] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/environment/ament_prefix_path.sh\n'}
+[60.142621] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/environment/ament_prefix_path.dsv\n'}
+[60.142680] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/environment/path.sh\n'}
+[60.142726] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/environment/path.dsv\n'}
+[60.142779] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/local_setup.bash\n'}
+[60.142825] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/local_setup.sh\n'}
+[60.142874] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/local_setup.zsh\n'}
+[60.142897] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/local_setup.dsv\n'}
+[60.142940] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/package.dsv\n'}
+[60.143005] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/ament_index/resource_index/packages/hope_msgs\n'}
+[60.143095] (hope_msgs) StdoutLine: {'line': b'-- Old export file "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_cExport.cmake" will be replaced.  Removing files [/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_cExport-noconfig.cmake].\n'}
+[60.143146] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_cExport.cmake\n'}
+[60.143214] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_cExport-noconfig.cmake\n'}
+[60.145352] (hope_msgs) StdoutLine: {'line': b'-- Old export file "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_typesupport_fastrtps_cExport.cmake" will be replaced.  Removing files [/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_typesupport_fastrtps_cExport-noconfig.cmake].\n'}
+[60.145445] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_typesupport_fastrtps_cExport.cmake\n'}
+[60.145471] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_typesupport_fastrtps_cExport-noconfig.cmake\n'}
+[60.145491] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_cppExport.cmake\n'}
+[60.145510] (hope_msgs) StdoutLine: {'line': b'-- Old export file "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_typesupport_fastrtps_cppExport.cmake" will be replaced.  Removing files [/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake].\n'}
+[60.145534] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_typesupport_fastrtps_cppExport.cmake\n'}
+[60.145554] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake\n'}
+[60.145572] (hope_msgs) StdoutLine: {'line': b'-- Old export file "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_introspection_cExport.cmake" will be replaced.  Removing files [/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_introspection_cExport-noconfig.cmake].\n'}
+[60.145590] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_introspection_cExport.cmake\n'}
+[60.145607] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_introspection_cExport-noconfig.cmake\n'}
+[60.145626] (hope_msgs) StdoutLine: {'line': b'-- Old export file "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_cExport.cmake" will be replaced.  Removing files [/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_cExport-noconfig.cmake].\n'}
+[60.145646] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_cExport.cmake\n'}
+[60.145662] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_cExport-noconfig.cmake\n'}
+[60.145677] (hope_msgs) StdoutLine: {'line': b'-- Old export file "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_introspection_cppExport.cmake" will be replaced.  Removing files [/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_introspection_cppExport-noconfig.cmake].\n'}
+[60.145694] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_introspection_cppExport.cmake\n'}
+[60.145709] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_introspection_cppExport-noconfig.cmake\n'}
+[60.145725] (hope_msgs) StdoutLine: {'line': b'-- Old export file "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_cppExport.cmake" will be replaced.  Removing files [/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_cppExport-noconfig.cmake].\n'}
+[60.145742] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_cppExport.cmake\n'}
+[60.145757] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_cppExport-noconfig.cmake\n'}
+[60.145773] (hope_msgs) StdoutLine: {'line': b'-- Old export file "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_pyExport.cmake" will be replaced.  Removing files [/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_pyExport-noconfig.cmake].\n'}
+[60.145789] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_pyExport.cmake\n'}
+[60.145806] (hope_msgs) StdoutLine: {'line': b'-- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_pyExport-noconfig.cmake\n'}
+[60.145822] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/rosidl_cmake-extras.cmake\n'}
+[60.145837] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/ament_cmake_export_dependencies-extras.cmake\n'}
+[60.145853] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/ament_cmake_export_include_directories-extras.cmake\n'}
+[60.145871] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/ament_cmake_export_libraries-extras.cmake\n'}
+[60.145886] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/ament_cmake_export_targets-extras.cmake\n'}
+[60.145901] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake\n'}
+[60.145917] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake\n'}
+[60.145932] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgsConfig.cmake\n'}
+[60.145948] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgsConfig-version.cmake\n'}
+[60.145964] (hope_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/package.xml\n'}
+[60.148149] (-) TimerEvent: {}
+[60.248372] (-) TimerEvent: {}
+[60.348563] (-) TimerEvent: {}
+[60.448756] (-) TimerEvent: {}
+[60.548948] (-) TimerEvent: {}
+[60.649240] (-) TimerEvent: {}
+[60.749503] (-) TimerEvent: {}
+[60.849694] (-) TimerEvent: {}
+[60.949898] (-) TimerEvent: {}
+[61.050173] (-) TimerEvent: {}
+[61.150470] (-) TimerEvent: {}
+[61.250789] (-) TimerEvent: {}
+[61.350998] (-) TimerEvent: {}
+[61.451280] (-) TimerEvent: {}
+[61.551529] (-) TimerEvent: {}
+[61.651792] (-) TimerEvent: {}
+[61.752070] (-) TimerEvent: {}
+[61.852687] (-) TimerEvent: {}
+[61.953094] (-) TimerEvent: {}
+[62.053294] (-) TimerEvent: {}
+[62.153459] (-) TimerEvent: {}
+[62.253608] (-) TimerEvent: {}
+[62.353769] (-) TimerEvent: {}
+[62.453939] (-) TimerEvent: {}
+[62.554087] (-) TimerEvent: {}
+[62.654230] (-) TimerEvent: {}
+[62.754394] (-) TimerEvent: {}
+[62.854576] (-) TimerEvent: {}
+[62.954751] (-) TimerEvent: {}
+[63.054920] (-) TimerEvent: {}
+[63.155197] (-) TimerEvent: {}
+[63.255364] (-) TimerEvent: {}
+[63.355561] (-) TimerEvent: {}
+[63.455706] (-) TimerEvent: {}
+[63.555852] (-) TimerEvent: {}
+[63.656003] (-) TimerEvent: {}
+[63.757582] (-) TimerEvent: {}
+[63.857763] (-) TimerEvent: {}
+[63.958016] (-) TimerEvent: {}
+[64.058243] (-) TimerEvent: {}
+[64.158480] (-) TimerEvent: {}
+[64.258726] (-) TimerEvent: {}
+[64.358934] (-) TimerEvent: {}
+[64.459143] (-) TimerEvent: {}
+[64.559358] (-) TimerEvent: {}
+[64.659629] (-) TimerEvent: {}
+[64.759843] (-) TimerEvent: {}
+[64.860007] (-) TimerEvent: {}
+[64.960181] (-) TimerEvent: {}
+[65.060347] (-) TimerEvent: {}
+[65.160505] (-) TimerEvent: {}
+[65.260705] (-) TimerEvent: {}
+[65.360970] (-) TimerEvent: {}
+[65.461102] (-) TimerEvent: {}
+[65.561282] (-) TimerEvent: {}
+[65.661498] (-) TimerEvent: {}
+[65.761725] (-) TimerEvent: {}
+[65.861909] (-) TimerEvent: {}
+[65.962079] (-) TimerEvent: {}
+[66.062240] (-) TimerEvent: {}
+[66.164327] (-) TimerEvent: {}
+[66.264482] (-) TimerEvent: {}
+[66.364636] (-) TimerEvent: {}
+[66.464817] (-) TimerEvent: {}
+[66.565019] (-) TimerEvent: {}
+[66.665217] (-) TimerEvent: {}
+[66.765388] (-) TimerEvent: {}
+[66.865564] (-) TimerEvent: {}
+[66.965725] (-) TimerEvent: {}
+[67.065916] (-) TimerEvent: {}
+[67.166133] (-) TimerEvent: {}
+[67.266345] (-) TimerEvent: {}
+[67.366549] (-) TimerEvent: {}
+[67.466739] (-) TimerEvent: {}
+[67.566958] (-) TimerEvent: {}
+[67.667154] (-) TimerEvent: {}
+[67.767354] (-) TimerEvent: {}
+[67.867468] (-) TimerEvent: {}
+[67.967637] (-) TimerEvent: {}
+[68.067797] (-) TimerEvent: {}
+[68.167954] (-) TimerEvent: {}
+[68.268155] (-) TimerEvent: {}
+[68.368379] (-) TimerEvent: {}
+[68.468565] (-) TimerEvent: {}
+[68.568737] (-) TimerEvent: {}
+[68.668916] (-) TimerEvent: {}
+[68.769086] (-) TimerEvent: {}
+[68.869259] (-) TimerEvent: {}
+[68.969520] (-) TimerEvent: {}
+[69.069711] (-) TimerEvent: {}
+[69.169952] (-) TimerEvent: {}
+[69.270102] (-) TimerEvent: {}
+[69.370339] (-) TimerEvent: {}
+[69.470593] (-) TimerEvent: {}
+[69.570910] (-) TimerEvent: {}
+[69.671069] (-) TimerEvent: {}
+[69.771216] (-) TimerEvent: {}
+[69.871388] (-) TimerEvent: {}
+[69.971547] (-) TimerEvent: {}
+[70.071701] (-) TimerEvent: {}
+[70.171863] (-) TimerEvent: {}
+[70.272067] (-) TimerEvent: {}
+[70.372253] (-) TimerEvent: {}
+[70.472428] (-) TimerEvent: {}
+[70.572559] (-) TimerEvent: {}
+[70.672699] (-) TimerEvent: {}
+[70.772852] (-) TimerEvent: {}
+[70.873722] (-) TimerEvent: {}
+[70.973909] (-) TimerEvent: {}
+[71.074087] (-) TimerEvent: {}
+[71.174270] (-) TimerEvent: {}
+[71.274440] (-) TimerEvent: {}
+[71.374601] (-) TimerEvent: {}
+[71.474743] (-) TimerEvent: {}
+[71.574902] (-) TimerEvent: {}
+[71.675074] (-) TimerEvent: {}
+[71.775273] (-) TimerEvent: {}
+[71.875460] (-) TimerEvent: {}
+[71.975626] (-) TimerEvent: {}
+[72.075795] (-) TimerEvent: {}
+[72.175967] (-) TimerEvent: {}
+[72.276170] (-) TimerEvent: {}
+[72.376346] (-) TimerEvent: {}
+[72.476638] (-) TimerEvent: {}
+[72.576836] (-) TimerEvent: {}
+[72.677035] (-) TimerEvent: {}
+[72.777337] (-) TimerEvent: {}
+[72.877591] (-) TimerEvent: {}
+[72.977796] (-) TimerEvent: {}
+[73.078100] (-) TimerEvent: {}
+[73.178353] (-) TimerEvent: {}
+[73.278574] (-) TimerEvent: {}
+[73.378755] (-) TimerEvent: {}
+[73.479026] (-) TimerEvent: {}
+[73.579200] (-) TimerEvent: {}
+[73.679490] (-) TimerEvent: {}
+[73.779675] (-) TimerEvent: {}
+[73.879866] (-) TimerEvent: {}
+[73.980048] (-) TimerEvent: {}
+[74.080223] (-) TimerEvent: {}
+[74.180413] (-) TimerEvent: {}
+[74.280587] (-) TimerEvent: {}
+[74.380710] (-) TimerEvent: {}
+[74.480840] (-) TimerEvent: {}
+[74.580978] (-) TimerEvent: {}
+[74.681107] (-) TimerEvent: {}
+[74.781258] (-) TimerEvent: {}
+[74.881443] (-) TimerEvent: {}
+[74.981598] (-) TimerEvent: {}
+[75.081744] (-) TimerEvent: {}
+[75.181895] (-) TimerEvent: {}
+[75.282004] (-) TimerEvent: {}
+[75.382127] (-) TimerEvent: {}
+[75.482262] (-) TimerEvent: {}
+[75.582349] (-) TimerEvent: {}
+[75.682494] (-) TimerEvent: {}
+[75.782660] (-) TimerEvent: {}
+[75.882774] (-) TimerEvent: {}
+[75.982918] (-) TimerEvent: {}
+[76.083077] (-) TimerEvent: {}
+[76.183240] (-) TimerEvent: {}
+[76.283431] (-) TimerEvent: {}
+[76.383603] (-) TimerEvent: {}
+[76.483788] (-) TimerEvent: {}
+[76.583978] (-) TimerEvent: {}
+[76.684168] (-) TimerEvent: {}
+[76.784334] (-) TimerEvent: {}
+[76.884487] (-) TimerEvent: {}
+[76.984682] (-) TimerEvent: {}
+[77.084869] (-) TimerEvent: {}
+[77.185097] (-) TimerEvent: {}
+[77.285252] (-) TimerEvent: {}
+[77.385509] (-) TimerEvent: {}
+[77.485718] (-) TimerEvent: {}
+[77.585903] (-) TimerEvent: {}
+[77.686072] (-) TimerEvent: {}
+[77.786227] (-) TimerEvent: {}
+[77.886405] (-) TimerEvent: {}
+[77.986567] (-) TimerEvent: {}
+[78.086773] (-) TimerEvent: {}
+[78.186945] (-) TimerEvent: {}
+[78.287094] (-) TimerEvent: {}
+[78.387243] (-) TimerEvent: {}
+[78.487408] (-) TimerEvent: {}
+[78.587570] (-) TimerEvent: {}
+[78.687730] (-) TimerEvent: {}
+[78.787891] (-) TimerEvent: {}
+[78.888069] (-) TimerEvent: {}
+[78.988267] (-) TimerEvent: {}
+[79.088491] (-) TimerEvent: {}
+[79.188655] (-) TimerEvent: {}
+[79.288838] (-) TimerEvent: {}
+[79.389013] (-) TimerEvent: {}
+[79.489191] (-) TimerEvent: {}
+[79.589344] (-) TimerEvent: {}
+[79.689489] (-) TimerEvent: {}
+[79.789667] (-) TimerEvent: {}
+[79.889844] (-) TimerEvent: {}
+[79.990037] (-) TimerEvent: {}
+[80.090239] (-) TimerEvent: {}
+[80.190396] (-) TimerEvent: {}
+[80.290585] (-) TimerEvent: {}
+[80.391004] (-) TimerEvent: {}
+[80.493095] (-) TimerEvent: {}
+[80.593251] (-) TimerEvent: {}
+[80.693419] (-) TimerEvent: {}
+[80.793590] (-) TimerEvent: {}
+[80.893772] (-) TimerEvent: {}
+[80.993945] (-) TimerEvent: {}
+[81.094171] (-) TimerEvent: {}
+[81.194394] (-) TimerEvent: {}
+[81.294566] (-) TimerEvent: {}
+[81.394749] (-) TimerEvent: {}
+[81.494924] (-) TimerEvent: {}
+[81.595106] (-) TimerEvent: {}
+[81.695303] (-) TimerEvent: {}
+[81.795506] (-) TimerEvent: {}
+[81.895711] (-) TimerEvent: {}
+[81.995919] (-) TimerEvent: {}
+[82.096113] (-) TimerEvent: {}
+[82.196312] (-) TimerEvent: {}
+[82.296498] (-) TimerEvent: {}
+[82.396694] (-) TimerEvent: {}
+[82.496853] (-) TimerEvent: {}
+[82.597112] (-) TimerEvent: {}
+[82.697371] (-) TimerEvent: {}
+[82.797585] (-) TimerEvent: {}
+[82.897752] (-) TimerEvent: {}
+[82.997918] (-) TimerEvent: {}
+[83.098101] (-) TimerEvent: {}
+[83.198318] (-) TimerEvent: {}
+[83.298567] (-) TimerEvent: {}
+[83.398746] (-) TimerEvent: {}
+[83.499020] (-) TimerEvent: {}
+[83.599199] (-) TimerEvent: {}
+[83.699400] (-) TimerEvent: {}
+[83.799631] (-) TimerEvent: {}
+[83.899856] (-) TimerEvent: {}
+[84.000050] (-) TimerEvent: {}
+[84.100269] (-) TimerEvent: {}
+[84.200487] (-) TimerEvent: {}
+[84.300690] (-) TimerEvent: {}
+[84.400900] (-) TimerEvent: {}
+[84.501085] (-) TimerEvent: {}
+[84.601257] (-) TimerEvent: {}
+[84.701465] (-) TimerEvent: {}
+[84.801626] (-) TimerEvent: {}
+[84.901841] (-) TimerEvent: {}
+[85.002043] (-) TimerEvent: {}
+[85.102282] (-) TimerEvent: {}
+[85.202450] (-) TimerEvent: {}
+[85.302598] (-) TimerEvent: {}
+[85.402741] (-) TimerEvent: {}
+[85.502936] (-) TimerEvent: {}
+[85.603136] (-) TimerEvent: {}
+[85.703309] (-) TimerEvent: {}
+[85.803460] (-) TimerEvent: {}
+[85.903608] (-) TimerEvent: {}
+[86.003768] (-) TimerEvent: {}
+[86.103966] (-) TimerEvent: {}
+[86.204154] (-) TimerEvent: {}
+[86.304309] (-) TimerEvent: {}
+[86.404448] (-) TimerEvent: {}
+[86.504583] (-) TimerEvent: {}
+[86.604777] (-) TimerEvent: {}
+[86.704942] (-) TimerEvent: {}
+[86.805112] (-) TimerEvent: {}
+[86.905397] (-) TimerEvent: {}
+[87.005640] (-) TimerEvent: {}
+[87.105853] (-) TimerEvent: {}
+[87.206068] (-) TimerEvent: {}
+[87.306245] (-) TimerEvent: {}
+[87.406430] (-) TimerEvent: {}
+[87.506593] (-) TimerEvent: {}
+[87.606737] (-) TimerEvent: {}
+[87.706892] (-) TimerEvent: {}
+[87.807050] (-) TimerEvent: {}
+[87.907231] (-) TimerEvent: {}
+[88.007403] (-) TimerEvent: {}
+[88.107569] (-) TimerEvent: {}
+[88.207725] (-) TimerEvent: {}
+[88.307887] (-) TimerEvent: {}
+[88.408040] (-) TimerEvent: {}
+[88.508193] (-) TimerEvent: {}
+[88.608348] (-) TimerEvent: {}
+[88.708475] (-) TimerEvent: {}
+[88.808631] (-) TimerEvent: {}
+[88.908814] (-) TimerEvent: {}
+[89.008989] (-) TimerEvent: {}
+[89.109157] (-) TimerEvent: {}
+[89.209328] (-) TimerEvent: {}
+[89.309495] (-) TimerEvent: {}
+[89.409671] (-) TimerEvent: {}
+[89.509863] (-) TimerEvent: {}
+[89.610043] (-) TimerEvent: {}
+[89.710193] (-) TimerEvent: {}
+[89.810359] (-) TimerEvent: {}
+[89.910624] (-) TimerEvent: {}
+[90.010782] (-) TimerEvent: {}
+[90.092127] (hope_msgs) CommandEnded: {'returncode': 0}
+[90.110857] (-) TimerEvent: {}
+[90.134829] (hope_msgs) JobEnded: {'identifier': 'hope_msgs', 'rc': 0}
+[90.135548] (hope_planner) JobStarted: {'identifier': 'hope_planner'}
+[90.210963] (-) TimerEvent: {}
+[90.311144] (-) TimerEvent: {}
+[90.411434] (-) TimerEvent: {}
+[90.511643] (-) TimerEvent: {}
+[90.611822] (-) TimerEvent: {}
+[90.711993] (-) TimerEvent: {}
+[90.812281] (-) TimerEvent: {}
+[90.912641] (-) TimerEvent: {}
+[91.012871] (-) TimerEvent: {}
+[91.113041] (-) TimerEvent: {}
+[91.213256] (-) TimerEvent: {}
+[91.313534] (-) TimerEvent: {}
+[91.413725] (-) TimerEvent: {}
+[91.513922] (-) TimerEvent: {}
+[91.614156] (-) TimerEvent: {}
+[91.714362] (-) TimerEvent: {}
+[91.814563] (-) TimerEvent: {}
+[91.914753] (-) TimerEvent: {}
+[92.014980] (-) TimerEvent: {}
+[92.115195] (-) TimerEvent: {}
+[92.215385] (-) TimerEvent: {}
+[92.315563] (-) TimerEvent: {}
+[92.415743] (-) TimerEvent: {}
+[92.515922] (-) TimerEvent: {}
+[92.616109] (-) TimerEvent: {}
+[92.716355] (-) TimerEvent: {}
+[92.816570] (-) TimerEvent: {}
+[92.916752] (-) TimerEvent: {}
+[93.016935] (-) TimerEvent: {}
+[93.117118] (-) TimerEvent: {}
+[93.217307] (-) TimerEvent: {}
+[93.317595] (-) TimerEvent: {}
+[93.417985] (-) TimerEvent: {}
+[93.518182] (-) TimerEvent: {}
+[93.618361] (-) TimerEvent: {}
+[93.718556] (-) TimerEvent: {}
+[93.818759] (-) TimerEvent: {}
+[93.918933] (-) TimerEvent: {}
+[94.019110] (-) TimerEvent: {}
+[94.119280] (-) TimerEvent: {}
+[94.219452] (-) TimerEvent: {}
+[94.319632] (-) TimerEvent: {}
+[94.419819] (-) TimerEvent: {}
+[94.519991] (-) TimerEvent: {}
+[94.620174] (-) TimerEvent: {}
+[94.720381] (-) TimerEvent: {}
+[94.820584] (-) TimerEvent: {}
+[94.921221] (-) TimerEvent: {}
+[95.021378] (-) TimerEvent: {}
+[95.121546] (-) TimerEvent: {}
+[95.221711] (-) TimerEvent: {}
+[95.321918] (-) TimerEvent: {}
+[95.422128] (-) TimerEvent: {}
+[95.522297] (-) TimerEvent: {}
+[95.622460] (-) TimerEvent: {}
+[95.722653] (-) TimerEvent: {}
+[95.822871] (-) TimerEvent: {}
+[95.923079] (-) TimerEvent: {}
+[96.023267] (-) TimerEvent: {}
+[96.123440] (-) TimerEvent: {}
+[96.223603] (-) TimerEvent: {}
+[96.323788] (-) TimerEvent: {}
+[96.423958] (-) TimerEvent: {}
+[96.524109] (-) TimerEvent: {}
+[96.624262] (-) TimerEvent: {}
+[96.724414] (-) TimerEvent: {}
+[96.824606] (-) TimerEvent: {}
+[96.924780] (-) TimerEvent: {}
+[97.024955] (-) TimerEvent: {}
+[97.125114] (-) TimerEvent: {}
+[97.225284] (-) TimerEvent: {}
+[97.325465] (-) TimerEvent: {}
+[97.425647] (-) TimerEvent: {}
+[97.525837] (-) TimerEvent: {}
+[97.626035] (-) TimerEvent: {}
+[97.726285] (-) TimerEvent: {}
+[97.826489] (-) TimerEvent: {}
+[97.926720] (-) TimerEvent: {}
+[98.027047] (-) TimerEvent: {}
+[98.127248] (-) TimerEvent: {}
+[98.227395] (-) TimerEvent: {}
+[98.327551] (-) TimerEvent: {}
+[98.427694] (-) TimerEvent: {}
+[98.527837] (-) TimerEvent: {}
+[98.627990] (-) TimerEvent: {}
+[98.728141] (-) TimerEvent: {}
+[98.828412] (-) TimerEvent: {}
+[98.928613] (-) TimerEvent: {}
+[99.028804] (-) TimerEvent: {}
+[99.128957] (-) TimerEvent: {}
+[99.229120] (-) TimerEvent: {}
+[99.329353] (-) TimerEvent: {}
+[99.429482] (-) TimerEvent: {}
+[99.529917] (-) TimerEvent: {}
+[99.630068] (-) TimerEvent: {}
+[99.730513] (-) TimerEvent: {}
+[99.830700] (-) TimerEvent: {}
+[99.931501] (-) TimerEvent: {}
+[100.031697] (-) TimerEvent: {}
+[100.131896] (-) TimerEvent: {}
+[100.232185] (-) TimerEvent: {}
+[100.332516] (-) TimerEvent: {}
+[100.432757] (-) TimerEvent: {}
+[100.532948] (-) TimerEvent: {}
+[100.633243] (-) TimerEvent: {}
+[100.733538] (-) TimerEvent: {}
+[100.833728] (-) TimerEvent: {}
+[100.933914] (-) TimerEvent: {}
+[101.034107] (-) TimerEvent: {}
+[101.134282] (-) TimerEvent: {}
+[101.234484] (-) TimerEvent: {}
+[101.334631] (-) TimerEvent: {}
+[101.434820] (-) TimerEvent: {}
+[101.534968] (-) TimerEvent: {}
+[101.635106] (-) TimerEvent: {}
+[101.735247] (-) TimerEvent: {}
+[101.835447] (-) TimerEvent: {}
+[101.935617] (-) TimerEvent: {}
+[102.035809] (-) TimerEvent: {}
+[102.135986] (-) TimerEvent: {}
+[102.236298] (-) TimerEvent: {}
+[102.336453] (-) TimerEvent: {}
+[102.436723] (-) TimerEvent: {}
+[102.536861] (-) TimerEvent: {}
+[102.636989] (-) TimerEvent: {}
+[102.737082] (-) TimerEvent: {}
+[102.837234] (-) TimerEvent: {}
+[102.937404] (-) TimerEvent: {}
+[103.037572] (-) TimerEvent: {}
+[103.137751] (-) TimerEvent: {}
+[103.237901] (-) TimerEvent: {}
+[103.338079] (-) TimerEvent: {}
+[103.438217] (-) TimerEvent: {}
+[103.538492] (-) TimerEvent: {}
+[103.638644] (-) TimerEvent: {}
+[103.738796] (-) TimerEvent: {}
+[103.838990] (-) TimerEvent: {}
+[103.939190] (-) TimerEvent: {}
+[104.039373] (-) TimerEvent: {}
+[104.139560] (-) TimerEvent: {}
+[104.239754] (-) TimerEvent: {}
+[104.339948] (-) TimerEvent: {}
+[104.440135] (-) TimerEvent: {}
+[104.540338] (-) TimerEvent: {}
+[104.640547] (-) TimerEvent: {}
+[104.740714] (-) TimerEvent: {}
+[104.840903] (-) TimerEvent: {}
+[104.941105] (-) TimerEvent: {}
+[105.042058] (-) TimerEvent: {}
+[105.142273] (-) TimerEvent: {}
+[105.242455] (-) TimerEvent: {}
+[105.342623] (-) TimerEvent: {}
+[105.442800] (-) TimerEvent: {}
+[105.542970] (-) TimerEvent: {}
+[105.643136] (-) TimerEvent: {}
+[105.743318] (-) TimerEvent: {}
+[105.843495] (-) TimerEvent: {}
+[105.943678] (-) TimerEvent: {}
+[106.043852] (-) TimerEvent: {}
+[106.144033] (-) TimerEvent: {}
+[106.244231] (-) TimerEvent: {}
+[106.344446] (-) TimerEvent: {}
+[106.444636] (-) TimerEvent: {}
+[106.544868] (-) TimerEvent: {}
+[106.645039] (-) TimerEvent: {}
+[106.745212] (-) TimerEvent: {}
+[106.845393] (-) TimerEvent: {}
+[106.945584] (-) TimerEvent: {}
+[107.045777] (-) TimerEvent: {}
+[107.145970] (-) TimerEvent: {}
+[107.246187] (-) TimerEvent: {}
+[107.346420] (-) TimerEvent: {}
+[107.446614] (-) TimerEvent: {}
+[107.546798] (-) TimerEvent: {}
+[107.646967] (-) TimerEvent: {}
+[107.747145] (-) TimerEvent: {}
+[107.847324] (-) TimerEvent: {}
+[107.947485] (-) TimerEvent: {}
+[108.047647] (-) TimerEvent: {}
+[108.147893] (-) TimerEvent: {}
+[108.248052] (-) TimerEvent: {}
+[108.348181] (-) TimerEvent: {}
+[108.448357] (-) TimerEvent: {}
+[108.548573] (-) TimerEvent: {}
+[108.648762] (-) TimerEvent: {}
+[108.748975] (-) TimerEvent: {}
+[108.849128] (-) TimerEvent: {}
+[108.951473] (-) TimerEvent: {}
+[109.051637] (-) TimerEvent: {}
+[109.151829] (-) TimerEvent: {}
+[109.252034] (-) TimerEvent: {}
+[109.352280] (-) TimerEvent: {}
+[109.453496] (-) TimerEvent: {}
+[109.553843] (-) TimerEvent: {}
+[109.654009] (-) TimerEvent: {}
+[109.754161] (-) TimerEvent: {}
+[109.854331] (-) TimerEvent: {}
+[109.954479] (-) TimerEvent: {}
+[110.054646] (-) TimerEvent: {}
+[110.154911] (-) TimerEvent: {}
+[110.255072] (-) TimerEvent: {}
+[110.355233] (-) TimerEvent: {}
+[110.455443] (-) TimerEvent: {}
+[110.555836] (-) TimerEvent: {}
+[110.655989] (-) TimerEvent: {}
+[110.756255] (-) TimerEvent: {}
+[110.856460] (-) TimerEvent: {}
+[110.956661] (-) TimerEvent: {}
+[111.056846] (-) TimerEvent: {}
+[111.157023] (-) TimerEvent: {}
+[111.257208] (-) TimerEvent: {}
+[111.357414] (-) TimerEvent: {}
+[111.457591] (-) TimerEvent: {}
+[111.557736] (-) TimerEvent: {}
+[111.657912] (-) TimerEvent: {}
+[111.758191] (-) TimerEvent: {}
+[111.858359] (-) TimerEvent: {}
+[111.958559] (-) TimerEvent: {}
+[112.058720] (-) TimerEvent: {}
+[112.158894] (-) TimerEvent: {}
+[112.259104] (-) TimerEvent: {}
+[112.359259] (-) TimerEvent: {}
+[112.459542] (-) TimerEvent: {}
+[112.559748] (-) TimerEvent: {}
+[112.659940] (-) TimerEvent: {}
+[112.760121] (-) TimerEvent: {}
+[112.860391] (-) TimerEvent: {}
+[112.960581] (-) TimerEvent: {}
+[113.060799] (-) TimerEvent: {}
+[113.161005] (-) TimerEvent: {}
+[113.261179] (-) TimerEvent: {}
+[113.361344] (-) TimerEvent: {}
+[113.461493] (-) TimerEvent: {}
+[113.561665] (-) TimerEvent: {}
+[113.661862] (-) TimerEvent: {}
+[113.762058] (-) TimerEvent: {}
+[113.862233] (-) TimerEvent: {}
+[113.962438] (-) TimerEvent: {}
+[114.062613] (-) TimerEvent: {}
+[114.162814] (-) TimerEvent: {}
+[114.262972] (-) TimerEvent: {}
+[114.363120] (-) TimerEvent: {}
+[114.463336] (-) TimerEvent: {}
+[114.563541] (-) TimerEvent: {}
+[114.663947] (-) TimerEvent: {}
+[114.764131] (-) TimerEvent: {}
+[114.864489] (-) TimerEvent: {}
+[114.964731] (-) TimerEvent: {}
+[115.064898] (-) TimerEvent: {}
+[115.165077] (-) TimerEvent: {}
+[115.265227] (-) TimerEvent: {}
+[115.365365] (-) TimerEvent: {}
+[115.465472] (-) TimerEvent: {}
+[115.565638] (-) TimerEvent: {}
+[115.665834] (-) TimerEvent: {}
+[115.766020] (-) TimerEvent: {}
+[115.866183] (-) TimerEvent: {}
+[115.966351] (-) TimerEvent: {}
+[116.066656] (-) TimerEvent: {}
+[116.166876] (-) TimerEvent: {}
+[116.267065] (-) TimerEvent: {}
+[116.367348] (-) TimerEvent: {}
+[116.467488] (-) TimerEvent: {}
+[116.567631] (-) TimerEvent: {}
+[116.667799] (-) TimerEvent: {}
+[116.767973] (-) TimerEvent: {}
+[116.868212] (-) TimerEvent: {}
+[116.968503] (-) TimerEvent: {}
+[117.068773] (-) TimerEvent: {}
+[117.169001] (-) TimerEvent: {}
+[117.269233] (-) TimerEvent: {}
+[117.369406] (-) TimerEvent: {}
+[117.469562] (-) TimerEvent: {}
+[117.569730] (-) TimerEvent: {}
+[117.669950] (-) TimerEvent: {}
+[117.770148] (-) TimerEvent: {}
+[117.870325] (-) TimerEvent: {}
+[117.970487] (-) TimerEvent: {}
+[118.070673] (-) TimerEvent: {}
+[118.170848] (-) TimerEvent: {}
+[118.271026] (-) TimerEvent: {}
+[118.371203] (-) TimerEvent: {}
+[118.471386] (-) TimerEvent: {}
+[118.571607] (-) TimerEvent: {}
+[118.671808] (-) TimerEvent: {}
+[118.772030] (-) TimerEvent: {}
+[118.872264] (-) TimerEvent: {}
+[118.972459] (-) TimerEvent: {}
+[119.072641] (-) TimerEvent: {}
+[119.172811] (-) TimerEvent: {}
+[119.273029] (-) TimerEvent: {}
+[119.373220] (-) TimerEvent: {}
+[119.473358] (-) TimerEvent: {}
+[119.573494] (-) TimerEvent: {}
+[119.673651] (-) TimerEvent: {}
+[119.773818] (-) TimerEvent: {}
+[119.873997] (-) TimerEvent: {}
+[119.974188] (-) TimerEvent: {}
+[120.074382] (-) TimerEvent: {}
+[120.174529] (-) TimerEvent: {}
+[120.274705] (-) TimerEvent: {}
+[120.374879] (-) TimerEvent: {}
+[120.475125] (-) TimerEvent: {}
+[120.575354] (-) TimerEvent: {}
+[120.675563] (-) TimerEvent: {}
+[120.775747] (-) TimerEvent: {}
+[120.876059] (-) TimerEvent: {}
+[120.976354] (-) TimerEvent: {}
+[121.076594] (-) TimerEvent: {}
+[121.176796] (-) TimerEvent: {}
+[121.277005] (-) TimerEvent: {}
+[121.377205] (-) TimerEvent: {}
+[121.477375] (-) TimerEvent: {}
+[121.577600] (-) TimerEvent: {}
+[121.677793] (-) TimerEvent: {}
+[121.778031] (-) TimerEvent: {}
+[121.878344] (-) TimerEvent: {}
+[121.978599] (-) TimerEvent: {}
+[122.078800] (-) TimerEvent: {}
+[122.178989] (-) TimerEvent: {}
+[122.279296] (-) TimerEvent: {}
+[122.379473] (-) TimerEvent: {}
+[122.479743] (-) TimerEvent: {}
+[122.579934] (-) TimerEvent: {}
+[122.680214] (-) TimerEvent: {}
+[122.780383] (-) TimerEvent: {}
+[122.880625] (-) TimerEvent: {}
+[122.980799] (-) TimerEvent: {}
+[123.080958] (-) TimerEvent: {}
+[123.181166] (-) TimerEvent: {}
+[123.281388] (-) TimerEvent: {}
+[123.381593] (-) TimerEvent: {}
+[123.481858] (-) TimerEvent: {}
+[123.582065] (-) TimerEvent: {}
+[123.682381] (-) TimerEvent: {}
+[123.782715] (-) TimerEvent: {}
+[123.882915] (-) TimerEvent: {}
+[123.983210] (-) TimerEvent: {}
+[124.083736] (-) TimerEvent: {}
+[124.183995] (-) TimerEvent: {}
+[124.284515] (-) TimerEvent: {}
+[124.384903] (-) TimerEvent: {}
+[124.485286] (-) TimerEvent: {}
+[124.585604] (-) TimerEvent: {}
+[124.685981] (-) TimerEvent: {}
+[124.786200] (-) TimerEvent: {}
+[124.886386] (-) TimerEvent: {}
+[124.986563] (-) TimerEvent: {}
+[125.086757] (-) TimerEvent: {}
+[125.186919] (-) TimerEvent: {}
+[125.287077] (-) TimerEvent: {}
+[125.387251] (-) TimerEvent: {}
+[125.487456] (-) TimerEvent: {}
+[125.587665] (-) TimerEvent: {}
+[125.687861] (-) TimerEvent: {}
+[125.788071] (-) TimerEvent: {}
+[125.888300] (-) TimerEvent: {}
+[125.988482] (-) TimerEvent: {}
+[126.088714] (-) TimerEvent: {}
+[126.188948] (-) TimerEvent: {}
+[126.289146] (-) TimerEvent: {}
+[126.389330] (-) TimerEvent: {}
+[126.489485] (-) TimerEvent: {}
+[126.589669] (-) TimerEvent: {}
+[126.689850] (-) TimerEvent: {}
+[126.790020] (-) TimerEvent: {}
+[126.890195] (-) TimerEvent: {}
+[126.990377] (-) TimerEvent: {}
+[127.090638] (-) TimerEvent: {}
+[127.190950] (-) TimerEvent: {}
+[127.291138] (-) TimerEvent: {}
+[127.391340] (-) TimerEvent: {}
+[127.491474] (-) TimerEvent: {}
+[127.591632] (-) TimerEvent: {}
+[127.691770] (-) TimerEvent: {}
+[127.791931] (-) TimerEvent: {}
+[127.892098] (-) TimerEvent: {}
+[127.992256] (-) TimerEvent: {}
+[128.092433] (-) TimerEvent: {}
+[128.192743] (-) TimerEvent: {}
+[128.292913] (-) TimerEvent: {}
+[128.393127] (-) TimerEvent: {}
+[128.493352] (-) TimerEvent: {}
+[128.593739] (-) TimerEvent: {}
+[128.693898] (-) TimerEvent: {}
+[128.794111] (-) TimerEvent: {}
+[128.894299] (-) TimerEvent: {}
+[128.994447] (-) TimerEvent: {}
+[129.094602] (-) TimerEvent: {}
+[129.194754] (-) TimerEvent: {}
+[129.294907] (-) TimerEvent: {}
+[129.395085] (-) TimerEvent: {}
+[129.495284] (-) TimerEvent: {}
+[129.595470] (-) TimerEvent: {}
+[129.695646] (-) TimerEvent: {}
+[129.795830] (-) TimerEvent: {}
+[129.896015] (-) TimerEvent: {}
+[129.996175] (-) TimerEvent: {}
+[130.096341] (-) TimerEvent: {}
+[130.196633] (-) TimerEvent: {}
+[130.296806] (-) TimerEvent: {}
+[130.396964] (-) TimerEvent: {}
+[130.497115] (-) TimerEvent: {}
+[130.597294] (-) TimerEvent: {}
+[130.697462] (-) TimerEvent: {}
+[130.797654] (-) TimerEvent: {}
+[130.897870] (-) TimerEvent: {}
+[130.998198] (-) TimerEvent: {}
+[131.098434] (-) TimerEvent: {}
+[131.198592] (-) TimerEvent: {}
+[131.298754] (-) TimerEvent: {}
+[131.398905] (-) TimerEvent: {}
+[131.499074] (-) TimerEvent: {}
+[131.599318] (-) TimerEvent: {}
+[131.699484] (-) TimerEvent: {}
+[131.799687] (-) TimerEvent: {}
+[131.899898] (-) TimerEvent: {}
+[132.000088] (-) TimerEvent: {}
+[132.100298] (-) TimerEvent: {}
+[132.200462] (-) TimerEvent: {}
+[132.300607] (-) TimerEvent: {}
+[132.400745] (-) TimerEvent: {}
+[132.500890] (-) TimerEvent: {}
+[132.601047] (-) TimerEvent: {}
+[132.701200] (-) TimerEvent: {}
+[132.801395] (-) TimerEvent: {}
+[132.901633] (-) TimerEvent: {}
+[133.001871] (-) TimerEvent: {}
+[133.102098] (-) TimerEvent: {}
+[133.202519] (-) TimerEvent: {}
+[133.302712] (-) TimerEvent: {}
+[133.402902] (-) TimerEvent: {}
+[133.503101] (-) TimerEvent: {}
+[133.603282] (-) TimerEvent: {}
+[133.703433] (-) TimerEvent: {}
+[133.803573] (-) TimerEvent: {}
+[133.903764] (-) TimerEvent: {}
+[134.003980] (-) TimerEvent: {}
+[134.104174] (-) TimerEvent: {}
+[134.204519] (-) TimerEvent: {}
+[134.304739] (-) TimerEvent: {}
+[134.404940] (-) TimerEvent: {}
+[134.505126] (-) TimerEvent: {}
+[134.605322] (-) TimerEvent: {}
+[134.705511] (-) TimerEvent: {}
+[134.805679] (-) TimerEvent: {}
+[134.905884] (-) TimerEvent: {}
+[135.006099] (-) TimerEvent: {}
+[135.106318] (-) TimerEvent: {}
+[135.206591] (-) TimerEvent: {}
+[135.306827] (-) TimerEvent: {}
+[135.407023] (-) TimerEvent: {}
+[135.507198] (-) TimerEvent: {}
+[135.607356] (-) TimerEvent: {}
+[135.707615] (-) TimerEvent: {}
+[135.807862] (-) TimerEvent: {}
+[135.908108] (-) TimerEvent: {}
+[136.008459] (-) TimerEvent: {}
+[136.108747] (-) TimerEvent: {}
+[136.208988] (-) TimerEvent: {}
+[136.309172] (-) TimerEvent: {}
+[136.409331] (-) TimerEvent: {}
+[136.509476] (-) TimerEvent: {}
+[136.609651] (-) TimerEvent: {}
+[136.709865] (-) TimerEvent: {}
+[136.809996] (-) TimerEvent: {}
+[136.910360] (-) TimerEvent: {}
+[137.010553] (-) TimerEvent: {}
+[137.110703] (-) TimerEvent: {}
+[137.210878] (-) TimerEvent: {}
+[137.311038] (-) TimerEvent: {}
+[137.411199] (-) TimerEvent: {}
+[137.511354] (-) TimerEvent: {}
+[137.611567] (-) TimerEvent: {}
+[137.711737] (-) TimerEvent: {}
+[137.811944] (-) TimerEvent: {}
+[137.912255] (-) TimerEvent: {}
+[138.012616] (-) TimerEvent: {}
+[138.112817] (-) TimerEvent: {}
+[138.213125] (-) TimerEvent: {}
+[138.313372] (-) TimerEvent: {}
+[138.413592] (-) TimerEvent: {}
+[138.513812] (-) TimerEvent: {}
+[138.613992] (-) TimerEvent: {}
+[138.714467] (-) TimerEvent: {}
+[138.814698] (-) TimerEvent: {}
+[138.915217] (-) TimerEvent: {}
+[139.015577] (-) TimerEvent: {}
+[139.115839] (-) TimerEvent: {}
+[139.216054] (-) TimerEvent: {}
+[139.316243] (-) TimerEvent: {}
+[139.416441] (-) TimerEvent: {}
+[139.516629] (-) TimerEvent: {}
+[139.616823] (-) TimerEvent: {}
+[139.717026] (-) TimerEvent: {}
+[139.817243] (-) TimerEvent: {}
+[139.917608] (-) TimerEvent: {}
+[140.017826] (-) TimerEvent: {}
+[140.118001] (-) TimerEvent: {}
+[140.218162] (-) TimerEvent: {}
+[140.318477] (-) TimerEvent: {}
+[140.418754] (-) TimerEvent: {}
+[140.518952] (-) TimerEvent: {}
+[140.619231] (-) TimerEvent: {}
+[140.719565] (-) TimerEvent: {}
+[140.819767] (-) TimerEvent: {}
+[140.919936] (-) TimerEvent: {}
+[141.020237] (-) TimerEvent: {}
+[141.120620] (-) TimerEvent: {}
+[141.220905] (-) TimerEvent: {}
+[141.321143] (-) TimerEvent: {}
+[141.421364] (-) TimerEvent: {}
+[141.521619] (-) TimerEvent: {}
+[141.621824] (-) TimerEvent: {}
+[141.722070] (-) TimerEvent: {}
+[141.822319] (-) TimerEvent: {}
+[141.922555] (-) TimerEvent: {}
+[142.022804] (-) TimerEvent: {}
+[142.123041] (-) TimerEvent: {}
+[142.223241] (-) TimerEvent: {}
+[142.323447] (-) TimerEvent: {}
+[142.423671] (-) TimerEvent: {}
+[142.523888] (-) TimerEvent: {}
+[142.624104] (-) TimerEvent: {}
+[142.724353] (-) TimerEvent: {}
+[142.824589] (-) TimerEvent: {}
+[142.924861] (-) TimerEvent: {}
+[143.025182] (-) TimerEvent: {}
+[143.125508] (-) TimerEvent: {}
+[143.225737] (-) TimerEvent: {}
+[143.325933] (-) TimerEvent: {}
+[143.426234] (-) TimerEvent: {}
+[143.526671] (-) TimerEvent: {}
+[143.626874] (-) TimerEvent: {}
+[143.727051] (-) TimerEvent: {}
+[143.827316] (-) TimerEvent: {}
+[143.927561] (-) TimerEvent: {}
+[144.027770] (-) TimerEvent: {}
+[144.127962] (-) TimerEvent: {}
+[144.228252] (-) TimerEvent: {}
+[144.328431] (-) TimerEvent: {}
+[144.428589] (-) TimerEvent: {}
+[144.528802] (-) TimerEvent: {}
+[144.629074] (-) TimerEvent: {}
+[144.729395] (-) TimerEvent: {}
+[144.829637] (-) TimerEvent: {}
+[144.929836] (-) TimerEvent: {}
+[145.030226] (-) TimerEvent: {}
+[145.130427] (-) TimerEvent: {}
+[145.230622] (-) TimerEvent: {}
+[145.330800] (-) TimerEvent: {}
+[145.430983] (-) TimerEvent: {}
+[145.531169] (-) TimerEvent: {}
+[145.631353] (-) TimerEvent: {}
+[145.731562] (-) TimerEvent: {}
+[145.831764] (-) TimerEvent: {}
+[145.931967] (-) TimerEvent: {}
+[146.032211] (-) TimerEvent: {}
+[146.132496] (-) TimerEvent: {}
+[146.232696] (-) TimerEvent: {}
+[146.332879] (-) TimerEvent: {}
+[146.433143] (-) TimerEvent: {}
+[146.533466] (-) TimerEvent: {}
+[146.633702] (-) TimerEvent: {}
+[146.733913] (-) TimerEvent: {}
+[146.834202] (-) TimerEvent: {}
+[146.934532] (-) TimerEvent: {}
+[147.034857] (-) TimerEvent: {}
+[147.135044] (-) TimerEvent: {}
+[147.235447] (-) TimerEvent: {}
+[147.335659] (-) TimerEvent: {}
+[147.435871] (-) TimerEvent: {}
+[147.536193] (-) TimerEvent: {}
+[147.636489] (-) TimerEvent: {}
+[147.736694] (-) TimerEvent: {}
+[147.836955] (-) TimerEvent: {}
+[147.937232] (-) TimerEvent: {}
+[148.037521] (-) TimerEvent: {}
+[148.137719] (-) TimerEvent: {}
+[148.237989] (-) TimerEvent: {}
+[148.338277] (-) TimerEvent: {}
+[148.438580] (-) TimerEvent: {}
+[148.538761] (-) TimerEvent: {}
+[148.638930] (-) TimerEvent: {}
+[148.739095] (-) TimerEvent: {}
+[148.839321] (-) TimerEvent: {}
+[148.939623] (-) TimerEvent: {}
+[149.039869] (-) TimerEvent: {}
+[149.140069] (-) TimerEvent: {}
+[149.240313] (-) TimerEvent: {}
+[149.340580] (-) TimerEvent: {}
+[149.440810] (-) TimerEvent: {}
+[149.541032] (-) TimerEvent: {}
+[149.641338] (-) TimerEvent: {}
+[149.741669] (-) TimerEvent: {}
+[149.841868] (-) TimerEvent: {}
+[149.942181] (-) TimerEvent: {}
+[150.042387] (-) TimerEvent: {}
+[150.142631] (-) TimerEvent: {}
+[150.242814] (-) TimerEvent: {}
+[150.342986] (-) TimerEvent: {}
+[150.443156] (-) TimerEvent: {}
+[150.445372] (hope_planner) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'egg_info', '--egg-base', '../../../../../.hope_ros2/build/hope_planner', 'build', '--build-base', '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build', 'install', '--record', '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/install.log', '--single-version-externally-managed', 'install_data'], 'cwd': '/home/bth/workspace/a3_remote_bridge/26.7.25发球部署/pingpang_ustc-srf/hope_ws/src/hope_planner', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'VSCODE_CWD': '/home/bth/workspace/a3_remote_bridge', 'VSCODE_ESM_ENTRYPOINT': 'vs/workbench/api/node/extensionHostProcess', 'HTTPS_PROXY': 'http://127.0.0.1:7897/', 'CODEX_CI': '1', 'no_proxy': 'localhost,127.0.0.1,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,::1', 'LANGUAGE': 'zh_CN:zh', 'USER': 'bth', 'CODEX_INTERNAL_ORIGINATOR_OVERRIDE': 'codex_vscode', 'VSCODE_NLS_CONFIG': '{"userLocale":"zh-cn","osLocale":"zh-cn","resolvedLanguage":"zh-cn","defaultMessagesFile":"/usr/share/code/resources/app/out/nls.messages.json","languagePack":{"translationsConfigFile":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/tcf.json","messagesFile":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/1e3c50d64110be466c0b4a45222e81d2c9352888/nls.messages.json","corruptMarkerFile":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/corrupted.info"},"locale":"zh-cn","availableLanguages":{"*":"zh-cn"},"_languagePackId":"08e3eb26a94cfe99087efc53c5a0cebc.zh-cn","_languagePackSupport":true,"_translationsConfigFile":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/tcf.json","_cacheRoot":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn","_resolvedLanguagePackCoreLocation":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/1e3c50d64110be466c0b4a45222e81d2c9352888","_corruptedFile":"/home/bth/.config/Code/clp/08e3eb26a94cfe99087efc53c5a0cebc.zh-cn/corrupted.info"}', 'all_proxy': 'socks://127.0.0.1:7897/', 'VSCODE_HANDLES_UNCAUGHT_ERRORS': 'true', 'XDG_SESSION_TYPE': 'x11', 'DEBUG': 'release', 'SHLVL': '2', 'LD_LIBRARY_PATH': '/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib:/opt/openrobots/lib:/home/bth/TensorRT/targets/x86_64-linux-gnu/lib:/usr/local/cuda/lib64:/home/bth/workspace/Mocap/install/ppmocap_driver/lib:/home/bth/workspace/Mocap/install/ppmocap_msgs/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib', 'HOME': '/home/bth', 'CHROME_DESKTOP': 'code.desktop', 'CONDA_SHLVL': '0', 'OLDPWD': '/home/bth/workspace/a3_remote_bridge', 'DESKTOP_SESSION': 'ubuntu', 'NO_PROXY': 'localhost,127.0.0.1,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,::1', 'VSCODE_IPC_HOOK': '/run/user/1000/vscode-ab841786-1.10-main.sock', 'ROS_PYTHON_VERSION': '3', 'GNOME_SHELL_SESSION_MODE': 'ubuntu', 'GTK_MODULES': 'gail:atk-bridge', 'PAGER': 'cat', 'LC_CTYPE': 'C.UTF-8', 'DBUS_STARTER_BUS_TYPE': 'session', 'SYSTEMD_EXEC_PID': '1654', 'NO_COLOR': '1', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus,guid=9afd1542fe1674c30f6049e76a826bc7', 'COLORTERM': '', 'PYTHONNOUSERSITE': '1', '_CONDA_ROOT': '/home/bth/miniconda3', 'VSCODE_CRASH_REPORTER_PROCESS_TYPE': 'extensionHost', 'https_proxy': 'http://127.0.0.1:7897/', 'COLCON_PREFIX_PATH': '/home/bth/workspace/Mocap/install', 'CODEX_PERMISSION_PROFILE': ':workspace', 'ROS_DISTRO': 'humble', 'GTK_IM_MODULE': 'fcitx', 'LOGNAME': 'bth', 'ALL_PROXY': 'socks://127.0.0.1:7897/', 'http_proxy': 'http://127.0.0.1:7897/', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'PKG_CONFIG_PATH': '/opt/openrobots/lib/pkgconfig:', 'XDG_SESSION_CLASS': 'user', 'RUST_LOG': 'warn', 'USERNAME': 'bth', 'TERM': 'dumb', 'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', 'ROS_LOCALHOST_ONLY': '0', 'WINDOWPATH': '2', 'PATH': '/usr/bin:/bin:/usr/sbin:/sbin:/home/bth/.local/bin:/home/bth/.codex/tmp/arg0/codex-arg09UbUJ4:/home/bth/.local/bin:/opt/openrobots/bin:/usr/local/cuda/bin:/home/bth/miniconda3/condabin:/opt/ros/humble/bin:/home/bth/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/bth/.vscode/extensions/openai.chatgpt-26.810.52044-linux-x64/bin/linux-x86_64', 'SESSION_MANAGER': 'local/bth-TX-Gaming-FX608LM-FX608LM:@/tmp/.ICE-unix/1654,unix/bth-TX-Gaming-FX608LM-FX608LM:/tmp/.ICE-unix/1654', 'CODEX_SESSION_ID': '01a00da8-e5b3-7213-a1d3-6ab8a46b25fb', 'XDG_MENU_PREFIX': 'gnome-', 'GNOME_TERMINAL_SCREEN': '/org/gnome/Terminal/screen/0870bbf6_8840_4e5e_9a59_7fe8084eb43d', 'XDG_RUNTIME_DIR': '/run/user/1000', 'GDK_BACKEND': 'x11', 'CUDAToolkit_ROOT': '/usr/local/cuda', 'DISPLAY': ':0', 'CODEX_SANDBOX_NETWORK_DISABLED': '1', 'LANG': 'C.UTF-8', 'XDG_CURRENT_DESKTOP': 'Unity', 'CYCLONEDDS_HOME': '/usr/local', 'XMODIFIERS': '@im=fcitx', 'GH_PAGER': 'cat', 'XDG_SESSION_DESKTOP': 'ubuntu', 'XAUTHORITY': '/run/user/1000/gdm/Xauthority', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:', 'GNOME_TERMINAL_SERVICE': ':1.155', 'SSH_AGENT_LAUNCHER': 'gnome-keyring', 'SSH_AUTH_SOCK': '/run/user/1000/keyring/ssh', 'AMENT_PREFIX_PATH': '/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs:/home/bth/workspace/Mocap/install/ppmocap_tools:/home/bth/workspace/Mocap/install/ppmocap_prediction:/home/bth/workspace/Mocap/install/ppmocap_driver:/home/bth/workspace/Mocap/install/ppmocap_msgs:/opt/ros/humble', 'CONDA_PYTHON_EXE': '/home/bth/miniconda3/bin/python', 'ORIGINAL_XDG_CURRENT_DESKTOP': 'ubuntu:GNOME', 'SHELL': '/bin/bash', 'QT_ACCESSIBILITY': '1', 'ELECTRON_RUN_AS_NODE': '1', 'GDMSESSION': 'ubuntu', 'TensorRT_ROOT': '/home/bth/TensorRT', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'CODEX_THREAD_ID': '01a00da8-e5b3-7213-a1d3-6ab8a46b25fb', 'GPG_AGENT_INFO': '/run/user/1000/gnupg/S.gpg-agent:0:1', '_CONDA_EXE': '/home/bth/miniconda3/bin/conda', 'GIT_PAGER': 'cat', 'QT_IM_MODULE': 'fcitx', 'PWD': '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner', 'VSCODE_CLI': '1', 'LC_ALL': 'C.UTF-8', 'CUDA_HOME': '/usr/local/cuda', 'XDG_CONFIG_DIRS': '/etc/xdg/xdg-ubuntu:/etc/xdg', 'CONDA_EXE': '/home/bth/miniconda3/bin/conda', 'VSCODE_CODE_CACHE_PATH': '/home/bth/.config/Code/CachedData/1e3c50d64110be466c0b4a45222e81d2c9352888', 'DBUS_STARTER_ADDRESS': 'unix:path=/run/user/1000/bus,guid=9afd1542fe1674c30f6049e76a826bc7', 'XDG_DATA_DIRS': '/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop', 'PYTHONPATH': '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages:/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages:/opt/openrobots/lib/python3.10/site-packages:/home/bth/workspace/Mocap/build/ppmocap_tools:/home/bth/workspace/Mocap/install/ppmocap_tools/lib/python3.10/site-packages:/home/bth/workspace/Mocap/build/ppmocap_prediction:/home/bth/workspace/Mocap/install/ppmocap_prediction/lib/python3.10/site-packages:/home/bth/workspace/Mocap/install/ppmocap_msgs/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages', 'HTTP_PROXY': 'http://127.0.0.1:7897/', 'COLCON': '1', 'VTE_VERSION': '6800', 'ELECTRON_NO_ATTACH_CONSOLE': '1', 'CMAKE_PREFIX_PATH': '/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs:/usr/local:/opt/openrobots:/home/bth/workspace/Mocap/install/ppmocap_driver:/home/bth/workspace/Mocap/install/ppmocap_msgs', 'VSCODE_PID': '4084'}, 'shell': False}
+[150.543375] (-) TimerEvent: {}
+[150.546656] (hope_planner) StdoutLine: {'line': b'running egg_info\n'}
+[150.546756] (hope_planner) StdoutLine: {'line': b'writing ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/PKG-INFO\n'}
+[150.546784] (hope_planner) StdoutLine: {'line': b'writing dependency_links to ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/dependency_links.txt\n'}
+[150.546807] (hope_planner) StdoutLine: {'line': b'writing entry points to ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/entry_points.txt\n'}
+[150.546829] (hope_planner) StdoutLine: {'line': b'writing requirements to ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/requires.txt\n'}
+[150.546848] (hope_planner) StdoutLine: {'line': b'writing top-level names to ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/top_level.txt\n'}
+[150.546868] (hope_planner) StdoutLine: {'line': b"reading manifest file '../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/SOURCES.txt'\n"}
+[150.550244] (hope_planner) StdoutLine: {'line': b"writing manifest file '../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/SOURCES.txt'\n"}
+[150.550289] (hope_planner) StdoutLine: {'line': b'running build\n'}
+[150.550313] (hope_planner) StdoutLine: {'line': b'running build_py\n'}
+[150.551146] (hope_planner) StdoutLine: {'line': b'running install\n'}
+[150.551331] (hope_planner) StdoutLine: {'line': b'running install_lib\n'}
+[150.551612] (hope_planner) StdoutLine: {'line': b'creating /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner\n'}
+[150.551639] (hope_planner) StdoutLine: {'line': b'copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/node.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner\n'}
+[150.552139] (hope_planner) StdoutLine: {'line': b'copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/constants.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner\n'}
+[150.552340] (hope_planner) StdoutLine: {'line': b'copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/quaternion_utils.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner\n'}
+[150.552427] (hope_planner) StdoutLine: {'line': b'copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/task_timing.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner\n'}
+[150.552643] (hope_planner) StdoutLine: {'line': b'copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/planner.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner\n'}
+[150.552824] (hope_planner) StdoutLine: {'line': b'copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/__init__.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner\n'}
+[150.552933] (hope_planner) StdoutLine: {'line': b'copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/ball_trajectory_predictor.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner\n'}
+[150.552983] (hope_planner) StdoutLine: {'line': b'copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/strike_selection.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner\n'}
+[150.553067] (hope_planner) StdoutLine: {'line': b'copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/side_selection.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner\n'}
+[150.553107] (hope_planner) StdoutLine: {'line': b'copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/ball_contact.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner\n'}
+[150.553145] (hope_planner) StdoutLine: {'line': b'copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/racket_target_planner.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner\n'}
+[150.553184] (hope_planner) StdoutLine: {'line': b'copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/bag_to_csv.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner\n'}
+[150.553224] (hope_planner) StdoutLine: {'line': b'copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/incoming_cycle.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner\n'}
+[150.553262] (hope_planner) StdoutLine: {'line': b'copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/ball_state_estimator.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner\n'}
+[150.553357] (hope_planner) StdoutLine: {'line': b'byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/node.py to node.cpython-310.pyc\n'}
+[150.555242] (hope_planner) StdoutLine: {'line': b'byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/constants.py to constants.cpython-310.pyc\n'}
+[150.555891] (hope_planner) StdoutLine: {'line': b'byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/quaternion_utils.py to quaternion_utils.cpython-310.pyc\n'}
+[150.556155] (hope_planner) StdoutLine: {'line': b'byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/task_timing.py to task_timing.cpython-310.pyc\n'}
+[150.556344] (hope_planner) StdoutLine: {'line': b'byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/planner.py to planner.cpython-310.pyc\n'}
+[150.556700] (hope_planner) StdoutLine: {'line': b'byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/__init__.py to __init__.cpython-310.pyc\n'}
+[150.556801] (hope_planner) StdoutLine: {'line': b'byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/ball_trajectory_predictor.py to ball_trajectory_predictor.cpython-310.pyc\n'}
+[150.557155] (hope_planner) StdoutLine: {'line': b'byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/strike_selection.py to strike_selection.cpython-310.pyc\n'}
+[150.558021] (hope_planner) StdoutLine: {'line': b'byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/side_selection.py to side_selection.cpython-310.pyc\n'}
+[150.558090] (hope_planner) StdoutLine: {'line': b'byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/ball_contact.py to ball_contact.cpython-310.pyc\n'}
+[150.558198] (hope_planner) StdoutLine: {'line': b'byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/racket_target_planner.py to racket_target_planner.cpython-310.pyc\n'}
+[150.558665] (hope_planner) StdoutLine: {'line': b'byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/bag_to_csv.py to bag_to_csv.cpython-310.pyc\n'}
+[150.559098] (hope_planner) StdoutLine: {'line': b'byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/incoming_cycle.py to incoming_cycle.cpython-310.pyc\n'}
+[150.559357] (hope_planner) StdoutLine: {'line': b'byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/ball_state_estimator.py to ball_state_estimator.cpython-310.pyc\n'}
+[150.559699] (hope_planner) StdoutLine: {'line': b'running install_data\n'}
+[150.559780] (hope_planner) StdoutLine: {'line': b'running install_egg_info\n'}
+[150.560611] (hope_planner) StdoutLine: {'line': b'Copying ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info to /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner-0.0.0-py3.10.egg-info\n'}
+[150.560954] (hope_planner) StdoutLine: {'line': b'running install_scripts\n'}
+[150.570278] (hope_planner) StdoutLine: {'line': b'Installing hope_bag_to_csv script to /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/hope_planner\n'}
+[150.570376] (hope_planner) StdoutLine: {'line': b'Installing hope_planner_node script to /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/hope_planner\n'}
+[150.570487] (hope_planner) StdoutLine: {'line': b"writing list of installed files to '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/install.log'\n"}
+[150.582333] (hope_planner) CommandEnded: {'returncode': 0}
+[150.587253] (hope_planner) JobEnded: {'identifier': 'hope_planner', 'rc': 0}
+[150.587582] (-) EventReactorShutdown: {}

@@ -32,6 +32,9 @@ mocap:
   input_topic: /ppmocap/frame
   planner_input_topic: /a3_mocap/ball_poses
   planner_command_topic: /racket/command
+  # Published by the local receive-input gateway and consumed by the MDU
+  # policy runner. Position/orientation use the same canonical table frame.
+  base_pose_topic: /a3_mocap/pelvis_pose
   canonical_frame: hope_table
 
   # Lock the table only after a short stable synchronized sample window.

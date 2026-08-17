@@ -76,6 +76,9 @@ fi
 # Several ROS generator entrypoints use '#!/usr/bin/env python3'. Put the ROS
 # distribution's matching system Python ahead of an active conda environment.
 export PATH="/usr/bin:/bin:/usr/sbin:/sbin:${PATH:-}"
+# ROS Humble's Python packages are tested with the Ubuntu system setuptools.
+# Ignore incompatible user-site upgrades while generating rosidl bindings.
+export PYTHONNOUSERSITE=1
 # ROS setup hooks are not consistently nounset-safe.
 set +u
 source "${ros_setup}"

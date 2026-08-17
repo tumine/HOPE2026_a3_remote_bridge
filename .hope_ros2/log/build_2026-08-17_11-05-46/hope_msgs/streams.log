@@ -1,0 +1,192 @@
+[30.032s] Invoking command in '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/bth/workspace/Mocap/install/ppmocap_tools:/home/bth/workspace/Mocap/install/ppmocap_prediction:/opt/ros/humble /usr/bin/cmake --build /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs -- -j20 -l20
+[30.068s] Consolidate compiler generated dependencies of target hope_msgs__rosidl_generator_c
+[30.077s] [  3%] Built target hope_msgs__cpp
+[30.078s] [ 12%] Built target hope_msgs__rosidl_generator_c
+[30.086s] Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_fastrtps_cpp
+[30.086s] Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_introspection_cpp
+[30.086s] [ 12%] Built target ament_cmake_python_copy_hope_msgs
+[30.086s] [ 16%] Generating C type support for eProsima Fast-RTPS
+[30.086s] [ 19%] Generating C type support dispatch for ROS interfaces
+[30.087s] [ 22%] Generating C introspection for ROS interfaces
+[30.087s] Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_cpp
+[30.093s] [ 32%] Built target hope_msgs__rosidl_typesupport_fastrtps_cpp
+[30.095s] [ 41%] Built target hope_msgs__rosidl_typesupport_introspection_cpp
+[30.095s] [ 51%] Built target hope_msgs__rosidl_typesupport_cpp
+[30.207s] running egg_info
+[30.207s] writing hope_msgs.egg-info/PKG-INFO
+[30.207s] writing dependency_links to hope_msgs.egg-info/dependency_links.txt
+[30.207s] writing top-level names to hope_msgs.egg-info/top_level.txt
+[30.208s] reading manifest file 'hope_msgs.egg-info/SOURCES.txt'
+[30.208s] writing manifest file 'hope_msgs.egg-info/SOURCES.txt'
+[30.226s] Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_c
+[30.227s] [ 51%] Built target ament_cmake_python_build_hope_msgs_egg
+[30.235s] [ 54%] Building CXX object CMakeFiles/hope_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/hope_msgs/msg/racket_command__type_support.cpp.o
+[30.235s] Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_introspection_c
+[30.242s] [ 58%] Building C object CMakeFiles/hope_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/hope_msgs/msg/detail/racket_command__type_support.c.o
+[30.243s] Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_fastrtps_c
+[30.251s] [ 61%] Building CXX object CMakeFiles/hope_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/hope_msgs/msg/detail/racket_command__type_support_c.cpp.o
+[30.258s] [ 64%] Linking CXX shared library libhope_msgs__rosidl_typesupport_c.so
+[30.269s] [ 67%] Linking C shared library libhope_msgs__rosidl_typesupport_introspection_c.so
+[30.284s] [ 67%] Built target hope_msgs__rosidl_typesupport_c
+[30.291s] [ 67%] Built target hope_msgs__rosidl_typesupport_introspection_c
+[30.397s] [ 70%] Linking CXX shared library libhope_msgs__rosidl_typesupport_fastrtps_c.so
+[30.450s] [ 70%] Built target hope_msgs__rosidl_typesupport_fastrtps_c
+[30.468s] [ 70%] Built target hope_msgs
+[30.486s] [ 74%] Built target hope_msgs__py
+[30.495s] Consolidate compiler generated dependencies of target hope_msgs__rosidl_generator_py
+[30.503s] [ 77%] Building C object CMakeFiles/hope_msgs__rosidl_generator_py.dir/rosidl_generator_py/hope_msgs/msg/_racket_command_s.c.o
+[30.587s] [ 80%] Linking C shared library rosidl_generator_py/hope_msgs/libhope_msgs__rosidl_generator_py.so
+[30.623s] [ 80%] Built target hope_msgs__rosidl_generator_py
+[30.631s] Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_c__pyext
+[30.632s] Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_introspection_c__pyext
+[30.635s] Consolidate compiler generated dependencies of target hope_msgs__rosidl_typesupport_fastrtps_c__pyext
+[30.639s] [ 83%] Building C object CMakeFiles/hope_msgs__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/hope_msgs/_hope_msgs_s.ep.rosidl_typesupport_c.c.o
+[30.641s] [ 87%] Building C object CMakeFiles/hope_msgs__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/hope_msgs/_hope_msgs_s.ep.rosidl_typesupport_introspection_c.c.o
+[30.646s] [ 90%] Building C object CMakeFiles/hope_msgs__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/hope_msgs/_hope_msgs_s.ep.rosidl_typesupport_fastrtps_c.c.o
+[30.689s] [ 93%] Linking C shared library rosidl_generator_py/hope_msgs/hope_msgs_s__rosidl_typesupport_introspection_c.cpython-311-x86_64-linux-gnu.so
+[30.691s] [ 96%] Linking C shared library rosidl_generator_py/hope_msgs/hope_msgs_s__rosidl_typesupport_c.cpython-311-x86_64-linux-gnu.so
+[30.699s] [100%] Linking C shared library rosidl_generator_py/hope_msgs/hope_msgs_s__rosidl_typesupport_fastrtps_c.cpython-311-x86_64-linux-gnu.so
+[30.718s] [100%] Built target hope_msgs__rosidl_typesupport_c__pyext
+[30.718s] [100%] Built target hope_msgs__rosidl_typesupport_introspection_c__pyext
+[30.728s] [100%] Built target hope_msgs__rosidl_typesupport_fastrtps_c__pyext
+[60.062s] Invoked command in '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/bth/workspace/Mocap/install/ppmocap_tools:/home/bth/workspace/Mocap/install/ppmocap_prediction:/opt/ros/humble /usr/bin/cmake --build /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs -- -j20 -l20
+[60.069s] Invoking command in '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/bth/workspace/Mocap/install/ppmocap_tools:/home/bth/workspace/Mocap/install/ppmocap_prediction:/opt/ros/humble /usr/bin/cmake --install /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs
+[60.078s] -- Install configuration: ""
+[60.078s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/ament_index/resource_index/rosidl_interfaces/hope_msgs
+[60.078s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs
+[60.078s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg
+[60.078s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/rosidl_generator_c__visibility_control.h
+[60.078s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail
+[60.078s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__struct.h
+[60.078s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__type_support.h
+[60.078s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__functions.h
+[60.078s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__functions.c
+[60.078s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/racket_command.h
+[60.078s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/environment/library_path.sh
+[60.078s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/environment/library_path.dsv
+[60.112s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_generator_c.so
+[60.112s] -- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_generator_c.so" to ""
+[60.112s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs
+[60.112s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg
+[60.112s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail
+[60.112s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__rosidl_typesupport_fastrtps_c.h
+[60.112s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+[60.112s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_fastrtps_c.so
+[60.112s] -- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_fastrtps_c.so" to ""
+[60.112s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs
+[60.112s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg
+[60.112s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail
+[60.112s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__struct.hpp
+[60.113s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__traits.hpp
+[60.113s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__type_support.hpp
+[60.113s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__builder.hpp
+[60.113s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/racket_command.hpp
+[60.113s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/rosidl_generator_cpp__visibility_control.hpp
+[60.113s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs
+[60.113s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg
+[60.113s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+[60.113s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail
+[60.113s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__rosidl_typesupport_fastrtps_cpp.hpp
+[60.113s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/dds_fastrtps
+[60.113s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_fastrtps_cpp.so
+[60.113s] -- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_fastrtps_cpp.so" to ""
+[60.113s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs
+[60.113s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg
+[60.113s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail
+[60.113s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__type_support.c
+[60.113s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__rosidl_typesupport_introspection_c.h
+[60.113s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/rosidl_typesupport_introspection_c__visibility_control.h
+[60.113s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_introspection_c.so
+[60.115s] -- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_introspection_c.so" to ""
+[60.115s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_c.so
+[60.115s] -- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_c.so" to ""
+[60.115s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs
+[60.115s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg
+[60.115s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail
+[60.115s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__type_support.cpp
+[60.115s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/include/hope_msgs/hope_msgs/msg/detail/racket_command__rosidl_typesupport_introspection_cpp.hpp
+[60.115s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_introspection_cpp.so
+[60.115s] -- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_introspection_cpp.so" to ""
+[60.115s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_cpp.so
+[60.115s] -- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_typesupport_cpp.so" to ""
+[60.115s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/environment/pythonpath.sh
+[60.115s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/environment/pythonpath.dsv
+[60.115s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs-0.0.0-py3.10.egg-info
+[60.115s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs-0.0.0-py3.10.egg-info/top_level.txt
+[60.115s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs-0.0.0-py3.10.egg-info/PKG-INFO
+[60.115s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs-0.0.0-py3.10.egg-info/SOURCES.txt
+[60.115s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs-0.0.0-py3.10.egg-info/dependency_links.txt
+[60.115s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs
+[60.115s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_fastrtps_c.cpython-311-x86_64-linux-gnu.so
+[60.115s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/libhope_msgs__rosidl_generator_py.so
+[60.115s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/_hope_msgs_s.ep.rosidl_typesupport_c.c
+[60.115s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/_hope_msgs_s.ep.rosidl_typesupport_fastrtps_c.c
+[60.115s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/__init__.py
+[60.115s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_introspection_c.cpython-311-x86_64-linux-gnu.so
+[60.116s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/_hope_msgs_s.ep.rosidl_typesupport_introspection_c.c
+[60.116s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_c.cpython-311-x86_64-linux-gnu.so
+[60.116s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/msg
+[60.116s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/msg/_racket_command_s.c
+[60.116s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/msg/__init__.py
+[60.116s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/msg/_racket_command.py
+[60.137s] Listing '/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs'...
+[60.137s] Compiling '/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/__init__.py'...
+[60.137s] Listing '/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/msg'...
+[60.139s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_fastrtps_c.cpython-311-x86_64-linux-gnu.so
+[60.140s] -- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_fastrtps_c.cpython-311-x86_64-linux-gnu.so" to ""
+[60.140s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_introspection_c.cpython-311-x86_64-linux-gnu.so
+[60.140s] -- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_introspection_c.cpython-311-x86_64-linux-gnu.so" to ""
+[60.140s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_c.cpython-311-x86_64-linux-gnu.so
+[60.140s] -- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/python3.11/site-packages/hope_msgs/hope_msgs_s__rosidl_typesupport_c.cpython-311-x86_64-linux-gnu.so" to ""
+[60.140s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_generator_py.so
+[60.141s] -- Set runtime path of "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib/libhope_msgs__rosidl_generator_py.so" to ""
+[60.141s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/msg/RacketCommand.idl
+[60.141s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/msg/RacketCommand.msg
+[60.141s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/ament_index/resource_index/package_run_dependencies/hope_msgs
+[60.141s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/ament_index/resource_index/parent_prefix_path/hope_msgs
+[60.141s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/environment/ament_prefix_path.sh
+[60.141s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/environment/ament_prefix_path.dsv
+[60.141s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/environment/path.sh
+[60.141s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/environment/path.dsv
+[60.141s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/local_setup.bash
+[60.141s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/local_setup.sh
+[60.141s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/local_setup.zsh
+[60.141s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/local_setup.dsv
+[60.141s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/package.dsv
+[60.141s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/ament_index/resource_index/packages/hope_msgs
+[60.141s] -- Old export file "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_cExport.cmake" will be replaced.  Removing files [/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_cExport-noconfig.cmake].
+[60.141s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_cExport.cmake
+[60.142s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_cExport-noconfig.cmake
+[60.144s] -- Old export file "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_typesupport_fastrtps_cExport.cmake" will be replaced.  Removing files [/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_typesupport_fastrtps_cExport-noconfig.cmake].
+[60.144s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_typesupport_fastrtps_cExport.cmake
+[60.144s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+[60.144s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_cppExport.cmake
+[60.144s] -- Old export file "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_typesupport_fastrtps_cppExport.cmake" will be replaced.  Removing files [/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake].
+[60.144s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_typesupport_fastrtps_cppExport.cmake
+[60.144s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+[60.144s] -- Old export file "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_introspection_cExport.cmake" will be replaced.  Removing files [/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_introspection_cExport-noconfig.cmake].
+[60.144s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_introspection_cExport.cmake
+[60.144s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_introspection_cExport-noconfig.cmake
+[60.144s] -- Old export file "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_cExport.cmake" will be replaced.  Removing files [/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_cExport-noconfig.cmake].
+[60.144s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_cExport.cmake
+[60.144s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_cExport-noconfig.cmake
+[60.144s] -- Old export file "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_introspection_cppExport.cmake" will be replaced.  Removing files [/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_introspection_cppExport-noconfig.cmake].
+[60.144s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_introspection_cppExport.cmake
+[60.144s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+[60.144s] -- Old export file "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_cppExport.cmake" will be replaced.  Removing files [/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_cppExport-noconfig.cmake].
+[60.144s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_cppExport.cmake
+[60.144s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgs__rosidl_typesupport_cppExport-noconfig.cmake
+[60.144s] -- Old export file "/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_pyExport.cmake" will be replaced.  Removing files [/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_pyExport-noconfig.cmake].
+[60.144s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_pyExport.cmake
+[60.144s] -- Installing: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/export_hope_msgs__rosidl_generator_pyExport-noconfig.cmake
+[60.144s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/rosidl_cmake-extras.cmake
+[60.144s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/ament_cmake_export_dependencies-extras.cmake
+[60.144s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/ament_cmake_export_include_directories-extras.cmake
+[60.144s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/ament_cmake_export_libraries-extras.cmake
+[60.144s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/ament_cmake_export_targets-extras.cmake
+[60.144s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+[60.144s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+[60.144s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgsConfig.cmake
+[60.144s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/cmake/hope_msgsConfig-version.cmake
+[60.144s] -- Up-to-date: /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/share/hope_msgs/package.xml
+[90.091s] Invoked command in '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/bth/workspace/Mocap/install/ppmocap_tools:/home/bth/workspace/Mocap/install/ppmocap_prediction:/opt/ros/humble /usr/bin/cmake --install /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs

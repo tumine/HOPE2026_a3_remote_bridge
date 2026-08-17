@@ -11,4 +11,4 @@ if [[ ! -x "${BUILD_SCRIPT}" ]]; then
   exit 66
 fi
 
-exec "${BUILD_SCRIPT}" "${OUTPUT_ROOT}" --packages-up-to hope_planner
+exec "${BUILD_SCRIPT}" "${OUTPUT_ROOT}" --packages-up-to hope_planner "$@"

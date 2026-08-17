@@ -108,22 +108,28 @@ build_inside_docker() {
     -DPYTHON_EXECUTABLE=/usr/bin/python3
 
   cmake --build "${build_dir}" \
-    --target a3_mdu_state_bridge a3_hdu_command_dry_relay -j"${JOBS}"
+    --target a3_mdu_state_bridge a3_hdu_command_dry_relay \
+      a3_mdu_planner_receiver -j"${JOBS}"
 
   rm -rf "${package_dir}"
-  mkdir -p "${package_dir}/dist" "${package_dir}/config" "${package_dir}/scripts"
+  mkdir -p "${package_dir}/dist" "${package_dir}/config" \
+    "${package_dir}/models" "${package_dir}/scripts"
   cp -a "${build_dir}/dist/." "${package_dir}/dist/"
+  cp -a "${build_dir}/models/." "${package_dir}/models/"
   cp -a "${REPO_ROOT}/config/a3_mdu_iceoryx.yaml" \
     "${REPO_ROOT}/config/fastrtps_mdu.xml" \
+    "${REPO_ROOT}/config/fastrtps_mdu_planner.xml" \
     "${REPO_ROOT}/config/fastrtps_hdu_dual_nic.xml" \
     "${package_dir}/config/"
   cp -a "${REPO_ROOT}/scripts/run_mdu_state_bridge.sh" \
     "${REPO_ROOT}/scripts/run_mdu_rl_control.sh" \
+    "${REPO_ROOT}/scripts/run_mdu_planner_receiver.sh" \
     "${REPO_ROOT}/scripts/mdu_rl_stack.sh" \
     "${REPO_ROOT}/scripts/run_hdu_command_dry_relay.sh" \
     "${package_dir}/scripts/"
   chmod +x "${package_dir}/scripts/run_mdu_state_bridge.sh" \
     "${package_dir}/scripts/run_mdu_rl_control.sh" \
+    "${package_dir}/scripts/run_mdu_planner_receiver.sh" \
     "${package_dir}/scripts/mdu_rl_stack.sh" \
     "${package_dir}/scripts/run_hdu_command_dry_relay.sh"
 
@@ -131,12 +137,33 @@ build_inside_docker() {
     | grep -E 'Class:|Machine:'
   aarch64-linux-gnu-readelf -h "${package_dir}/dist/a3_hdu_command_dry_relay" \
     | grep -E 'Class:|Machine:'
+  aarch64-linux-gnu-readelf -h "${package_dir}/dist/a3_mdu_planner_receiver" \
+    | grep -E 'Class:|Machine:'
+  aarch64-linux-gnu-readelf -h "${package_dir}/dist/libonnxruntime.so.1" \
+    | grep -E 'Class:|Machine:'
+  if ! aarch64-linux-gnu-readelf -d \
+      "${package_dir}/dist/a3_mdu_planner_receiver" \
+      | grep -F 'libonnxruntime.so.1' >/dev/null; then
+    echo "packaged planner receiver is not linked to ONNX Runtime" >&2
+    exit 1
+  fi
+  if [[ "$(sha256sum "${package_dir}/models/hope_pingpong.onnx" | cut -d' ' -f1)" \
+      != "6e2fcf9c9793a568f0583ae9b6e7b0439fb83df004c356e85af85841afc2d074" ]]; then
+    echo "packaged model_21500 SHA256 mismatch" >&2
+    exit 1
+  fi
   if ! aarch64-linux-gnu-nm -C "${package_dir}/dist/a3_mdu_state_bridge" \
       | grep -F ' T robot_io::CreateA3AimrtBackend()' >/dev/null; then
     echo "A3 backend strong factory symbol is missing from packaged executable" >&2
     exit 1
   fi
+  if ! aarch64-linux-gnu-nm -C "${package_dir}/dist/a3_mdu_planner_receiver" \
+      | grep -F ' T robot_io::CreateA3AimrtBackend()' >/dev/null; then
+    echo "A3 backend is missing from packaged planner receiver" >&2
+    exit 1
+  fi
   echo "A3 backend factory: linked"
+  echo "ONNX Runtime and model_21500: linked and verified"
   echo "MDU package ready: ${package_dir}"
 }
 

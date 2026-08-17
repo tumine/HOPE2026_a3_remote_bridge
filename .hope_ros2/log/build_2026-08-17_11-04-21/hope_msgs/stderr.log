@@ -1,0 +1,34 @@
+Traceback (most recent call last):
+  File "/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_msgs/ament_cmake_python/hope_msgs/setup.py", line 4, in <module>
+    setup(
+  File "/home/bth/.local/lib/python3.10/site-packages/setuptools/__init__.py", line 117, in setup
+    return distutils.core.setup(**attrs)  # type: ignore[return-value]
+  File "/home/bth/.local/lib/python3.10/site-packages/setuptools/_distutils/core.py", line 186, in setup
+    return run_commands(dist)
+  File "/home/bth/.local/lib/python3.10/site-packages/setuptools/_distutils/core.py", line 202, in run_commands
+    dist.run_commands()
+  File "/home/bth/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py", line 1001, in run_commands
+    self.run_command(cmd)
+  File "/home/bth/.local/lib/python3.10/site-packages/setuptools/dist.py", line 1107, in run_command
+    super().run_command(command)
+  File "/home/bth/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py", line 1020, in run_command
+    cmd_obj.run()
+  File "/home/bth/.local/lib/python3.10/site-packages/setuptools/command/egg_info.py", line 338, in run
+    self.find_sources()
+  File "/home/bth/.local/lib/python3.10/site-packages/setuptools/command/egg_info.py", line 346, in find_sources
+    mm.run()
+  File "/home/bth/.local/lib/python3.10/site-packages/setuptools/command/egg_info.py", line 573, in run
+    self.prune_file_list()
+  File "/home/bth/.local/lib/python3.10/site-packages/setuptools/command/sdist.py", line 163, in prune_file_list
+    super().prune_file_list()
+  File "/home/bth/.local/lib/python3.10/site-packages/setuptools/_distutils/command/sdist.py", line 386, in prune_file_list
+    base_dir = self.distribution.get_fullname()
+  File "/home/bth/.local/lib/python3.10/site-packages/setuptools/_core_metadata.py", line 275, in get_fullname
+    return _distribution_fullname(self.get_name(), self.get_version())
+  File "/home/bth/.local/lib/python3.10/site-packages/setuptools/_core_metadata.py", line 293, in _distribution_fullname
+    canonicalize_version(version, strip_trailing_zero=False),
+TypeError: canonicalize_version() got an unexpected keyword argument 'strip_trailing_zero'
+gmake[2]: *** [CMakeFiles/ament_cmake_python_build_hope_msgs_egg.dir/build.make:70：CMakeFiles/ament_cmake_python_build_hope_msgs_egg] 错误 1
+gmake[1]: *** [CMakeFiles/Makefile2:447：CMakeFiles/ament_cmake_python_build_hope_msgs_egg.dir/all] 错误 2
+gmake[1]: *** 正在等待未完成的任务....
+gmake: *** [Makefile:146：all] 错误 2
