@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 ROBOT_ENV="${A3_ROBOT_ENV:-/agibot/software/v0/entry/env/env.sh}"
+INPUT_TRANSPORT="${A3_PLANNER_INPUT_TRANSPORT:-udp}"
 
 if [[ ! -f "${ROBOT_ENV}" ]]; then
   echo "robot environment not found: ${ROBOT_ENV}" >&2
@@ -15,18 +16,28 @@ source "${ROBOT_ENV}"
 set -u
 
 export ROS_DOMAIN_ID="${A3_ROS_DOMAIN_ID:-232}"
-export ROS_LOCALHOST_ONLY=0
-export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
 export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
-export FASTRTPS_DEFAULT_PROFILES_FILE="${A3_PLANNER_FASTRTPS_PROFILE:-${ROOT_DIR}/config/fastrtps_mdu_planner.xml}"
 export LD_LIBRARY_PATH="${ROOT_DIR}/dist:/opt/ros/jazzy/lib:${LD_LIBRARY_PATH:-}"
-unset FASTDDS_DEFAULT_PROFILES_FILE CYCLONEDDS_URI
+if [[ "${INPUT_TRANSPORT}" == "udp" ]]; then
+  export ROS_LOCALHOST_ONLY=1
+  export ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST
+  unset FASTRTPS_DEFAULT_PROFILES_FILE FASTDDS_DEFAULT_PROFILES_FILE CYCLONEDDS_URI
+elif [[ "${INPUT_TRANSPORT}" == "ros2" ]]; then
+  export ROS_LOCALHOST_ONLY=0
+  export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
+  export FASTRTPS_DEFAULT_PROFILES_FILE="${A3_PLANNER_FASTRTPS_PROFILE:-${ROOT_DIR}/config/fastrtps_mdu_planner.xml}"
+  unset FASTDDS_DEFAULT_PROFILES_FILE CYCLONEDDS_URI
+else
+  echo "A3_PLANNER_INPUT_TRANSPORT must be udp or ros2" >&2
+  exit 64
+fi
 
 ROBOT_IO_ARGS=()
 if [[ "${A3_ENABLE_ROBOT_IO_PROBE:-0}" == "1" ||
       "${A3_ENABLE_OBSERVATION_PROBE:-0}" == "1" ||
       "${A3_ENABLE_ONNX_PROBE:-0}" == "1" ||
       "${A3_ENABLE_ACTION_DRY_RUN:-0}" == "1" ||
+      "${A3_ENABLE_UPPER_BODY_SERVE_DRY_RUN:-0}" == "1" ||
       "${A3_ENABLE_MANUAL_CONTROL:-0}" == "1" ||
       "${A3_ENABLE_COMMAND_PUBLISH:-0}" == "1" ]]; then
   ROBOT_IO_ARGS+=(
@@ -38,6 +49,7 @@ fi
 if [[ "${A3_ENABLE_OBSERVATION_PROBE:-0}" == "1" ||
       "${A3_ENABLE_ONNX_PROBE:-0}" == "1" ||
       "${A3_ENABLE_ACTION_DRY_RUN:-0}" == "1" ||
+      "${A3_ENABLE_UPPER_BODY_SERVE_DRY_RUN:-0}" == "1" ||
       "${A3_ENABLE_MANUAL_CONTROL:-0}" == "1" ||
       "${A3_ENABLE_COMMAND_PUBLISH:-0}" == "1" ]]; then
   ROBOT_IO_ARGS+=(--observation-probe)
@@ -52,7 +64,11 @@ fi
 if [[ "${A3_ENABLE_ACTION_DRY_RUN:-0}" == "1" ]]; then
   ROBOT_IO_ARGS+=(--action-dry-run)
 fi
+if [[ "${A3_ENABLE_UPPER_BODY_SERVE_DRY_RUN:-0}" == "1" ]]; then
+  ROBOT_IO_ARGS+=(--upper-body-serve-dry-run)
+fi
 if [[ "${A3_ENABLE_MANUAL_CONTROL:-0}" == "1" ||
+      "${A3_ENABLE_UPPER_BODY_SERVE_DRY_RUN:-0}" == "1" ||
       "${A3_ENABLE_COMMAND_PUBLISH:-0}" == "1" ]]; then
   ROBOT_IO_ARGS+=(--manual-control)
 fi
@@ -79,10 +95,15 @@ if [[ "${A3_ENABLE_COMMAND_PUBLISH:-0}" == "1" ]]; then
 fi
 
 exec "${ROOT_DIR}/dist/a3_mdu_planner_receiver" \
+  --input-transport "${INPUT_TRANSPORT}" \
   --command-topic "${A3_RACKET_COMMAND_TOPIC:-/racket/command}" \
   --base-pose-topic "${A3_BASE_POSE_TOPIC:-/a3_mocap/pelvis_pose}" \
   --expected-frame "${A3_CANONICAL_FRAME:-hope_table}" \
+  --udp-bind-address "${A3_MDU_ADDRESS:-192.168.1.100}" \
+  --udp-source-address "${A3_PC_WIRED_ADDRESS:-192.168.1.11}" \
+  --udp-port "${A3_PLANNER_UDP_PORT:-15001}" \
   --command-timeout-ms "${A3_PLANNER_COMMAND_TIMEOUT_MS:-150}" \
   --base-pose-timeout-ms "${A3_BASE_POSE_TIMEOUT_MS:-100}" \
+  --status-period-s "${A3_STATUS_PERIOD_S:-5}" \
   "${ROBOT_IO_ARGS[@]}" \
   "$@"

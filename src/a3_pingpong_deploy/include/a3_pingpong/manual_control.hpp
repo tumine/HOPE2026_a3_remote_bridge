@@ -8,6 +8,7 @@ enum class ManualMode {
   kPassive,
   kPdStand,
   kMotion,
+  kUpperBodyServe,
   kHalted,
 };
 
@@ -15,6 +16,7 @@ enum class ManualKey {
   kPassive,
   kPdStand,
   kMotion,
+  kUpperBodyServe,
   kHalt,
   kStatus,
   kHelp,
@@ -25,6 +27,7 @@ enum class ManualKey {
 enum class ManualActionResult {
   kAccepted,
   kRejectedNeedPdStand,
+  kRejectedServeDisabled,
   kRejectedQuitWhileActive,
   kStatusRequested,
   kHelpRequested,
@@ -35,17 +38,21 @@ enum class ManualActionResult {
 ManualKey ParseManualKey(char key) noexcept;
 const char* ManualModeName(ManualMode mode) noexcept;
 
-// The old on-robot control sequence: P=passive, S=pd_stand, then M=motion.
-// Motion is deliberately unreachable until the official 150-tick PD_STAND
-// interpolation has completed.
+// On-robot control sequence: P=passive, S=pd_stand, then M=motion or
+// V=upper-body serve. Active modes are deliberately unreachable until the
+// official 150-tick PD_STAND interpolation has completed.
 class ManualControl {
  public:
   ManualActionResult Apply(ManualKey key) noexcept;
   void SetPdStandReady(bool ready) noexcept;
+  void CompleteUpperBodyServe() noexcept;
 
   ManualMode mode() const noexcept { return mode_; }
   bool pd_stand_ready() const noexcept { return pd_stand_ready_; }
   bool policy_enabled() const noexcept { return mode_ == ManualMode::kMotion; }
+  bool upper_body_serve_enabled() const noexcept {
+    return mode_ == ManualMode::kUpperBodyServe;
+  }
   std::uint64_t epoch() const noexcept { return epoch_; }
 
  private:

@@ -10,6 +10,7 @@ int main() {
 
   CHECK(ParseManualKey('s') == ManualKey::kPdStand);
   CHECK(ParseManualKey('M') == ManualKey::kMotion);
+  CHECK(ParseManualKey('v') == ManualKey::kUpperBodyServe);
   CHECK(ParseManualKey('?') == ManualKey::kUnknown);
 
   ManualControl control;
@@ -42,6 +43,14 @@ int main() {
   CHECK(control.Apply(ManualKey::kQuit) == ManualActionResult::kQuitRequested);
 
   CHECK(control.Apply(ManualKey::kPdStand) == ManualActionResult::kAccepted);
+  control.SetPdStandReady(true);
+  CHECK(control.Apply(ManualKey::kUpperBodyServe) ==
+        ManualActionResult::kAccepted);
+  CHECK(control.mode() == ManualMode::kUpperBodyServe);
+  CHECK(control.upper_body_serve_enabled());
+  control.CompleteUpperBodyServe();
+  CHECK(control.mode() == ManualMode::kPdStand);
+  CHECK(!control.pd_stand_ready());
   control.SetPdStandReady(true);
   CHECK(control.Apply(ManualKey::kHalt) == ManualActionResult::kAccepted);
   CHECK(control.mode() == ManualMode::kHalted);

@@ -1,10 +1,14 @@
+#include "a3_pingpong/a3_leg_limits.hpp"
+#include "a3_pingpong/lateral_station.hpp"
 #include "a3_pingpong/onnx_actor.hpp"
 #include "a3_pingpong/manual_control.hpp"
 #include "a3_pingpong/pingpong_action_adapter.hpp"
 #include "a3_pingpong/pingpong_observation_builder.hpp"
 #include "a3_pingpong/planner_input.hpp"
+#include "a3_pingpong/planner_udp_receiver.hpp"
 #include "a3_pingpong/receive_controller.hpp"
 #include "a3_pingpong/swing_lifecycle.hpp"
+#include "a3_pingpong/upper_body_serve.hpp"
 
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <hope_msgs/msg/racket_command.hpp>
@@ -30,24 +34,35 @@
 #include <string>
 #include <thread>
 #include <utility>
+#include <vector>
 
 namespace {
 
 struct Options {
+  std::string input_transport{"udp"};
   std::string command_topic{"/racket/command"};
   std::string base_pose_topic{"/a3_mocap/pelvis_pose"};
   std::string expected_frame{"hope_table"};
+  std::string udp_bind_address{"192.168.1.100"};
+  std::string udp_source_address{"192.168.1.11"};
+  std::uint16_t udp_port{15001};
   std::string aimrt_cfg;
   double command_timeout_ms{150.0};
   double base_pose_timeout_ms{100.0};
   double state_timeout_ms{50.0};
   double control_hz{50.0};
+  double status_period_s{5.0};
+  double leg_soft_scale{0.90};
+  double leg_damping_kd{2.0};
+  std::vector<std::string> leg_soft_limit_specs;
   bool observation_probe{false};
   bool onnx_requested{false};
   bool action_dry_run{false};
+  bool upper_body_serve_dry_run{false};
   bool manual_control{false};
   bool publish_commands{false};
   std::string onnx_model;
+  a3_pingpong::ReceiveControllerOptions::LegDampingSafety leg_damping_safety;
 };
 
 void Usage(const char* program) {
@@ -56,19 +71,28 @@ void Usage(const char* program) {
       << "Receive PC-side HOPE planner inputs and run the MDU policy.\n"
       << "Command publishing is disabled unless explicitly requested.\n\n"
       << "Options:\n"
+      << "  --input-transport MODE     udp (default) or ros2\n"
       << "  --command-topic TOPIC       (default: /racket/command)\n"
       << "  --base-pose-topic TOPIC     (default: /a3_mocap/pelvis_pose)\n"
       << "  --expected-frame FRAME      (default: hope_table)\n"
+      << "  --udp-bind-address IPv4     (default: 192.168.1.100)\n"
+      << "  --udp-source-address IPv4   allowed PC (default: 192.168.1.11)\n"
+      << "  --udp-port PORT             (default: 15001)\n"
       << "  --aimrt-cfg PATH            enable the RobotIO backend\n"
       << "  --observation-probe         build 111-D observations; no inference\n"
-      << "  --onnx-model PATH           run model_21500 inference\n"
+      << "  --onnx-model PATH           run model_48000 inference\n"
       << "  --action-dry-run            build full RobotCommand; do not send\n"
-      << "  --manual-control            P/S/M/X keyboard control state machine\n"
+      << "  --upper-body-serve-dry-run  V-key upper-body serve; hold lower body\n"
+      << "  --manual-control            P/S/M/V/X keyboard control state machine\n"
       << "  --publish-commands          enable official RobotIO SendCommand path\n"
       << "  --command-timeout-ms MS     (default: 150)\n"
       << "  --base-pose-timeout-ms MS   (default: 100)\n"
       << "  --state-timeout-ms MS       (default: 50)\n"
       << "  --control-hz HZ             (default: 50)\n"
+      << "  --leg-soft-scale SCALE     URDF endpoint scale (default: 0.90)\n"
+      << "  --leg-soft-limit SPEC      NAME:LOWER:UPPER; repeat per joint\n"
+      << "  --leg-damping-kd KD        leg Kd in latched damping (default: 2.0)\n"
+      << "  --status-period-s SEC       status log period (default: 5)\n"
       << "  -h, --help\n";
 }
 
@@ -95,6 +119,12 @@ Options ParseOptions(int argc, char** argv) {
       options.action_dry_run = true;
       continue;
     }
+    if (argument == "--upper-body-serve-dry-run") {
+      options.upper_body_serve_dry_run = true;
+      options.observation_probe = true;
+      options.manual_control = true;
+      continue;
+    }
     if (argument == "--manual-control") {
       options.manual_control = true;
       continue;
@@ -116,9 +146,12 @@ Options ParseOptions(int argc, char** argv) {
       return false;
     };
     std::string numeric;
-    if (take_value("--command-topic", options.command_topic) ||
+    if (take_value("--input-transport", options.input_transport) ||
+        take_value("--command-topic", options.command_topic) ||
         take_value("--base-pose-topic", options.base_pose_topic) ||
         take_value("--expected-frame", options.expected_frame) ||
+        take_value("--udp-bind-address", options.udp_bind_address) ||
+        take_value("--udp-source-address", options.udp_source_address) ||
         take_value("--aimrt-cfg", options.aimrt_cfg)) {
       continue;
     }
@@ -143,18 +176,53 @@ Options ParseOptions(int argc, char** argv) {
       options.control_hz = std::stod(numeric);
       continue;
     }
+    if (take_value("--leg-soft-scale", numeric)) {
+      options.leg_soft_scale = std::stod(numeric);
+      continue;
+    }
+    if (take_value("--leg-soft-limit", numeric)) {
+      options.leg_soft_limit_specs.push_back(numeric);
+      continue;
+    }
+    if (take_value("--leg-damping-kd", numeric)) {
+      options.leg_damping_kd = std::stod(numeric);
+      continue;
+    }
+    if (take_value("--status-period-s", numeric)) {
+      options.status_period_s = std::stod(numeric);
+      continue;
+    }
+    if (take_value("--udp-port", numeric)) {
+      const int port = std::stoi(numeric);
+      if (port < 1 || port > 65535) {
+        throw std::runtime_error("--udp-port must be in [1, 65535]");
+      }
+      options.udp_port = static_cast<std::uint16_t>(port);
+      continue;
+    }
     throw std::runtime_error("unknown or incomplete option: " + argument);
   }
 
   const auto valid_topic = [](const std::string& value) {
     return !value.empty() && value.front() == '/';
   };
-  if (!valid_topic(options.command_topic) ||
-      !valid_topic(options.base_pose_topic)) {
+  if (options.input_transport != "udp" && options.input_transport != "ros2") {
+    throw std::runtime_error("--input-transport must be udp or ros2");
+  }
+  if (options.input_transport == "ros2" &&
+      (!valid_topic(options.command_topic) ||
+       !valid_topic(options.base_pose_topic))) {
     throw std::runtime_error("topics must be absolute ROS names");
+  }
+  if (options.udp_bind_address.empty() || options.udp_source_address.empty()) {
+    throw std::runtime_error("UDP IPv4 addresses cannot be empty");
   }
   if (options.expected_frame.empty()) {
     throw std::runtime_error("--expected-frame cannot be empty");
+  }
+  if (options.upper_body_serve_dry_run && options.publish_commands) {
+    throw std::runtime_error(
+        "upper-body serve phase 1 is dry-run only; command publishing is refused");
   }
   if (options.observation_probe && options.aimrt_cfg.empty()) {
     throw std::runtime_error(
@@ -182,9 +250,60 @@ Options ParseOptions(int argc, char** argv) {
       options.base_pose_timeout_ms <= 0.0 ||
       !std::isfinite(options.state_timeout_ms) ||
       options.state_timeout_ms <= 0.0 ||
-      !std::isfinite(options.control_hz) || options.control_hz <= 0.0) {
+      !std::isfinite(options.control_hz) || options.control_hz <= 0.0 ||
+      !std::isfinite(options.leg_soft_scale) ||
+      options.leg_soft_scale <= 0.0 || options.leg_soft_scale > 1.0 ||
+      !std::isfinite(options.leg_damping_kd) ||
+      options.leg_damping_kd <= 0.0 ||
+      !std::isfinite(options.status_period_s) ||
+      options.status_period_s <= 0.0) {
     throw std::runtime_error("timeouts must be finite and positive");
   }
+
+  // Scale each signed URDF endpoint toward zero. This preserves asymmetric
+  // joint ranges such as hip-roll and knee exactly as represented in URDF.
+  for (std::size_t index = 0; index < a3_pingpong::kA3LegDof; ++index) {
+    options.leg_damping_safety.lower[index] =
+        a3_pingpong::kA3LegUrdfLower[index] * options.leg_soft_scale;
+    options.leg_damping_safety.upper[index] =
+        a3_pingpong::kA3LegUrdfUpper[index] * options.leg_soft_scale;
+  }
+  for (const std::string& spec : options.leg_soft_limit_specs) {
+    const std::size_t first_separator = spec.find(':');
+    const std::size_t second_separator =
+        first_separator == std::string::npos
+            ? std::string::npos
+            : spec.find(':', first_separator + 1);
+    if (first_separator == std::string::npos ||
+        second_separator == std::string::npos ||
+        spec.find(':', second_separator + 1) != std::string::npos) {
+      throw std::runtime_error(
+          "--leg-soft-limit must be NAME:LOWER:UPPER");
+    }
+    const std::string name = spec.substr(0, first_separator);
+    const double lower = std::stod(
+        spec.substr(first_separator + 1,
+                    second_separator - first_separator - 1));
+    const double upper = std::stod(spec.substr(second_separator + 1));
+    std::size_t leg_index = a3_pingpong::kA3LegDof;
+    for (std::size_t index = 0; index < a3_pingpong::kA3LegDof; ++index) {
+      if (name == a3_pingpong::kA3LegJointNames[index]) {
+        leg_index = index;
+        break;
+      }
+    }
+    if (leg_index == a3_pingpong::kA3LegDof || !std::isfinite(lower) ||
+        !std::isfinite(upper) || lower >= upper ||
+        lower < a3_pingpong::kA3LegUrdfLower[leg_index] ||
+        upper > a3_pingpong::kA3LegUrdfUpper[leg_index]) {
+      throw std::runtime_error(
+          "--leg-soft-limit is invalid or outside the A3 mechanical range: " +
+          spec);
+    }
+    options.leg_damping_safety.lower[leg_index] = lower;
+    options.leg_damping_safety.upper[leg_index] = upper;
+  }
+  options.leg_damping_safety.damping_kd = options.leg_damping_kd;
   return options;
 }
 
@@ -223,6 +342,8 @@ const char* TickResultName(a3_pingpong::ReceiveTickResult result) {
       return "policy_rejected";
     case a3_pingpong::ReceiveTickResult::kCommandInvalid:
       return "command_invalid";
+    case a3_pingpong::ReceiveTickResult::kLegLimitDamping:
+      return "leg_limit_damping";
     case a3_pingpong::ReceiveTickResult::kCommandSent:
       return "command_sent";
     case a3_pingpong::ReceiveTickResult::kDryRun:
@@ -231,18 +352,52 @@ const char* TickResultName(a3_pingpong::ReceiveTickResult result) {
   return "unknown";
 }
 
+const char* LegJointName(int flat_index) {
+  if (flat_index < 19 || flat_index >= 31) return "unknown";
+  return a3_pingpong::kA3LegJointNames[
+      static_cast<std::size_t>(flat_index - a3_pingpong::kA3LegCommandStart)];
+}
+
+const char* SwingPhaseName(a3_pingpong::SwingPhase phase) {
+  switch (phase) {
+    case a3_pingpong::SwingPhase::kReady: return "ready";
+    case a3_pingpong::SwingPhase::kSwing: return "swing";
+    case a3_pingpong::SwingPhase::kFollowThrough: return "follow_through";
+    case a3_pingpong::SwingPhase::kRecovery: return "recovery";
+  }
+  return "unknown";
+}
+
+struct PolicyLifecycleDiagnostics {
+  a3_pingpong::SwingPhase phase{a3_pingpong::SwingPhase::kReady};
+  std::optional<std::uint64_t> active_task_id;
+  std::uint32_t active_revision{0};
+  std::int8_t swing_side{1};
+  std::array<double, 3> target_position_w{};
+  std::array<double, 3> target_velocity_w{};
+  std::array<double, 2> nominal_station_xy{};
+  std::array<double, 2> base_target_xy{};
+  std::array<double, 2> current_base_xy{};
+  std::array<double, 2> station_error_xy{};
+  double observed_tts{1.0};
+};
+
 class ObservationProbe {
  public:
   ObservationProbe(const std::string& onnx_model, bool command_output_enabled,
-                   bool manual_control, double command_timeout_s,
+                   bool manual_control, bool upper_body_serve_enabled,
+                   double control_hz, double command_timeout_s,
                    double base_pose_timeout_s)
-      : builder_(a3_pingpong::Model21500ObservationConfig()),
-        action_adapter_(a3_pingpong::Model21500ActionAdapterConfig()),
+      : builder_(a3_pingpong::Model50000ObservationConfig()),
+        action_adapter_(a3_pingpong::Model50000ActionAdapterConfig()),
         command_output_enabled_(command_output_enabled),
         manual_control_enabled_(manual_control),
+        upper_body_serve_enabled_(upper_body_serve_enabled),
+        control_dt_s_(1.0 / control_hz),
         command_timeout_s_(command_timeout_s),
         base_pose_timeout_s_(base_pose_timeout_s),
-        lifecycle_config_(a3_pingpong::Model21500SwingLifecycleConfig()),
+        lifecycle_config_(a3_pingpong::Model50000SwingLifecycleConfig()),
+        station_config_(a3_pingpong::Model50000LateralStationConfig()),
         lifecycle_(lifecycle_config_) {
     if (!onnx_model.empty()) {
       actor_ = std::make_unique<a3_pingpong::OnnxActor>(onnx_model);
@@ -261,8 +416,11 @@ class ObservationProbe {
           observed_manual_epoch_ = manual_control_.epoch();
           lifecycle_.Reset();
           last_action_.fill(0.0F);
+          nominal_station_initialized_ = false;
+          phase_report_initialized_ = false;
           pd_stand_initialized_ = false;
           pd_stand_elapsed_ticks_ = 0;
+          upper_body_serve_.Reset();
         }
         mode = manual_control_.mode();
       }
@@ -303,6 +461,46 @@ class ObservationProbe {
         return true;
       }
 
+      if (mode == a3_pingpong::ManualMode::kUpperBodyServe) {
+        if (!upper_body_serve_enabled_) {
+          rejected_count_.fetch_add(1, std::memory_order_relaxed);
+          return false;
+        }
+        a3_pingpong::UpperBodyServeTarget upper_body{};
+        a3_pingpong::UpperBodyServeDiagnostics diagnostics;
+        std::string reason;
+        if (!upper_body_serve_.Step(state, control_dt_s_, upper_body,
+                                    &diagnostics, &reason)) {
+          upper_body_serve_rejected_count_.fetch_add(
+              1, std::memory_order_relaxed);
+          return false;
+        }
+        upper_body_serve_phase_.store(diagnostics.phase,
+                                      std::memory_order_relaxed);
+        upper_body_serve_tick_.store(diagnostics.tick,
+                                     std::memory_order_relaxed);
+        if (diagnostics.release_requested) {
+          upper_body_serve_release_count_.fetch_add(
+              1, std::memory_order_relaxed);
+        }
+        if (command_output_enabled_) {
+          if (!serve_composer_.Build(state, upper_body, std::nullopt,
+                                     latest_command_, &reason)) {
+            upper_body_serve_rejected_count_.fetch_add(
+                1, std::memory_order_relaxed);
+            return false;
+          }
+          latest_command_ready_ = true;
+          upper_body_serve_command_count_.fetch_add(
+              1, std::memory_order_relaxed);
+        }
+        if (diagnostics.complete) {
+          std::lock_guard<std::mutex> lock(manual_mutex_);
+          manual_control_.CompleteUpperBodyServe();
+        }
+        return true;
+      }
+
       if (mode != a3_pingpong::ManualMode::kMotion) {
         if (command_output_enabled_) PreparePassiveCommand(state);
         return true;
@@ -315,21 +513,53 @@ class ObservationProbe {
       return false;
     }
 
+    const auto live_base_w = planner.base_pose->position_w;
+    if (!nominal_station_initialized_) {
+      nominal_station_xy_ = {live_base_w[0], live_base_w[1]};
+      base_target_xy_ = nominal_station_xy_;
+      nominal_station_initialized_ = true;
+    }
+
     std::optional<a3_pingpong::RacketTargetInput> fresh_command;
-    if (planner.command && planner.command_age_s <= command_timeout_s_ &&
-        planner.command->time_to_strike_s >= 0.0) {
+    if (planner.command && planner.command_age_s <= command_timeout_s_) {
       fresh_command = planner.command;
     }
     auto policy_input = planner;
-    policy_input.command = lifecycle_.Update(fresh_command);
+    policy_input.command = lifecycle_.Update(fresh_command, live_base_w);
     policy_input.command_age_s = 0.0;
-    const std::array<double, 2> fixed_station_xy = {
-        lifecycle_config_.ready_reference_base_w[0],
-        lifecycle_config_.ready_reference_base_w[1]};
-
+    if (lifecycle_.phase() == a3_pingpong::SwingPhase::kReady ||
+        lifecycle_.phase() == a3_pingpong::SwingPhase::kRecovery) {
+      base_target_xy_ = nominal_station_xy_;
+    } else if (!a3_pingpong::DeriveLateralBaseTarget(
+                   policy_input.command->position_w,
+                   policy_input.command->swing_side, nominal_station_xy_,
+                   station_config_, base_target_xy_)) {
+      rejected_count_.fetch_add(1, std::memory_order_relaxed);
+      return false;
+    }
+    if (!phase_report_initialized_ ||
+        lifecycle_.phase() != last_reported_phase_ ||
+        lifecycle_.active_task_id() != last_reported_task_id_) {
+      std::clog << "[model_50000 lifecycle] phase="
+                << SwingPhaseName(lifecycle_.phase()) << " active_task=";
+      if (lifecycle_.active_task_id()) {
+        std::clog << *lifecycle_.active_task_id();
+      } else {
+        std::clog << "none";
+      }
+      std::clog << " revision=" << lifecycle_.applied_revision()
+                << " side=" << static_cast<int>(policy_input.command->swing_side)
+                << " tts=" << policy_input.command->time_to_strike_s
+                << " nominal_station=[" << nominal_station_xy_[0] << ','
+                << nominal_station_xy_[1] << "] base_target=["
+                << base_target_xy_[0] << ',' << base_target_xy_[1] << "]\n";
+      last_reported_phase_ = lifecycle_.phase();
+      last_reported_task_id_ = lifecycle_.active_task_id();
+      phase_report_initialized_ = true;
+    }
     a3_pingpong::PingpongObservation observation{};
     std::string reason;
-    if (!builder_.Build(state, policy_input, last_action_, fixed_station_xy,
+    if (!builder_.Build(state, policy_input, last_action_, base_target_xy_,
                         observation, &reason)) {
       rejected_count_.fetch_add(1, std::memory_order_relaxed);
       return false;
@@ -342,6 +572,22 @@ class ObservationProbe {
     latest_max_abs_.store(max_abs, std::memory_order_relaxed);
     latest_tts_.store(observation[109], std::memory_order_relaxed);
     built_count_.fetch_add(1, std::memory_order_relaxed);
+    {
+      std::lock_guard<std::mutex> lock(diagnostics_mutex_);
+      diagnostics_.phase = lifecycle_.phase();
+      diagnostics_.active_task_id = lifecycle_.active_task_id();
+      diagnostics_.active_revision = lifecycle_.applied_revision();
+      diagnostics_.swing_side = policy_input.command->swing_side;
+      diagnostics_.target_position_w = policy_input.command->position_w;
+      diagnostics_.target_velocity_w = policy_input.command->velocity_w;
+      diagnostics_.nominal_station_xy = nominal_station_xy_;
+      diagnostics_.base_target_xy = base_target_xy_;
+      diagnostics_.current_base_xy = {live_base_w[0], live_base_w[1]};
+      diagnostics_.station_error_xy = {
+          static_cast<double>(observation[101]),
+          static_cast<double>(observation[102])};
+      diagnostics_.observed_tts = observation[109];
+    }
 
     if (actor_) {
       a3_pingpong::PingpongAction raw_action{};
@@ -419,7 +665,12 @@ class ObservationProbe {
       return a3_pingpong::ManualActionResult::kIgnored;
     }
     std::lock_guard<std::mutex> lock(manual_mutex_);
-    return manual_control_.Apply(a3_pingpong::ParseManualKey(key));
+    const auto parsed = a3_pingpong::ParseManualKey(key);
+    if (parsed == a3_pingpong::ManualKey::kUpperBodyServe &&
+        !upper_body_serve_enabled_) {
+      return a3_pingpong::ManualActionResult::kRejectedServeDisabled;
+    }
+    return manual_control_.Apply(parsed);
   }
 
   a3_pingpong::ManualMode manual_mode() const {
@@ -498,6 +749,28 @@ class ObservationProbe {
   double latest_max_tracking_error() const noexcept {
     return latest_max_tracking_error_.load(std::memory_order_relaxed);
   }
+  PolicyLifecycleDiagnostics lifecycle_diagnostics() const {
+    std::lock_guard<std::mutex> lock(diagnostics_mutex_);
+    return diagnostics_;
+  }
+  bool upper_body_serve_enabled() const noexcept {
+    return upper_body_serve_enabled_;
+  }
+  a3_pingpong::UpperBodyServePhase upper_body_serve_phase() const noexcept {
+    return upper_body_serve_phase_.load(std::memory_order_relaxed);
+  }
+  std::uint64_t upper_body_serve_tick() const noexcept {
+    return upper_body_serve_tick_.load(std::memory_order_relaxed);
+  }
+  std::uint64_t upper_body_serve_command_count() const noexcept {
+    return upper_body_serve_command_count_.load(std::memory_order_relaxed);
+  }
+  std::uint64_t upper_body_serve_rejected_count() const noexcept {
+    return upper_body_serve_rejected_count_.load(std::memory_order_relaxed);
+  }
+  std::uint64_t upper_body_serve_release_count() const noexcept {
+    return upper_body_serve_release_count_.load(std::memory_order_relaxed);
+  }
 
  private:
   void PreparePassiveCommand(const robot_io::RobotState& state) {
@@ -511,16 +784,36 @@ class ObservationProbe {
   a3_pingpong::PingpongActionAdapter action_adapter_;
   const bool command_output_enabled_;
   const bool manual_control_enabled_;
+  const bool upper_body_serve_enabled_;
+  const double control_dt_s_;
   const double command_timeout_s_;
   const double base_pose_timeout_s_;
   const a3_pingpong::SwingLifecycleConfig lifecycle_config_;
+  const a3_pingpong::LateralStationConfig station_config_;
   a3_pingpong::SwingLifecycle lifecycle_;
+  bool nominal_station_initialized_{false};
+  std::array<double, 2> nominal_station_xy_{};
+  std::array<double, 2> base_target_xy_{};
+  bool phase_report_initialized_{false};
+  a3_pingpong::SwingPhase last_reported_phase_{
+      a3_pingpong::SwingPhase::kReady};
+  std::optional<std::uint64_t> last_reported_task_id_;
+  mutable std::mutex diagnostics_mutex_;
+  PolicyLifecycleDiagnostics diagnostics_;
   mutable std::mutex manual_mutex_;
   a3_pingpong::ManualControl manual_control_;
   std::uint64_t observed_manual_epoch_{0};
   bool pd_stand_initialized_{false};
   std::uint64_t pd_stand_elapsed_ticks_{0};
   std::array<double, a3_pingpong::kPingpongActionDim> pd_stand_start_q_{};
+  a3_pingpong::UpperBodyServeTrajectory upper_body_serve_;
+  a3_pingpong::FullBodyServeComposer serve_composer_;
+  std::atomic<a3_pingpong::UpperBodyServePhase> upper_body_serve_phase_{
+      a3_pingpong::UpperBodyServePhase::kIdle};
+  std::atomic<std::uint64_t> upper_body_serve_tick_{0};
+  std::atomic<std::uint64_t> upper_body_serve_command_count_{0};
+  std::atomic<std::uint64_t> upper_body_serve_rejected_count_{0};
+  std::atomic<std::uint64_t> upper_body_serve_release_count_{0};
   std::unique_ptr<a3_pingpong::OnnxActor> actor_;
   a3_pingpong::PingpongAction last_action_{};
   std::atomic<std::uint64_t> built_count_{0};
@@ -550,31 +843,60 @@ class PlannerReceiverNode : public rclcpp::Node {
       : Node("a3_mdu_planner_receiver"),
         options_(options),
         mailbox_(options.expected_frame) {
-    const auto command_qos = rclcpp::QoS(rclcpp::KeepLast(10))
-                                 .reliable()
-                                 .durability_volatile();
-    const auto pose_qos = rclcpp::QoS(rclcpp::KeepLast(5))
-                              .best_effort()
-                              .durability_volatile();
+    if (options_.input_transport == "ros2") {
+      const auto command_qos = rclcpp::QoS(rclcpp::KeepLast(10))
+                                   .reliable()
+                                   .durability_volatile();
+      const auto pose_qos = rclcpp::QoS(rclcpp::KeepLast(5))
+                                .best_effort()
+                                .durability_volatile();
 
-    command_subscription_ = create_subscription<hope_msgs::msg::RacketCommand>(
-        options_.command_topic, command_qos,
-        [this](const hope_msgs::msg::RacketCommand::SharedPtr message) {
-          OnCommand(message);
-        });
-    pose_subscription_ = create_subscription<geometry_msgs::msg::PoseStamped>(
-        options_.base_pose_topic, pose_qos,
-        [this](const geometry_msgs::msg::PoseStamped::SharedPtr message) {
-          OnBasePose(message);
-        });
-    status_timer_ = create_wall_timer(std::chrono::seconds(1),
-                                      [this]() { LogStatus(); });
+      command_subscription_ =
+          create_subscription<hope_msgs::msg::RacketCommand>(
+              options_.command_topic, command_qos,
+              [this](const hope_msgs::msg::RacketCommand::SharedPtr message) {
+                OnCommand(message);
+              });
+      pose_subscription_ =
+          create_subscription<geometry_msgs::msg::PoseStamped>(
+              options_.base_pose_topic, pose_qos,
+              [this](const geometry_msgs::msg::PoseStamped::SharedPtr message) {
+                OnBasePose(message);
+              });
+    } else {
+      a3_pingpong::udp::ReceiverOptions udp_options;
+      udp_options.bind_address = options_.udp_bind_address;
+      udp_options.allowed_source_address = options_.udp_source_address;
+      udp_options.port = options_.udp_port;
+      udp_options.expected_frame = options_.expected_frame;
+      udp_receiver_ = std::make_unique<a3_pingpong::udp::PlannerUdpReceiver>(
+          mailbox_, std::move(udp_options));
+      std::string reason;
+      if (!udp_receiver_->Start(&reason)) {
+        throw std::runtime_error("failed to start planner UDP receiver: " +
+                                 reason);
+      }
+    }
+    status_timer_ = create_wall_timer(
+        std::chrono::duration<double>(options_.status_period_s),
+        [this]() { LogStatus(); });
 
-    RCLCPP_WARN(get_logger(),
-                "MDU planner receiver started: command=%s pose=%s frame=%s; "
-                "body_drive_publishers=0",
-                options_.command_topic.c_str(), options_.base_pose_topic.c_str(),
-                options_.expected_frame.c_str());
+    if (options_.input_transport == "udp") {
+      RCLCPP_WARN(get_logger(),
+                  "MDU planner receiver started: transport=A3PP/UDP "
+                  "bind=%s:%u allowed_source=%s frame=%s packet=96B; "
+                  "body_drive_publishers=0",
+                  options_.udp_bind_address.c_str(), options_.udp_port,
+                  options_.udp_source_address.c_str(),
+                  options_.expected_frame.c_str());
+    } else {
+      RCLCPP_WARN(get_logger(),
+                  "MDU planner receiver started: transport=ROS2 command=%s "
+                  "pose=%s frame=%s; body_drive_publishers=0",
+                  options_.command_topic.c_str(),
+                  options_.base_pose_topic.c_str(),
+                  options_.expected_frame.c_str());
+    }
   }
 
   a3_pingpong::PlannerInputMailbox& mailbox() { return mailbox_; }
@@ -610,9 +932,10 @@ class PlannerReceiverNode : public rclcpp::Node {
       accepted_commands_.fetch_add(1, std::memory_order_relaxed);
     } else if (result != a3_pingpong::InputUpdateResult::kDuplicate) {
       rejected_commands_.fetch_add(1, std::memory_order_relaxed);
-      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 1000,
-                           "RacketCommand %s: %s", ResultName(result),
-                           reason.c_str());
+      RCLCPP_WARN_THROTTLE(
+          get_logger(), *get_clock(),
+          static_cast<std::int64_t>(options_.status_period_s * 1000.0),
+          "RacketCommand %s: %s", ResultName(result), reason.c_str());
     }
   }
 
@@ -635,9 +958,10 @@ class PlannerReceiverNode : public rclcpp::Node {
       accepted_poses_.fetch_add(1, std::memory_order_relaxed);
     } else {
       rejected_poses_.fetch_add(1, std::memory_order_relaxed);
-      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 1000,
-                           "BasePose %s: %s", ResultName(result),
-                           reason.c_str());
+      RCLCPP_WARN_THROTTLE(
+          get_logger(), *get_clock(),
+          static_cast<std::int64_t>(options_.status_period_s * 1000.0),
+          "BasePose %s: %s", ResultName(result), reason.c_str());
     }
   }
 
@@ -661,6 +985,12 @@ class PlannerReceiverNode : public rclcpp::Node {
     const auto controller_ticks = controller_ ? controller_->tick_count() : 0;
     const char* controller_result =
         controller_ ? TickResultName(controller_->last_result()) : "disabled";
+    const bool leg_damping_active =
+        controller_ && controller_->leg_limit_damping_active();
+    const int leg_damping_joint =
+        controller_ ? controller_->leg_limit_joint_index() : -1;
+    const auto leg_damping_count =
+        controller_ ? controller_->leg_limit_damping_count() : 0;
     const auto observation_built =
         observation_probe_ ? observation_probe_->built_count() : 0;
     const auto observation_rejected =
@@ -709,31 +1039,78 @@ class PlannerReceiverNode : public rclcpp::Node {
         observation_probe_
             ? observation_probe_->latest_max_tracking_error()
             : 0.0;
+    const PolicyLifecycleDiagnostics lifecycle_diagnostics =
+        observation_probe_ ? observation_probe_->lifecycle_diagnostics()
+                           : PolicyLifecycleDiagnostics{};
+    const std::uint64_t active_task_id =
+        lifecycle_diagnostics.active_task_id.value_or(0);
+    const auto serve_phase = observation_probe_
+                                 ? observation_probe_->upper_body_serve_phase()
+                                 : a3_pingpong::UpperBodyServePhase::kIdle;
+    const auto serve_tick = observation_probe_
+                                ? observation_probe_->upper_body_serve_tick()
+                                : 0;
+    const auto serve_commands =
+        observation_probe_
+            ? observation_probe_->upper_body_serve_command_count()
+            : 0;
+    const auto serve_rejected =
+        observation_probe_
+            ? observation_probe_->upper_body_serve_rejected_count()
+            : 0;
+    const auto serve_releases =
+        observation_probe_
+            ? observation_probe_->upper_body_serve_release_count()
+            : 0;
+    std::uint64_t accepted_commands = accepted_commands_.load();
+    std::uint64_t rejected_commands = rejected_commands_.load();
+    std::uint64_t accepted_poses = accepted_poses_.load();
+    std::uint64_t rejected_poses = rejected_poses_.load();
+    a3_pingpong::udp::ReceiverStats udp_stats;
+    if (udp_receiver_) {
+      udp_stats = udp_receiver_->stats();
+      accepted_commands = udp_stats.accepted_commands;
+      rejected_commands = udp_stats.rejected_commands;
+      accepted_poses = udp_stats.accepted_poses;
+      rejected_poses = udp_stats.rejected_poses;
+    }
 
     RCLCPP_INFO(get_logger(),
-                "planner_input ready=%s command_fresh=%s task=%llu "
+                "planner_input transport=%s ready=%s command_fresh=%s task=%llu "
                 "revision=%u tts=%.3fs "
                 "command_age=%.1fms pose_age=%.1fms accepted=(%llu,%llu) "
                 "rejected=(%llu,%llu) robot_io=(ticks=%llu,result=%s) "
+                "leg_damping=(active=%s,joint=%s,commands=%llu) "
                 "manual=(enabled=%s,mode=%s,pd_stand_ready=%s) "
+                "serve=(enabled=%s,phase=%s,tick=%llu,commands=%llu,"
+                "rejected=%llu,releases=%llu,lower=hold,gains=pd_stand) "
                 "observation=(enabled=%s,built=%llu,rejected=%llu,"
                 "max_abs=%.3f,tts=%.3f) "
+                "lifecycle=(phase=%s,active=%s,task=%llu,revision=%u,side=%d) "
+                "target=(p=[%.3f,%.3f,%.3f],v=[%.3f,%.3f,%.3f]) "
+                "station=(nominal=[%.3f,%.3f],target=[%.3f,%.3f],"
+                "base=[%.3f,%.3f],obs101_102=[%.3f,%.3f]) "
                 "inference=(enabled=%s,runs=%llu,rejected=%llu,"
                 "avg_ms=%.3f,max_ms=%.3f,raw_max_abs=%.3f) "
                 "action=(output=%s,decoded=%llu,rejected=%llu,commands=%llu,"
                 "raw_clips=%llu,pos_clips=%llu/latest:%u,q_des_max_abs=%.3f,"
-                "max_error=%.3f,gains=model_21500) "
+                "max_error=%.3f,gains=model_50000) "
+                "udp=(accepted=%llu,rejected=%llu,reordered=%llu) "
                 "body_drive_publishers=%s",
+                options_.input_transport.c_str(),
                 pose_ready ? "yes" : "no",
                 command_fresh ? "yes" : "no",
                 static_cast<unsigned long long>(task_id), revision, tts,
                 command_age_ms, pose_age_ms,
-                static_cast<unsigned long long>(accepted_commands_.load()),
-                static_cast<unsigned long long>(accepted_poses_.load()),
-                static_cast<unsigned long long>(rejected_commands_.load()),
-                static_cast<unsigned long long>(rejected_poses_.load()),
+                static_cast<unsigned long long>(accepted_commands),
+                static_cast<unsigned long long>(accepted_poses),
+                static_cast<unsigned long long>(rejected_commands),
+                static_cast<unsigned long long>(rejected_poses),
                 static_cast<unsigned long long>(controller_ticks),
                 controller_result,
+                leg_damping_active ? "yes" : "no",
+                LegJointName(leg_damping_joint),
+                static_cast<unsigned long long>(leg_damping_count),
                 options_.manual_control ? "yes" : "no",
                 observation_probe_
                     ? a3_pingpong::ManualModeName(
@@ -741,28 +1118,61 @@ class PlannerReceiverNode : public rclcpp::Node {
                     : "disabled",
                 observation_probe_ && observation_probe_->pd_stand_ready()
                     ? "yes" : "no",
+                options_.upper_body_serve_dry_run ? "yes" : "no",
+                a3_pingpong::UpperBodyServePhaseName(serve_phase),
+                static_cast<unsigned long long>(serve_tick),
+                static_cast<unsigned long long>(serve_commands),
+                static_cast<unsigned long long>(serve_rejected),
+                static_cast<unsigned long long>(serve_releases),
                 observation_probe_ ? "yes" : "no",
                 static_cast<unsigned long long>(observation_built),
                 static_cast<unsigned long long>(observation_rejected),
                 observation_max_abs, observation_tts,
+                SwingPhaseName(lifecycle_diagnostics.phase),
+                lifecycle_diagnostics.active_task_id ? "yes" : "no",
+                static_cast<unsigned long long>(active_task_id),
+                lifecycle_diagnostics.active_revision,
+                static_cast<int>(lifecycle_diagnostics.swing_side),
+                lifecycle_diagnostics.target_position_w[0],
+                lifecycle_diagnostics.target_position_w[1],
+                lifecycle_diagnostics.target_position_w[2],
+                lifecycle_diagnostics.target_velocity_w[0],
+                lifecycle_diagnostics.target_velocity_w[1],
+                lifecycle_diagnostics.target_velocity_w[2],
+                lifecycle_diagnostics.nominal_station_xy[0],
+                lifecycle_diagnostics.nominal_station_xy[1],
+                lifecycle_diagnostics.base_target_xy[0],
+                lifecycle_diagnostics.base_target_xy[1],
+                lifecycle_diagnostics.current_base_xy[0],
+                lifecycle_diagnostics.current_base_xy[1],
+                lifecycle_diagnostics.station_error_xy[0],
+                lifecycle_diagnostics.station_error_xy[1],
                 inference_enabled ? "yes" : "no",
                 static_cast<unsigned long long>(inference_count),
                 static_cast<unsigned long long>(inference_rejected),
                 inference_average_ms, inference_max_ms, raw_max_abs,
                 options_.publish_commands
                     ? "send"
-                    : (options_.action_dry_run ? "dry_run" : "disabled"),
+                    : ((options_.action_dry_run ||
+                        options_.upper_body_serve_dry_run)
+                           ? "dry_run"
+                           : "disabled"),
                 static_cast<unsigned long long>(action_decoded),
                 static_cast<unsigned long long>(action_rejected),
                 static_cast<unsigned long long>(dry_run_commands),
                 static_cast<unsigned long long>(raw_clip_total),
                 static_cast<unsigned long long>(position_clip_total),
                 latest_position_clips, q_des_max_abs, max_tracking_error,
+                static_cast<unsigned long long>(udp_stats.accepted_packets),
+                static_cast<unsigned long long>(udp_stats.rejected_packets),
+                static_cast<unsigned long long>(
+                    udp_stats.out_of_order_packets),
                 options_.publish_commands ? "enabled" : "disabled");
   }
 
   Options options_;
   a3_pingpong::PlannerInputMailbox mailbox_;
+  std::unique_ptr<a3_pingpong::udp::PlannerUdpReceiver> udp_receiver_;
   a3_pingpong::ReceiveController* controller_{nullptr};
   ObservationProbe* observation_probe_{nullptr};
   std::atomic<std::uint64_t> accepted_commands_{0};
@@ -809,8 +1219,11 @@ int main(int argc, char** argv) {
         }
         observation_probe = std::make_unique<ObservationProbe>(
             options.onnx_model,
-            options.action_dry_run || options.publish_commands,
+            options.action_dry_run || options.upper_body_serve_dry_run ||
+                options.publish_commands,
             options.manual_control,
+            options.upper_body_serve_dry_run,
+            options.control_hz,
             options.command_timeout_ms * 1.0e-3,
             options.base_pose_timeout_ms * 1.0e-3);
         node->SetObservationProbe(observation_probe.get());
@@ -827,8 +1240,17 @@ int main(int argc, char** argv) {
       controller_options.require_fresh_command = false;
       controller_options.require_fresh_base_pose = !options.manual_control;
       controller_options.publish_commands = options.publish_commands;
+      controller_options.leg_damping_safety.damping_kd =
+          options.leg_damping_kd;
+      // ParseOptions has already applied the requested margin to the default
+      // A3 mechanical ranges.
+      controller_options.leg_damping_safety.lower =
+          options.leg_damping_safety.lower;
+      controller_options.leg_damping_safety.upper =
+          options.leg_damping_safety.upper;
       a3_pingpong::ReceivePolicyFn policy;
-      if (options.action_dry_run || options.publish_commands) {
+      if (options.action_dry_run || options.upper_body_serve_dry_run ||
+          options.publish_commands) {
         policy = [&observation_probe](const auto&, const auto&,
                                       robot_io::RobotCommand& command) {
           return observation_probe->TakeCommand(command);
@@ -851,15 +1273,20 @@ int main(int argc, char** argv) {
       }
       RCLCPP_WARN(node->get_logger(),
                   "RobotIO controller enabled; observation=%s "
-                  "inference=%s command_output=%s manual=%s "
-                  "gains=model_21500/pd_stand_production "
+                  "inference=%s command_output=%s manual=%s upper_serve=%s "
+                  "gains=model_50000/pd_stand_production "
                   "publish_enabled=%s",
                   observation_probe ? "111d" : "disabled",
-                  options.onnx_model.empty() ? "disabled" : "model_21500",
+                  options.onnx_model.empty() ? "disabled" : "model_48000",
                   options.publish_commands
                       ? "send"
-                      : (options.action_dry_run ? "full_dry_run" : "disabled"),
-                  options.manual_control ? "P/S/M/X" : "automatic_probe",
+                      : ((options.action_dry_run ||
+                          options.upper_body_serve_dry_run)
+                             ? "full_dry_run"
+                             : "disabled"),
+                  options.manual_control ? "P/S/M/V/X" : "automatic_probe",
+                  options.upper_body_serve_dry_run ? "right_arm+hold_lower"
+                                                   : "disabled",
                   options.publish_commands ? "true" : "false");
     }
 
@@ -878,6 +1305,7 @@ int main(int argc, char** argv) {
         }
         RCLCPP_WARN(node->get_logger(),
                     "manual shadow keys: P=passive S=pd_stand M=motion "
+                    "V=upper_body_serve "
                     "I=status X=halt H=help Q=quit(passive only)");
         while (rclcpp::ok()) {
           pollfd descriptor{STDIN_FILENO, POLLIN, 0};
@@ -889,7 +1317,11 @@ int main(int argc, char** argv) {
           const auto mode = observation_probe->manual_mode();
           if (result == a3_pingpong::ManualActionResult::kRejectedNeedPdStand) {
             RCLCPP_ERROR(node->get_logger(),
-                         "M rejected: press S and wait for pd_stand_ready=yes");
+                         "M/V rejected: press S and wait for pd_stand_ready=yes");
+          } else if (result ==
+                     a3_pingpong::ManualActionResult::kRejectedServeDisabled) {
+            RCLCPP_ERROR(node->get_logger(),
+                         "V rejected: start with --upper-body-serve-dry-run");
           } else if (result ==
                      a3_pingpong::ManualActionResult::kRejectedQuitWhileActive) {
             RCLCPP_ERROR(node->get_logger(),
@@ -897,7 +1329,8 @@ int main(int argc, char** argv) {
           } else if (result ==
                      a3_pingpong::ManualActionResult::kHelpRequested) {
             RCLCPP_INFO(node->get_logger(),
-                        "P=passive S=pd_stand M=motion I=status X=halt "
+                        "P=passive S=pd_stand M=motion V=upper_body_serve "
+                        "I=status X=halt "
                         "H=help Q=quit(passive only)");
           } else if (result ==
                      a3_pingpong::ManualActionResult::kStatusRequested) {

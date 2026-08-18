@@ -1,0 +1,3 @@
+[WARN] [1787053094.185316653] [a3_receive_input_gateway]: receive gateway started: mocap=/ppmocap/frame planner_input=/a3_mocap/ball_poses base_pose=/a3_mocap/pelvis_pose; inference=off joint_commands=off
+[INFO] [1787053094.186013468] [a3_receive_input_gateway]: ball tracking: visible
+[WARN] [1787053094.241686854] [a3_receive_input_gateway]: PPMocap calibrated: origin=near-left tabletop, +X=robot-to-opponent, +Y=robot-left, +Z=up

@@ -1,0 +1,74 @@
+# Frozen evaluator contract for model_50000.pt.
+# These are the target and motion ranges saved with this checkpoint.
+
+policy_generation: moving_base_model_50000_waist_kp150_v1
+source_run: 2026-08-18_20-57-32_resume_48000_waist_kp150_fast
+source_checkpoint: model_50000.pt
+checkpoint_iteration: 50000
+
+actuator_curriculum:
+  waist_yaw_kp: 150.0
+  waist_pitch_kp: 150.0
+  ramp_control_steps: 20000
+  checkpoint_control_steps_since_resume: 48000
+  complete: true
+
+motion:
+  forehand: hope_training/motions/preprocessed/ours_forehand_guarded_1p8s_wrist_x.npz
+  backhand: hope_training/motions/preprocessed/ours_backhand_guarded_1p8s.npz
+  sample_rate_hz: 50
+  strike_frame_per_clip: [50, 50]
+  strike_phase_per_clip: [0.5555555555555556, 0.5555555555555556]
+  strike_window_s: 0.12
+  lead_time_s: 1.0
+  follow_through_s: 0.8
+  mount_normal_axis: 1
+  mount_normal_sign_per_clip: [1.0, -1.0]
+
+base_station:
+  target_y_range: [-0.35, 0.6625]
+  station_curriculum_start_y_range: [-0.35, 0.35]
+  station_curriculum_start_step: 0
+  station_curriculum_duration_steps: 100000
+  station_edge_sample_prob: 0.35
+  lateral_station_sampling: random
+  swing_side_split_y: -0.41
+  swing_side_hysteresis_y: 0.0
+  forehand_reach_y: -0.64
+  backhand_reach_y: -0.10
+
+# x/y are relative to the commanded moving base station; z is floor/world height.
+racket_position_box:
+  forehand:
+    x: [0.18, 0.40]
+    y: [-0.76, -0.52]
+    z: [0.84, 1.21]
+  backhand:
+    x: [0.45, 0.75]
+    y: [-0.30, 0.10]
+    z: [0.84, 1.21]
+
+# World-axis racket velocity target boxes saved in env.yaml.
+racket_velocity_box:
+  forehand:
+    x: [1.75, 3.40]
+    y: [0.20, 1.10]
+    z: [0.35, 1.60]
+  backhand:
+    x: [1.05, 3.10]
+    y: [-1.10, 0.65]
+    z: [0.35, 1.50]
+
+height_curriculum:
+  start_range_per_clip:
+    forehand: [1.00, 1.21]
+    backhand: [0.84, 1.10]
+  start_step: 0
+  duration_steps: 120000
+
+target_curriculum:
+  start_step: -200000
+  duration_steps: 200000
+  position_initial_fraction: 0.35
+  incoming_velocity_initial_fraction: 0.40
+  racket_velocity_initial_fraction: 0.50

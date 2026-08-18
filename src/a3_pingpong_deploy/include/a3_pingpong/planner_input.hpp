@@ -57,6 +57,7 @@ class PlannerInputMailbox {
                                    SteadyClock::time_point now,
                                    std::string* reason = nullptr);
   PlannerInputSnapshot Snapshot(SteadyClock::time_point now) const;
+  void Reset();
 
   const std::string& expected_frame() const { return expected_frame_; }
 

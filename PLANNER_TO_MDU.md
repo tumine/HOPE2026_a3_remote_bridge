@@ -25,7 +25,7 @@ MDU
     -> synchronized robot_io::RobotState
     -> ReceiveController 50 Hz loop
     -> PingpongObservationBuilder (111-D)
-    -> model_21500 ONNX -> 31-D RobotCommand
+    -> model_48000 ONNX -> 31-D RobotCommand
     -> RobotIOBackend::SendCommand()
     -> /body_drive/{waist,neck,arm,leg}_joint_command
 ```
@@ -95,18 +95,49 @@ cd /home/agi/a3_remote_bridge_probe
 A3_ENABLE_OBSERVATION_PROBE=1 ./scripts/run_mdu_planner_receiver.sh
 ```
 
-这个开关会自动启用 RobotIO 只读探针。它锁定首帧 pelvis XY 作为
-`fixed_station_xy`，以 50 Hz 构造 observation，但不加载模型、不执行推理，且
+这个开关会自动启用 RobotIO 只读探针。进入 `M` 时把实时 pelvis XY 锁定为
+`nominal_station_xy`；READY/RECOVERY 以此为 base target，SWING/FOLLOW_THROUGH
+根据 active task 击球点和正反手 reach 每 tick 更新 moving base target。它以 50 Hz 构造 observation，但不加载模型、不执行推理，且
 `last_action` 固定为零。启动时还会逐项校验 RobotIO 的 31 DOF 顺序；顺序与
-`model_21500` 合约不一致会直接拒绝启动。
+`model_50000` 合约不一致会直接拒绝启动。
+
+## model_50000 Planner 击球盒
+
+真实部署使用 `model_50000_mujoco_sim2sim_bundle/config/strike_box.yaml` 的
+`checkpoint_profile`，不使用同文件里的继续训练范围。Planner 使用 table frame，
+冻结范围如下：
+
+| 挥拍侧 | x (m) | y (m) | z (m) | 球拍速度 vx/vy/vz (m/s) |
+| --- | --- | --- | --- | --- |
+| 正手 | `[-0.32, -0.10]` | `[-1.5250, -1.1725]` | `[0.08, 0.45]` | `[1.75,3.40] / [0.20,1.10] / [0.35,1.60]` |
+| 反手 | `[-0.05, 0.25]` | `[-1.1725, 0.0000]` | `[0.08, 0.45]` | `[1.05,3.10] / [-1.10,0.65] / [0.35,1.50]` |
+
+站位横向目标范围为 `[-0.35, 0.6625] m`，checkpoint 的 floor/world 分侧线
+是 `y=-0.41 m`，滞回半宽为 `0`。转换到当前 planner table frame 后，
+分侧线是 `y=-1.1725 m`；两者不是同一个坐标原点，不能直接互换。MDU
+在进入 `M` 时锁定启动中心站位。active task 期间使用
+`desired_offset_y = target_y - nominal_y - reach_y` 反算 base target，并限制在
+`[-0.35, 0.6625] m`；`obs[101:103] = base_target_xy - live_base_xy`。
+
+真实硬件姿态源有一项明确的安全覆盖：`obs[96:99]` projected gravity 使用
+MDU pelvis IMU 四元数，`obs[99:101]` world/table heading 仍使用标定后的
+PPMocap pelvis 四元数。这样倾斜观测不依赖光学姿态，IMU yaw 漂移也不会
+旋转 planner 的球台坐标。PPMocap 位姿超时门控仍然生效，丢失后不会继续
+构造新的策略观测。
+READY/RECOVERY 回启动站位，x 始终不变，不额外生成 base 速度命令。
+`run_hope_planner.sh` 默认位置和速度 margin 均为 `0`，避免把未训练区域放进真机。
+新任务 TTS 默认限制在 `[0.25, 1.00] s`；上限仍与 checkpoint 的
+`lead_time_s=1.0` 对齐，下限恢复为现场调试时使用的窗口。可通过
+`A3_NEW_TASK_TTS_MIN_S` 显式覆盖。
 
 ## ONNX 只读推理探针
 
-当前使用 `26.7.25发球部署` bundle 中的 `model_21500` actor：
+当前仅将 actor checkpoint 切换为 `model_48000_mujoco_deploy`，观测、状态机、
+moving station、击球盒、实机增益和安全保护仍保持现有配置：
 
 ```text
 models/hope_pingpong.onnx
-SHA256 6e2fcf9c9793a568f0583ae9b6e7b0439fb83df004c356e85af85841afc2d074
+SHA256 6e68f5ce582ac41856c23ac63c749b94c4ca7b96dbe041bdc0215332fbb6caba
 observation float32[1,111] -> raw_action float32[1,31]
 ```
 
@@ -119,7 +150,8 @@ A3_ENABLE_ONNX_PROBE=1 ./scripts/run_mdu_planner_receiver.sh
 
 这个开关自动启用 RobotIO 和 observation probe，使用随包分发的 AArch64
 ONNX Runtime CPU 库。模型加载时强制校验 input/output 名称、形状、类型、
-checkpoint、策略 generation 和 31 DOF 元数据。推理输出只用于统计，并按合约
+移动站位语义和 31 DOF 元数据；checkpoint 身份和哈希随包携带在
+`models/model_48000/{policy_manifest,provenance}.json` 中供现场审计。推理输出只用于统计，并按合约
 clip 后将被动 head 清零，反馈到下一帧 `last_action`；不会生成或发送
 `RobotCommand`。
 
@@ -140,7 +172,7 @@ A3_ENABLE_ACTION_DRY_RUN=1 ./scripts/run_mdu_planner_receiver.sh
 ```
 
 这个开关自动启用 RobotIO、observation 和 ONNX。适配器严格执行
-`model_21500` 合约：raw action clip 到 `[-100, 100]`、head yaw/pitch 清零、
+`model_50000` 合约：raw action clip 到 `[-100, 100]`、head yaw/pitch 清零、
 统一乘 `0.25` 后加默认关节角，并按 31 个机械限位裁剪。它构造的
 `RobotCommand` 与真实发送包相同：`dq_des/tau_ff` 为零，策略态 Kp/Kd 来自
 6/27 的冻结训练/部署配置；head 使用厂商 `ExpandToBackend()` 的 40/2 保持值。
@@ -151,7 +183,7 @@ backend 仍以 `publish_enabled=false` 启动，因此只返回 `dry_run`，不�
 
 ```text
 robot_io=(ticks=N,result=dry_run)
-action=(output=dry_run,decoded=N,rejected=0,commands=N,raw_clips=0,...,gains=model_21500)
+action=(output=dry_run,decoded=N,rejected=0,commands=N,raw_clips=0,...,gains=model_50000)
 body_drive_publishers=0
 ```
 
@@ -209,6 +241,57 @@ RobotIO probe 的 `result` 可以按下面判断：
 
 ## 手动状态机与真实 RobotIO 接口
 
+### 上肢发球第一阶段（31 维 dry-run）
+
+上肢发球已接入 MDU 手动状态机。它不使用
+`/motion/control/arm_joint_command`，而是直接构造和 RobotIO 真实发送完全相同的
+31 维 `RobotCommand`。第一阶段强制 dry-run，不注册 body-drive command
+publisher：
+
+```bash
+A3_ENABLE_UPPER_BODY_SERVE_DRY_RUN=1 \
+  ./scripts/run_mdu_planner_receiver.sh
+```
+
+键盘顺序：
+
+1. `S`：进入 PD_STAND，等待 `pd_stand_ready=yes`；
+2. `V`：执行一次上肢发球；
+3. 轨迹完成后自动回到 PD_STAND 并重新进行姿态插值；
+4. `P`：回 passive，`Q` 只能在 passive 退出。
+
+上肢轨迹阶段为 `prepare -> windup -> swing -> settle -> return -> complete`。
+`swing` 首帧会产生一次 `release_requested`，当前只记入状态计数，
+尚未连接夹爪 HTTP 执行器。
+
+31 维合成规则：
+
+```text
+[0..2]    腰：保持最新实测 q，后续可由15维下肢策略覆盖
+[3..4]    颈：保持最新实测 q
+[5..11]   左臂：上肢发球轨迹
+[12..18]  右臂：上肢发球轨迹
+[19..30]  腿：保持最新实测 q，后续可由15维下肢策略覆盖
+```
+
+`LowerBodyServeTarget` 已固定为15维：腰 `[0..2]` + 双腿 `[3..14]`。
+`FullBodyServeComposer` 先生成完整31维保持命令，再覆盖上肢轨迹和可选的
+下肢策略目标，因此第二阶段不需要改 RobotIO 接口或关节顺序。
+
+日志应出现：
+
+```text
+robot_io=(...,result=dry_run)
+manual=(enabled=yes,mode=upper_body_serve,...)
+serve=(enabled=yes,phase=...,tick=...,commands=...,rejected=0,releases=1,lower=hold,...)
+body_drive_publishers=disabled
+```
+
+`--upper-body-serve-dry-run` 与 `--publish-commands` 同时使用会直接拒绝启动。
+在完成下肢策略、夹爪释放执行器、限位/跟踪误差门禁及悬挂实测前，
+不允许用此模式发送真实命令。
+
+
 先用 shadow 模式统一验证按键流程，不创建 body-drive publisher：
 
 ```bash
@@ -217,7 +300,7 @@ A3_ENABLE_ACTION_DRY_RUN=1 A3_ENABLE_MANUAL_CONTROL=1 \
 ```
 
 - `P`：零增益 passive；
-- `S`：从当前实测 q 用厂商生产 PD_STAND 增益插值到 model_21500 默认姿态，
+- `S`：从当前实测 q 用厂商生产 PD_STAND 增益插值到 model_50000 默认姿态，
   150 tick / 3 秒后 `pd_stand_ready=yes`；重复按 S 会从当前姿态重启插值；
 - `M`：只有 PD_STAND ready 后才能进入策略，且 pelvis pose 必须新鲜；
 - `X`：进入 halt，`Q` 仅允许在 passive 退出。
@@ -232,7 +315,30 @@ A3_ROBOT_SAFETY_READY=1 \
   ./scripts/run_mdu_planner_receiver.sh
 ```
 
+状态汇总默认每 5 秒输出一次，不改变 50 Hz 控制频率。现场需要进一步降低
+终端输出时可设置 `A3_STATUS_PERIOD_S=10`。
+
 这条命令会实际驱动机器人，必须先悬挂或可靠支撑机器人并确认实体急停。启动后
 仍处于 `P`，需要人工依次按 `S`、等待 ready，再按 `M`。状态或 pelvis pose
 过期、observation/policy/command 拒绝时，控制器通过同一官方接口发送零增益
 safe-halt。
+
+腿部位置保护：
+
+- 当前部署默认只对 A3 31 维槽位中的左右 `hip_pitch`（槽位 19、25）启用独立软限位；使用对应 URDF 有符号端点的 `90%`。
+- 其他 `hip_roll/hip_yaw/knee/ankle` 关节当前不参与该限位检查，越界不会触发此处的 `leg_limit_damping`。
+- 每个控制周期同时检查受保护关节的实测 `q` 和即将发送的 `q_des`。任一受保护关节越界后，控制器锁存 `leg_limit_damping`，不再发送策略目标。
+- 阻尼命令保持当前实测 `q`，全身 `Kp=0`，腿部 `Kd` 默认 `2.0`，`dq_des/tau_ff=0`；锁存状态需要重启进程后重新走 `P -> S -> M` 才能重新使能。
+- 现场应使用厂商确认的关节工作范围和阻尼增益覆盖默认值，例如：
+
+```bash
+./scripts/run_mdu_planner_receiver.sh \
+  --leg-soft-scale 0.90 \
+  --leg-soft-limit left_hip_pitch_joint:-1.00:0.80 \
+  --leg-soft-limit right_hip_pitch_joint:-1.00:0.80 \
+  --leg-damping-kd 2.0
+```
+
+`--leg-soft-limit` 的上下限必须位于 A3 机械范围内；同名参数重复时以后者为准。
+
+状态汇总中的 `leg_damping=(active=yes,joint=...,commands=...)` 表示已触发；真实部署前应先在 dry-run、悬挂和实体急停条件下验证该路径。

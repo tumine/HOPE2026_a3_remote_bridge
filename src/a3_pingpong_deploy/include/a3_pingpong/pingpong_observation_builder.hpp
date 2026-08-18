@@ -19,7 +19,16 @@ struct PingpongObservationConfig {
   std::array<double, kPingpongActionDim> default_q{};
 };
 
-// Frozen model_21500 values from the HOPE bundle's action_adapter.yaml.
+// Frozen model_50000 values from the sim2sim bundle action adapter.
+PingpongObservationConfig Model50000ObservationConfig();
+
+// Compatibility aliases retained for existing callers.
+PingpongObservationConfig Model48000ObservationConfig();
+
+// Compatibility alias for callers that still use the previous checkpoint name.
+PingpongObservationConfig Model41500ObservationConfig();
+
+// Compatibility alias for callers that still use the previous policy name.
 PingpongObservationConfig Model21500ObservationConfig();
 
 // Validate that RobotIO's 31 slots match the training/ONNX contract exactly.
@@ -30,12 +39,14 @@ class PingpongObservationBuilder {
  public:
   explicit PingpongObservationBuilder(PingpongObservationConfig config);
 
-  // Reproduces A3RLContract.build_observation() exactly. The planner snapshot
-  // must already have transport/queue age subtracted from time_to_strike.
+  // Reproduces the hardware A3RLContract observation. Projected gravity uses
+  // the pelvis IMU while world/table heading uses calibrated PPMocap. The
+  // planner snapshot must already have transport/queue age subtracted from
+  // time_to_strike.
   bool Build(const robot_io::RobotState& state,
              const PlannerInputSnapshot& planner,
              const PingpongAction& last_action,
-             const std::array<double, 2>& fixed_station_xy,
+             const std::array<double, 2>& base_target_xy,
              PingpongObservation& output,
              std::string* reason = nullptr) const;
 

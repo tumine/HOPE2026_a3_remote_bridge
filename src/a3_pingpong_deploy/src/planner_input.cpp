@@ -139,4 +139,14 @@ PlannerInputSnapshot PlannerInputMailbox::Snapshot(
   return output;
 }
 
+void PlannerInputMailbox::Reset() {
+  std::lock_guard<std::mutex> lock(mutex_);
+  command_.reset();
+  base_pose_.reset();
+  last_task_id_ = 0;
+  last_task_revision_ = 0;
+  locked_swing_side_ = 0;
+  have_task_ = false;
+}
+
 }  // namespace a3_pingpong

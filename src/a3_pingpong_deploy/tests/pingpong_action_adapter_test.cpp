@@ -1,8 +1,10 @@
 #include "a3_pingpong/pingpong_action_adapter.hpp"
+#include "a3_pingpong/a3_leg_limits.hpp"
 #include "a3_pingpong/receive_controller.hpp"
 
 #include <cmath>
 #include <fstream>
+#include <iostream>
 #include <limits>
 
 #define CHECK(condition)              \
@@ -19,6 +21,16 @@
 #endif
 
 int main() {
+  const auto adapter_config = a3_pingpong::Model50000ActionAdapterConfig();
+  for (std::size_t index = 0; index < a3_pingpong::kA3LegDof; ++index) {
+    const auto flat = static_cast<Eigen::Index>(
+        a3_pingpong::kA3LegCommandStart + index);
+    CHECK(std::abs(adapter_config.lower[flat] -
+                   a3_pingpong::kA3LegUrdfLower[index]) <= 1.0e-12);
+    CHECK(std::abs(adapter_config.upper[flat] -
+                   a3_pingpong::kA3LegUrdfUpper[index]) <= 1.0e-12);
+  }
+
   a3_pingpong::PingpongAction raw_action{};
   std::ifstream action_fixture(A3_ACTION_GOLDEN_PATH);
   CHECK(action_fixture.good());
@@ -29,7 +41,7 @@ int main() {
   }
 
   a3_pingpong::PingpongActionAdapter adapter(
-      a3_pingpong::Model21500ActionAdapterConfig());
+      a3_pingpong::Model50000ActionAdapterConfig());
   a3_pingpong::PingpongAction applied{};
   robot_io::RobotCommand command;
   a3_pingpong::PingpongActionDiagnostics diagnostics;
@@ -47,7 +59,12 @@ int main() {
   for (Eigen::Index index = 0; index < command.q_des.size(); ++index) {
     double expected = 0.0;
     CHECK(static_cast<bool>(q_des_fixture >> expected));
-    CHECK(std::abs(command.q_des[index] - expected) <= 1.0e-7);
+    if (std::abs(command.q_des[index] - expected) > 1.0e-7) {
+      std::cerr << "q_des mismatch index=" << index
+                << " actual=" << command.q_des[index]
+                << " expected=" << expected << '\n';
+      return __LINE__;
+    }
   }
   CHECK(command.dq_des.norm() == 0.0);
   CHECK(command.tau_ff.norm() == 0.0);
@@ -57,7 +74,7 @@ int main() {
 
   CHECK(adapter.BuildPolicyCommand(
       raw_action, applied, command, &diagnostics, &reason));
-  CHECK(command.kp[0] == 85.0);
+  CHECK(command.kp[0] == 150.0);
   CHECK(command.kd[0] == 3.0);
   CHECK(command.kp[3] == 40.0);
   CHECK(command.kd[4] == 2.0);
@@ -72,7 +89,7 @@ int main() {
   std::array<double, a3_pingpong::kPingpongActionDim> start_q{};
   start_q.fill(1.0);
   const auto target_q =
-      a3_pingpong::Model21500ActionAdapterConfig().default_q;
+      a3_pingpong::Model50000ActionAdapterConfig().default_q;
   bool stand_ready = true;
   CHECK(a3_pingpong::BuildPdStandCommand(
       start_q, target_q, 0, 150, command, &stand_ready, &reason));

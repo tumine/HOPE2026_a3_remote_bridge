@@ -1,0 +1,6 @@
+numpy==1.26.0
+PyYAML==6.0.2
+mujoco==3.11.0
+onnxruntime==1.28.0
+imageio==2.37.0
+imageio-ffmpeg==0.6.0

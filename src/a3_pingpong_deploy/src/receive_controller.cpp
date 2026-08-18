@@ -3,6 +3,7 @@
 #include "robot_io/a3_layout_extra.hpp"
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <utility>
@@ -20,7 +21,32 @@ bool FiniteVector(const Eigen::VectorXd& value, int expected_dof) {
   return value.size() == expected_dof && value.array().isFinite().all();
 }
 
+bool ValidLegDampingSafety(
+    const ReceiveControllerOptions::LegDampingSafety& safety) {
+  if (!safety.enabled) return true;
+  if (!std::isfinite(safety.damping_kd) || safety.damping_kd <= 0.0) {
+    return false;
+  }
+  for (std::size_t index = 0; index < kA3LegDof; ++index) {
+    if (!std::isfinite(safety.lower[index]) ||
+        !std::isfinite(safety.upper[index]) ||
+        safety.lower[index] >= safety.upper[index]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 }  // namespace
+
+ReceiveControllerOptions::LegDampingSafety::LegDampingSafety()
+    : lower(ScaleA3LegLimits(kA3LegUrdfLower, 0.90)),
+      upper(ScaleA3LegLimits(kA3LegUrdfUpper, 0.90)) {
+  // Only left/right hip-pitch remain protected for the current deployment.
+  protected_joints.fill(false);
+  protected_joints[0] = true;
+  protected_joints[6] = true;
+}
 
 void BuildSafeHaltCommand(const robot_io::RobotState& state,
                           robot_io::RobotCommand& output) {
@@ -33,6 +59,25 @@ void BuildSafeHaltCommand(const robot_io::RobotState& state,
   if (state.q.size() == dof && state.q.array().isFinite().all()) {
     output.q_des = state.q;
   }
+}
+
+bool BuildDampingCommand(const robot_io::RobotState& state, double damping_kd,
+                         robot_io::RobotCommand& output) {
+  constexpr int dof = robot_io::kA3Dof;
+  if (!std::isfinite(damping_kd) || damping_kd <= 0.0 ||
+      !FiniteVector(state.q, dof)) {
+    return false;
+  }
+  output.q_des = state.q;
+  output.dq_des = Eigen::VectorXd::Zero(dof);
+  output.tau_ff = Eigen::VectorXd::Zero(dof);
+  output.kp = Eigen::VectorXd::Zero(dof);
+  output.kd = Eigen::VectorXd::Zero(dof);
+  // Keep the upper body passive while damping every leg joint that triggered
+  // the safety mode. q_des remains measured for the complete 31-DOF packet.
+  output.kd.segment(kA3LegCommandStart, static_cast<Eigen::Index>(kA3LegDof))
+      .setConstant(damping_kd);
+  return true;
 }
 
 bool ValidateRobotCommand(const robot_io::RobotCommand& command,
@@ -68,6 +113,10 @@ bool ReceiveController::Start() {
       options_.command_timeout_s <= 0.0 ||
       !std::isfinite(options_.base_pose_timeout_s) ||
       options_.base_pose_timeout_s <= 0.0 || options_.max_state_age_ns <= 0) {
+    running_.store(false, std::memory_order_release);
+    return false;
+  }
+  if (!ValidLegDampingSafety(options_.leg_damping_safety)) {
     running_.store(false, std::memory_order_release);
     return false;
   }
@@ -128,6 +177,17 @@ ReceiveTickResult ReceiveController::RunOneTick(std::int64_t now_ns) {
     return ReceiveTickResult::kStateStale;
   }
 
+  if (leg_limit_damping_active_.load(std::memory_order_acquire)) {
+    MaybeSendLegDamping(*state);
+    return ReceiveTickResult::kLegLimitDamping;
+  }
+  int leg_limit_joint = -1;
+  if (FindLegLimitViolation(*state, nullptr, &leg_limit_joint)) {
+    LatchLegLimit(leg_limit_joint);
+    MaybeSendLegDamping(*state);
+    return ReceiveTickResult::kLegLimitDamping;
+  }
+
   const auto planner = planner_mailbox_.Snapshot(SteadyClock::now());
   const bool base_pose_ready =
       planner.base_pose.has_value() &&
@@ -171,6 +231,12 @@ ReceiveTickResult ReceiveController::RunOneTick(std::int64_t now_ns) {
     MaybeSendSafeHalt(*state);
     return ReceiveTickResult::kCommandInvalid;
   }
+  leg_limit_joint = -1;
+  if (FindLegLimitViolation(*state, &command, &leg_limit_joint)) {
+    LatchLegLimit(leg_limit_joint);
+    MaybeSendLegDamping(*state);
+    return ReceiveTickResult::kLegLimitDamping;
+  }
   if (!options_.publish_commands) return ReceiveTickResult::kDryRun;
   if (!backend_.SendCommand(command)) return ReceiveTickResult::kCommandInvalid;
   command_sent_count_.fetch_add(1, std::memory_order_relaxed);
@@ -188,6 +254,65 @@ void ReceiveController::MaybeSendSafeHalt(
   if (ValidateRobotCommand(halt, robot_io::kA3Dof) &&
       backend_.SendCommand(halt)) {
     safe_halt_count_.fetch_add(1, std::memory_order_relaxed);
+  }
+}
+
+void ReceiveController::MaybeSendLegDamping(
+    const robot_io::RobotState& state) noexcept {
+  if (!options_.publish_commands ||
+      backend_.GetLayout().dof() != robot_io::kA3Dof) {
+    return;
+  }
+  robot_io::RobotCommand damping;
+  if (BuildDampingCommand(state, options_.leg_damping_safety.damping_kd,
+                          damping) &&
+      ValidateRobotCommand(damping, robot_io::kA3Dof) &&
+      backend_.SendCommand(damping)) {
+    leg_limit_damping_count_.fetch_add(1, std::memory_order_relaxed);
+  }
+}
+
+bool ReceiveController::FindLegLimitViolation(
+    const robot_io::RobotState& state, const robot_io::RobotCommand* command,
+    int* joint_index) const noexcept {
+  if (!options_.leg_damping_safety.enabled ||
+      backend_.GetLayout().dof() != robot_io::kA3Dof ||
+      state.q.size() != robot_io::kA3Dof ||
+      !state.q.array().isFinite().all()) {
+    return false;
+  }
+  if (command &&
+      (command->q_des.size() != robot_io::kA3Dof ||
+       !command->q_des.array().isFinite().all())) {
+    return false;
+  }
+  for (std::size_t leg = 0; leg < kA3LegDof; ++leg) {
+    if (!options_.leg_damping_safety.protected_joints[leg]) continue;
+    const int index = kA3LegCommandStart + static_cast<int>(leg);
+    const double measured = state.q[index];
+    if (measured < options_.leg_damping_safety.lower[leg] ||
+        measured > options_.leg_damping_safety.upper[leg]) {
+      if (joint_index) *joint_index = index;
+      return true;
+    }
+    if (command) {
+      const double target = (*command).q_des[index];
+      if (target < options_.leg_damping_safety.lower[leg] ||
+          target > options_.leg_damping_safety.upper[leg]) {
+        if (joint_index) *joint_index = index;
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+void ReceiveController::LatchLegLimit(int joint_index) noexcept {
+  bool expected = false;
+  if (leg_limit_damping_active_.compare_exchange_strong(
+          expected, true, std::memory_order_acq_rel,
+          std::memory_order_acquire)) {
+    leg_limit_joint_index_.store(joint_index, std::memory_order_release);
   }
 }
 

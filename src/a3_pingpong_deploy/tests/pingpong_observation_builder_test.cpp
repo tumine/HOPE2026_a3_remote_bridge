@@ -26,7 +26,7 @@ int main() {
   std::swap(wrong_layout.names[0], wrong_layout.names[1]);
   CHECK(!a3_pingpong::ValidatePingpongJointLayout(wrong_layout, &reason));
 
-  const auto config = a3_pingpong::Model21500ObservationConfig();
+  const auto config = a3_pingpong::Model50000ObservationConfig();
   a3_pingpong::PingpongObservationBuilder builder(config);
 
   robot_io::RobotState state;
@@ -61,6 +61,27 @@ int main() {
   CHECK(builder.Build(state, planner, last_action, {-0.5, -0.7625},
                       observation, &reason));
 
+  // The two attitude sources are intentional: IMU drives gravity and PPMocap
+  // drives world/table heading.
+  const auto original_gravity =
+      std::array<float, 3>{observation[96], observation[97], observation[98]};
+  const auto original_heading =
+      std::array<float, 2>{observation[99], observation[100]};
+  state.imu_quat_wxyz = Eigen::Vector4d(1.0, 0.0, 0.0, 0.0);
+  CHECK(builder.Build(state, planner, last_action, {-0.5, -0.7625},
+                      observation, &reason));
+  CHECK(std::abs(observation[96]) <= 1.0e-6F);
+  CHECK(std::abs(observation[97]) <= 1.0e-6F);
+  CHECK(std::abs(observation[98] + 1.0F) <= 1.0e-6F);
+  CHECK(std::abs(observation[99] - original_heading[0]) <= 1.0e-6F);
+  CHECK(std::abs(observation[100] - original_heading[1]) <= 1.0e-6F);
+  CHECK(std::abs(original_gravity[0] - observation[96]) > 1.0e-3F ||
+        std::abs(original_gravity[1] - observation[97]) > 1.0e-3F ||
+        std::abs(original_gravity[2] - observation[98]) > 1.0e-3F);
+  state.imu_quat_wxyz = Eigen::Vector4d(0.9, 0.1, -0.2, 0.3);
+  CHECK(builder.Build(state, planner, last_action, {-0.5, -0.7625},
+                      observation, &reason));
+
   std::ifstream fixture(A3_OBSERVATION_GOLDEN_PATH);
   CHECK(fixture.good());
   for (std::size_t index = 0; index < observation.size(); ++index) {
@@ -71,6 +92,11 @@ int main() {
   }
   double extra = 0.0;
   CHECK(!(fixture >> extra));
+
+  state.imu_quat_wxyz = Eigen::Vector4d::Zero();
+  CHECK(!builder.Build(state, planner, last_action, {-0.5, -0.7625},
+                       observation, &reason));
+  state.imu_quat_wxyz = Eigen::Vector4d(0.9, 0.1, -0.2, 0.3);
 
   state.q[0] = std::numeric_limits<double>::quiet_NaN();
   CHECK(!builder.Build(state, planner, last_action, {-0.5, -0.7625},

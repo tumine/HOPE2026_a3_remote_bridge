@@ -1,0 +1,194 @@
+--- git status ---
+On branch srf
+Your branch is up to date with 'pingpang/srf'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/hope_env_cfg.py
+	modified:   hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/events.py
+	modified:   hope_training/whole_body_tracking/tests/test_balance_configuration.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	a3_deploy/model_41500_mujoco_deploy.zip
+	a3_deploy/model_41500_mujoco_deploy/
+	a3_deploy/model_48000_mujoco_deploy.zip
+	a3_deploy/model_48000_mujoco_deploy/
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/hope_env_cfg.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/hope_env_cfg.py
+index 0c44bdc..3dd3a0c 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/hope_env_cfg.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/hope_env_cfg.py
+@@ -647,6 +647,44 @@ class EventCfg:
+             "distribution": "log_uniform",
+         },
+     )
++    # Fast continuation curriculum for the waist yaw/pitch drives. Keep the
++    # other actuator randomization intact, but make these two gains deterministic
++    # and increase their implicit-PD KP to the requested 150.
++    waist_pd_gain_curriculum_reset = EventTerm(
++        func=mdp.curriculum_actuator_stiffness,
++        mode="reset",
++        params={
++            "asset_cfg": SceneEntityCfg(
++                "robot", joint_names=["waist_yaw_joint", "waist_pitch_joint"]
++            ),
++            "joint_names": ("waist_yaw_joint", "waist_pitch_joint"),
++            "start_stiffness_by_joint": {
++                "waist_yaw_joint": 85.0,
++                "waist_pitch_joint": 50.0,
++            },
++            "target_stiffness": 150.0,
++            "curriculum_start_step": 0,
++            "curriculum_duration_steps": 20_000,
++        },
++    )
++    waist_pd_gain_curriculum = EventTerm(
++        func=mdp.curriculum_actuator_stiffness,
++        mode="interval",
++        interval_range_s=(0.20, 0.20),
++        params={
++            "asset_cfg": SceneEntityCfg(
++                "robot", joint_names=["waist_yaw_joint", "waist_pitch_joint"]
++            ),
++            "joint_names": ("waist_yaw_joint", "waist_pitch_joint"),
++            "start_stiffness_by_joint": {
++                "waist_yaw_joint": 85.0,
++                "waist_pitch_joint": 50.0,
++            },
++            "target_stiffness": 150.0,
++            "curriculum_start_step": 0,
++            "curriculum_duration_steps": 20_000,
++        },
++    )
+     # Checkpoint-safe random push curriculum. A root-velocity impulse is the
+     # standard Isaac Lab approximation of a brief shove: no vertical impulse,
+     # moderate planar/yaw disturbance, and independent 4--7 s timing per env.
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/events.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/events.py
+index b30f1b6..515e5c9 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/events.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/events.py
+@@ -55,6 +55,75 @@ def push_by_setting_velocity_curriculum(
+     env._hope_push_curriculum_scale = float(scale)
+ 
+ 
++def curriculum_actuator_stiffness(
++    env: ManagerBasedEnv,
++    env_ids: torch.Tensor | None,
++    asset_cfg: SceneEntityCfg,
++    joint_names: tuple[str, ...] | list[str],
++    start_stiffness_by_joint: dict[str, float],
++    target_stiffness: float,
++    curriculum_start_step: int,
++    curriculum_duration_steps: int,
++):
++    """Linearly ramp selected implicit-actuator KP values and write them to PhysX.
++
++    The reset event prevents the existing randomized-gain event from leaving a
++    subset of environments at stale waist gains. The interval event then keeps
++    the actuator model and PhysX drive synchronized throughout the ramp.
++    """
++
++    asset: Articulation = env.scene[asset_cfg.name]
++    if env_ids is None:
++        env_ids = torch.arange(env.scene.num_envs, device=asset.device)
++    if env_ids.numel() == 0:
++        return
++
++    _, resolved_names = asset.find_joints(joint_names, preserve_order=True)
++    if set(resolved_names) != set(joint_names):
++        missing = sorted(set(joint_names) - set(resolved_names))
++        raise ValueError(f"waist stiffness curriculum joints not found: {missing}")
++    missing_start = sorted(set(joint_names) - set(start_stiffness_by_joint))
++    if missing_start:
++        raise ValueError(f"missing start stiffness for joints: {missing_start}")
++
++    progress = linear_curriculum_progress(
++        getattr(env, "common_step_counter", 0),
++        int(curriculum_start_step),
++        int(curriculum_duration_steps),
++    )
++    target_stiffness = float(target_stiffness)
++    desired_by_name = {
++        name: float(start_stiffness_by_joint[name])
++        + (target_stiffness - float(start_stiffness_by_joint[name])) * progress
++        for name in joint_names
++    }
++    target_joint_ids, target_joint_names = asset.find_joints(joint_names, preserve_order=True)
++    target_by_global_id = {
++        int(joint_id): desired_by_name[name]
++        for joint_id, name in zip(target_joint_ids, target_joint_names)
++    }
++    target_ids = torch.tensor(target_joint_ids, dtype=torch.long, device=asset.device)
++
++    for actuator in asset.actuators.values():
++        if isinstance(actuator.joint_indices, slice):
++            actuator_global_ids = torch.arange(asset.num_joints, device=asset.device)
++        else:
++            actuator_global_ids = actuator.joint_indices.to(asset.device)
++        local_ids = torch.nonzero(torch.isin(actuator_global_ids, target_ids)).flatten()
++        if local_ids.numel() == 0:
++            continue
++
++        stiffness = actuator.stiffness[env_ids].clone()
++        for local_id, global_id in zip(local_ids.tolist(), actuator_global_ids[local_ids].tolist()):
++            stiffness[:, local_id] = target_by_global_id[int(global_id)]
++        actuator.stiffness[env_ids] = stiffness
++        asset.write_joint_stiffness_to_sim(
++            stiffness,
++            joint_ids=actuator.joint_indices,
++            env_ids=env_ids,
++        )
++
++
+ def randomize_joint_default_pos(
+     env: ManagerBasedEnv,
+     env_ids: torch.Tensor | None,
+diff --git a/hope_training/whole_body_tracking/tests/test_balance_configuration.py b/hope_training/whole_body_tracking/tests/test_balance_configuration.py
+index 316a26c..c1c0443 100644
+--- a/hope_training/whole_body_tracking/tests/test_balance_configuration.py
++++ b/hope_training/whole_body_tracking/tests/test_balance_configuration.py
+@@ -151,6 +151,38 @@ def test_random_push_curriculum_is_checkpoint_safe_and_planar():
+     assert ast.literal_eval(params["curriculum_initial_fraction"]) == 0.0
+ 
+ 
++def test_waist_pitch_yaw_stiffness_curriculum_reaches_150_quickly():
++    events = _class(_tree(), "EventCfg")
++    reset = _assignment(events, "waist_pd_gain_curriculum_reset")
++    interval = _assignment(events, "waist_pd_gain_curriculum")
++    assert isinstance(reset, ast.Call) and isinstance(interval, ast.Call)
++    assert _mdp_function(reset) == "curriculum_actuator_stiffness"
++    assert _mdp_function(interval) == "curriculum_actuator_stiffness"
++    assert _call_keyword(reset, "mode") == "reset"
++    assert _call_keyword(interval, "mode") == "interval"
++    assert _call_keyword(interval, "interval_range_s") == (0.20, 0.20)
++
++    params_node = _call_keyword_node(interval, "params")
++    assert isinstance(params_node, ast.Dict)
++    params = {
++        ast.literal_eval(key): value
++        for key, value in zip(params_node.keys, params_node.values)
++    }
++    asset_cfg = params["asset_cfg"]
++    assert isinstance(asset_cfg, ast.Call)
++    assert isinstance(asset_cfg.func, ast.Name) and asset_cfg.func.id == "SceneEntityCfg"
++    assert ast.literal_eval(asset_cfg.args[0]) == "robot"
++    assert _call_keyword(asset_cfg, "joint_names") == ["waist_yaw_joint", "waist_pitch_joint"]
++    assert ast.literal_eval(params["joint_names"]) == ("waist_yaw_joint", "waist_pitch_joint")
++    assert ast.literal_eval(params["start_stiffness_by_joint"]) == {
++        "waist_yaw_joint": 85.0,
++        "waist_pitch_joint": 50.0,
++    }
++    assert ast.literal_eval(params["target_stiffness"]) == 150.0
++    assert ast.literal_eval(params["curriculum_start_step"]) == 0
++    assert ast.literal_eval(params["curriculum_duration_steps"]) == 20_000
++
++
+ def test_moving_base_rewards_and_phase_gated_stability_are_wired():
+     tree = _tree()
+     rewards = _class(tree, "RewardsCfg")

@@ -222,14 +222,15 @@ def validate_side_regions(
     hysteresis_y = max(0.0, float(hysteresis_y))
     if not np.isfinite(split_y):
         raise ValueError("swing_side_split_y must be finite")
-    if not fh.y[1] < split_y - hysteresis_y:
+    tolerance = 1.0e-12
+    if fh.y[1] > split_y - hysteresis_y + tolerance:
         raise ValueError(
-            "forehand y range is not strictly below split-hysteresis: "
+            "forehand y range overlaps split-hysteresis: "
             f"max={fh.y[1]}, split-h={split_y - hysteresis_y}"
         )
-    if not bh.y[0] > split_y + hysteresis_y:
+    if bh.y[0] < split_y + hysteresis_y - tolerance:
         raise ValueError(
-            "backhand y range is not strictly above split+hysteresis: "
+            "backhand y range overlaps split+hysteresis: "
             f"min={bh.y[0]}, split+h={split_y + hysteresis_y}"
         )
 

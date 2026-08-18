@@ -1,5 +1,7 @@
 #include "a3_pingpong/pingpong_action_adapter.hpp"
 
+#include "a3_pingpong/a3_leg_limits.hpp"
+
 #include <Eigen/Core>
 
 #include <algorithm>
@@ -18,9 +20,9 @@ void SetReason(std::string* output, std::string value) {
 
 }  // namespace
 
-PingpongActionAdapterConfig Model21500ActionAdapterConfig() {
+PingpongActionAdapterConfig Model50000ActionAdapterConfig() {
   PingpongActionAdapterConfig config;
-  config.default_q = Model21500ObservationConfig().default_q;
+  config.default_q = Model50000ObservationConfig().default_q;
   config.lower = {
       -2.61799,  -0.349066, -0.488692, -1.0472,   -0.436332, -2.87979,
       -0.0872665, -2.79253, -0.959931, -2.79253, -1.62316,  -1.62316,
@@ -37,15 +39,32 @@ PingpongActionAdapterConfig Model21500ActionAdapterConfig() {
       0.349066, 2.93215,  0.523599, 2.72271,  2.49582,  0.523599,
       0.349066,
   };
+  for (std::size_t index = 0; index < kA3LegDof; ++index) {
+    config.lower[kA3LegCommandStart + index] = kA3LegUrdfLower[index];
+    config.upper[kA3LegCommandStart + index] = kA3LegUrdfUpper[index];
+  }
   return config;
 }
 
-PingpongCommandGains Model21500PolicyGains() {
+PingpongActionAdapterConfig Model48000ActionAdapterConfig() {
+  return Model50000ActionAdapterConfig();
+}
+
+PingpongActionAdapterConfig Model41500ActionAdapterConfig() {
+  return Model48000ActionAdapterConfig();
+}
+
+PingpongActionAdapterConfig Model21500ActionAdapterConfig() {
+  return Model48000ActionAdapterConfig();
+}
+
+PingpongCommandGains Model50000PolicyGains() {
   PingpongCommandGains gains;
-  // Frozen 6/27 training/deploy gains in canonical A3 SDK order:
+  // Real-robot deployment gains in canonical A3 SDK order:
   // waist, head, left arm, right arm, left leg, right leg.
+  // model_50000 completed the waist yaw/pitch Kp curriculum at 150/150.
   gains.kp = {
-      85.0, 50.0, 50.0, 40.0, 40.0,
+      150.0, 50.0, 150.0, 40.0, 40.0,
       40.0, 40.0, 30.0, 30.0, 30.0, 20.0, 20.0,
       40.0, 40.0, 30.0, 30.0, 30.0, 20.0, 20.0,
       80.0, 120.0, 80.0, 250.0, 50.0, 50.0,
@@ -59,6 +78,18 @@ PingpongCommandGains Model21500PolicyGains() {
       3.0, 4.0, 3.0, 8.0, 2.0, 2.0,
   };
   return gains;
+}
+
+PingpongCommandGains Model48000PolicyGains() {
+  return Model50000PolicyGains();
+}
+
+PingpongCommandGains Model41500PolicyGains() {
+  return Model48000PolicyGains();
+}
+
+PingpongCommandGains Model21500PolicyGains() {
+  return Model48000PolicyGains();
 }
 
 PingpongCommandGains A3PdStandGains() {
@@ -126,7 +157,7 @@ bool BuildPdStandCommand(
     q_des[index] = start_q[index] + alpha * (target_q[index] - start_q[index]);
   }
   // The official 29->31 adapter owns the neck rather than the policy. Both
-  // model_21500 neck targets are zero, so make that contract explicit here.
+  // model_50000 neck targets are zero, so make that contract explicit here.
   q_des[kHeadYawIndex] = 0.0;
   q_des[kHeadPitchIndex] = 0.0;
   if (ready) *ready = alpha >= 1.0;
@@ -223,10 +254,10 @@ bool PingpongActionAdapter::BuildPolicyCommand(
   if (!Decode(raw_action, applied_action, q_des, diagnostics, reason)) {
     return false;
   }
-  if (!BuildPositionCommand(q_des, Model21500PolicyGains(), command, reason)) {
+  if (!BuildPositionCommand(q_des, Model50000PolicyGains(), command, reason)) {
     return false;
   }
-  SetReason(reason, "valid model_21500 policy command");
+  SetReason(reason, "valid model_50000 policy command");
   return true;
 }
 

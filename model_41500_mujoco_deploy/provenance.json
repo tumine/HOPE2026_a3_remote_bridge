@@ -1,0 +1,15 @@
+{
+  "checkpoint": {
+    "path": "hope_training/whole_body_tracking/logs/rsl_rl/hope_pingpong/2026-08-17_22-03-09_resume_25000_gjc_robot_model/model_41500.pt",
+    "iteration": 41500,
+    "sha256": "d64ef92e456dd9353aa38e1e7de098a7bf0241173b38d7d07993d402ee393ea3"
+  },
+  "policy": {
+    "path": "policy/hope_pingpong.onnx",
+    "sha256": "65e4bea029141f1d8b8d21eb91f08f66e68097e61796d66bd92e462b8c725c2b"
+  },
+  "source_manifest": "policy/policy_manifest.json",
+  "runtime_model": "../../../gjc_robot_model/agibot_a3/xml/agibot_a3.xml",
+  "contract": "config/model_41500_training_contract.yaml",
+  "strike_box": "config/strike_box.yaml"
+}

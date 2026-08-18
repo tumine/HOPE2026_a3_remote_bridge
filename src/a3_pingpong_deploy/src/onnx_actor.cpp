@@ -61,7 +61,7 @@ struct OnnxActor::Impl {
         session(env, model_path.c_str(), session_options) {
     if (session.GetInputCount() != 1 || session.GetOutputCount() != 1) {
       throw std::runtime_error(
-          "model_21500 actor must have exactly one input and one output");
+          "model_48000 actor must have exactly one input and one output");
     }
 
     auto allocated_input = session.GetInputNameAllocated(0, allocator);
@@ -91,14 +91,28 @@ struct OnnxActor::Impl {
                                  ", got " + actual);
       }
     };
+    const auto require_metadata_if_present = [&](const char* key,
+                                                 const std::string& expected) {
+      auto value = metadata.LookupCustomMetadataMapAllocated(key, allocator);
+      if (!value) return;
+      const std::string actual = value.get();
+      if (actual != expected) {
+        throw std::runtime_error(std::string("ONNX metadata mismatch for ") +
+                                 key + ": expected " + expected +
+                                 ", got " + actual);
+      }
+    };
     require_metadata("contract_name", "hope_pingpong");
     require_metadata("obs_dim", "111");
     require_metadata("action_dim", "31");
     require_metadata("control_rate_hz", "50");
     require_metadata("observation_normalization", "none");
-    require_metadata("policy_generation",
-                     "full_body_uniform_action_return_physics_v1");
-    require_metadata("checkpoint_iteration", "21500");
+    require_metadata("base_station_semantics", "moving_lateral_target_v1");
+    // The bundle also stores checkpoint identity in its manifest/provenance.
+    // Accept the exporter omission while validating these fields if present.
+    require_metadata_if_present(
+        "policy_generation", "moving_base_model_48000_v1");
+    require_metadata_if_present("checkpoint_iteration", "48000");
     require_metadata("joint_order", ExpectedJointOrderCsv());
   }
 

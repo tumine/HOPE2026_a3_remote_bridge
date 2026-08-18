@@ -91,7 +91,7 @@ std::array<double, 3> Rotate(const std::array<double, 4>& quaternion,
 
 }  // namespace
 
-PingpongObservationConfig Model21500ObservationConfig() {
+PingpongObservationConfig Model50000ObservationConfig() {
   PingpongObservationConfig config;
   config.default_q = {
       0.0,   0.0,  0.0, 0.0, 0.0,  0.20, 0.15, 0.0,
@@ -100,6 +100,18 @@ PingpongObservationConfig Model21500ObservationConfig() {
       0.0,  -0.15, 0.0, 0.0, 0.30, -0.15, 0.0,
   };
   return config;
+}
+
+PingpongObservationConfig Model48000ObservationConfig() {
+  return Model50000ObservationConfig();
+}
+
+PingpongObservationConfig Model21500ObservationConfig() {
+  return Model48000ObservationConfig();
+}
+
+PingpongObservationConfig Model41500ObservationConfig() {
+  return Model48000ObservationConfig();
 }
 
 bool ValidatePingpongJointLayout(const robot_io::JointLayout& layout,
@@ -129,7 +141,7 @@ bool PingpongObservationBuilder::Build(
     const robot_io::RobotState& state,
     const PlannerInputSnapshot& planner,
     const PingpongAction& last_action,
-    const std::array<double, 2>& fixed_station_xy,
+    const std::array<double, 2>& base_target_xy,
     PingpongObservation& output,
     std::string* reason) const {
   if (!planner.command || !planner.base_pose) {
@@ -143,8 +155,9 @@ bool PingpongObservationBuilder::Build(
     SetReason(reason, "RobotState q/dq must contain 31 finite values");
     return false;
   }
-  if (!state.imu_gyro.array().isFinite().all() ||
-      !AllFinite(last_action) || !AllFinite(fixed_station_xy) ||
+  if (!state.imu_quat_wxyz.array().isFinite().all() ||
+      !state.imu_gyro.array().isFinite().all() ||
+      !AllFinite(last_action) || !AllFinite(base_target_xy) ||
       !AllFinite(planner.base_pose->position_w) ||
       !AllFinite(planner.command->position_w) ||
       !AllFinite(planner.command->velocity_w) ||
@@ -155,14 +168,22 @@ bool PingpongObservationBuilder::Build(
     return false;
   }
 
+  // Hardware deliberately splits the attitude sources. Roll/pitch gravity
+  // comes from the lower-latency pelvis IMU, while world/table heading remains
+  // tied to the calibrated PPMocap pose so it shares the planner frame. IMU
+  // yaw drift therefore cannot rotate planner targets, and optical attitude
+  // loss/jitter cannot corrupt the policy's tilt observation.
   std::array<double, 4> gravity_quaternion = {
       state.imu_quat_wxyz[0], state.imu_quat_wxyz[1],
       state.imu_quat_wxyz[2], state.imu_quat_wxyz[3]};
+  if (!NormalizeQuaternion(gravity_quaternion)) {
+    SetReason(reason, "pelvis IMU quaternion is invalid");
+    return false;
+  }
   std::array<double, 4> heading_quaternion =
       planner.base_pose->quaternion_wxyz;
-  if (!NormalizeQuaternion(gravity_quaternion) ||
-      !NormalizeQuaternion(heading_quaternion)) {
-    SetReason(reason, "gravity or heading quaternion is invalid");
+  if (!NormalizeQuaternion(heading_quaternion)) {
+    SetReason(reason, "PPMocap pelvis quaternion is invalid");
     return false;
   }
 
@@ -189,9 +210,9 @@ bool PingpongObservationBuilder::Build(
   }
   output[99] = static_cast<float>(forward_world[0] / forward_norm);
   output[100] = static_cast<float>(forward_world[1] / forward_norm);
-  output[101] = static_cast<float>(fixed_station_xy[0] -
+  output[101] = static_cast<float>(base_target_xy[0] -
                                    planner.base_pose->position_w[0]);
-  output[102] = static_cast<float>(fixed_station_xy[1] -
+  output[102] = static_cast<float>(base_target_xy[1] -
                                    planner.base_pose->position_w[1]);
   for (std::size_t index = 0; index < 3; ++index) {
     output[103 + index] = static_cast<float>(

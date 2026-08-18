@@ -1,0 +1,28 @@
+# Strike-box reference for model_50000.pt. Units are metres.
+
+checkpoint_profile:
+  name: model_50000_full_table_full_height_waist_kp150
+  base_target_y_range: [-0.35, 0.6625]
+  swing_side_split_y: -0.41
+  swing_side_hysteresis_y: 0.0
+  table_surface_z: 0.76
+  table_y_range: [-0.7625, 0.7625]
+
+  racket_position_box_relative_to_base:
+    forehand: {x: [0.18, 0.40], y: [-0.76, -0.52], z: [0.84, 1.21]}
+    backhand: {x: [0.45, 0.75], y: [-0.30, 0.10], z: [0.84, 1.21]}
+
+  racket_velocity_box:
+    forehand: {x: [1.75, 3.40], y: [0.20, 1.10], z: [0.35, 1.60]}
+    backhand: {x: [1.05, 3.10], y: [-1.10, 0.65], z: [0.35, 1.50]}
+
+  # Relative to the fixed nominal startup station, before physical table
+  # clipping. This combines base_target_y_range with each clip's relative y box.
+  nominal_station_target_envelope:
+    forehand: {x: [0.18, 0.40], y: [-1.11, 0.1425], z: [0.84, 1.21]}
+    backhand: {x: [0.45, 0.75], y: [-0.65, 0.7625], z: [0.84, 1.21]}
+
+  planner_table_frame:
+    table_surface_origin: [0.0, 0.0, 0.0]
+    table_y_range: [-1.525, 0.0]
+    table_surface_z_world: 0.76

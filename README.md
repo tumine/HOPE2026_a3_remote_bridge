@@ -1,16 +1,16 @@
 # A3 Remote Bridge
 
-现场部署请先阅读：
+48000 现场部署请先阅读：
 
-- [A3 强化学习真机部署快速手册](README_REAL_ROBOT_CN.md)
+- [Planner 到 MDU 部署流程](PLANNER_TO_MDU.md)
 - [完整观测合同与部署说明](RL_DEPLOYMENT.md)
 
 独立的 A3 远程部署通信工程，不依赖原 `a3_deploy_onnx_ref` 的 ONNX、
 RKNN、动作库或策略循环。
 
-当前部署使用 `full_body_uniform_action_return_physics_v1/model_21500`，接入
-PPMocap 的桌面、球和 BotA3 位姿以及官方 HOPE planner。完整的准备、坐标标定、
-READY、实时来球控制和停止流程见 [RL_DEPLOYMENT.md](RL_DEPLOYMENT.md)。
+当前 MDU 推理部署使用 `moving_base_model_48000_full_table_v1/model_48000`，接入
+PPMocap 的桌面、球和 BotA3 位姿以及官方 HOPE planner。本机交叉编译、传输、
+分阶段探针和真实启动流程见 [PLANNER_TO_MDU.md](PLANNER_TO_MDU.md)。
 当前策略使用 111 维 observation 和 31 维 action，不复用旧的 930/1570 维探针，
 也不再提供无动捕 `F/B` 人工球观测。
 
@@ -37,7 +37,7 @@ MDU iceoryx -> a3_mdu_state_bridge <- routed DDS -> laptop
   header 时间戳匹配关节状态和 pelvis IMU，不创建 command publisher。
 - `pc_tools/a3_mocap_frame.py`：把同步 PPMocap table/BotA3/ball 转换到 HOPE
   canonical table-surface frame，包含桌面稳定锁定和刚体到 pelvis 固定变换。
-- `pc_tools/a3_rl_contract.py`：验证 `model_21500`、bundle provenance、
+- `pc_tools/a3_rl_contract.py`：旧电脑端 `model_21500` runner 的 bundle 验证；
   sim2sim、111/31 维接口以及实时 planner/lifecycle。
 - `pc_tools/a3_rl_deploy.py`：电脑端交互式 `OBSERVE -> DEFAULT_RAMP ->
   DEFAULT_HOLD -> POLICY_WARMUP -> POLICY_ACTIVE` 状态机。
@@ -46,8 +46,8 @@ MDU iceoryx -> a3_mdu_state_bridge <- routed DDS -> laptop
   每个 task 只挥一次，完成后自动回到 READY。
 - `pc_tools/a3_rl_mujoco_check.py`：策略或配置变化后，用实际ONNX一次性动态验证
   当前 READY anchor 10 秒稳定性；它不在每次真机启动时重复运行。
-- `scripts/start_rl_policy.sh`：复制 MDU 管理脚本、切换唯一真实网关并启动电脑
-  planner/策略；机器人未可靠支撑时拒绝运行。
+- `scripts/start_rl_policy.sh`：旧 `model_21500` 电脑端推理入口；48000 真机部署
+  不使用这个入口，使用 [PLANNER_TO_MDU.md](PLANNER_TO_MDU.md) 的 MDU 推理流程。
 - `scripts/run_a3_rviz.sh`：以 PPMocap 的球桌/球/轨迹场景为底稿，将动捕 BotA3
   pelvis 位姿与 `/a3_internal/joint_states` 合成带球拍 A3 URDF，并显示桌面下方
   0.76 m 的地面。

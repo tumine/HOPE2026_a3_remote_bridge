@@ -1,0 +1,37 @@
+# Strike-box reference for this deployment package.
+# Coordinates are floor/world coordinates unless explicitly marked planner/table.
+
+checkpoint_profile:
+  name: model_41500_training_box
+  base_target_y_range: [-0.35, 0.35]
+  swing_side_split_y: -0.41
+  swing_side_hysteresis_y: 0.04
+  table_surface_z: 0.76
+  table_y_range: [-0.7625, 0.7625]
+
+  # Racket target relative to the moving station, exactly as frozen in env.yaml.
+  racket_position_box_relative_to_base:
+    forehand: {x: [0.18, 0.40], y: [-0.76, -0.52], z: [1.00, 1.21]}
+    backhand: {x: [0.45, 0.75], y: [-0.30, 0.10], z: [0.84, 1.10]}
+
+  # Effective table-side target envelope after the checkpoint station range,
+  # table clipping, side split, and 4 cm hysteresis are applied.
+  effective_floor_world_target_box:
+    forehand: {y: [-0.7625, -0.45], z: [1.00, 1.21]}
+    backhand: {y: [-0.37, 0.45], z: [0.84, 1.10]}
+
+  planner_table_frame_box:
+    forehand: {x: [-0.32, -0.10], y: [-1.5250, -1.2125], z: [0.24, 0.45]}
+    backhand: {x: [-0.05, 0.25], y: [-1.1325, -0.3125], z: [0.08, 0.34]}
+
+current_continuation_profile:
+  name: full_table_full_height_target_after_model_41500
+  base_target_y_range: [-0.35, 0.6625]
+  swing_side_split_y: -0.41
+  swing_side_hysteresis_y: 0.0
+  effective_floor_world_target_box:
+    forehand: {y: [-0.7625, -0.41], z: [0.84, 1.21]}
+    backhand: {y: [-0.41, 0.7625], z: [0.84, 1.21]}
+  planner_table_frame_box:
+    forehand: {x: [-0.32, -0.10], y: [-1.5250, -1.1725], z: [0.08, 0.45]}
+    backhand: {x: [-0.05, 0.25], y: [-1.1725, 0.0000], z: [0.08, 0.45]}

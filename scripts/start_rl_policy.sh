@@ -139,7 +139,7 @@ if ! kill -0 "${PLANNER_PID}" 2>/dev/null; then
 fi
 echo "HOPE planner started (log: ${PLANNER_LOG})"
 echo "Live new-task TTS window: [${A3_NEW_TASK_TTS_MIN_S:-0.25}, ${A3_NEW_TASK_TTS_MAX_S:-1.00}] s"
-echo "Live strike margins: y=+/-${A3_STRIKE_Y_MARGIN_M:-0.07}m z=+/-${A3_STRIKE_Z_MARGIN_M:-0.04}m racket_v=+/-${A3_RACKET_VELOCITY_MARGIN_MPS:-0.15}m/s"
+echo "Live strike margins: y=+/-${A3_STRIKE_Y_MARGIN_M:-0.0}m z=+/-${A3_STRIKE_Z_MARGIN_M:-0.0}m racket_v=+/-${A3_RACKET_VELOCITY_MARGIN_MPS:-0.0}m/s"
 echo "The PPMocap driver must already run in ROS_DOMAIN_ID=${A3_ROS_DOMAIN_ID:-232}."
 # Show lifecycle, timing, publication, physical-plane, and throttled rejection
 # events in the interactive terminal. Full planner output remains in PLANNER_LOG.

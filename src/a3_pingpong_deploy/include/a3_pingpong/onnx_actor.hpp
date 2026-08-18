@@ -7,7 +7,7 @@
 
 namespace a3_pingpong {
 
-// CPU ONNX Runtime wrapper for the frozen model_21500 actor contract:
+// CPU ONNX Runtime wrapper for the frozen model_48000 actor contract:
 // observation float32[1,111] -> raw_action float32[1,31].
 class OnnxActor {
  public:

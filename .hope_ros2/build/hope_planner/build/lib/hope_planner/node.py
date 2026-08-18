@@ -53,22 +53,22 @@ class HOPEPlannerNode(Node):
         # --- Planner geometry / tuning ---
         self.declare_parameter("x_hit", 0.0)              # fixed strike-plane x (m)
         self.declare_parameter("use_side_aware_strike_regions", True)
-        # Canonical table-frame boxes corresponding exactly to the current grounded
-        # Isaac station-relative target boxes after adding [-0.5, -0.7625, -0.76].
+        # Effective canonical table-frame boxes for model_50000's full-table,
+        # full-height moving-base checkpoint contract.
         self.declare_parameter("forehand_strike_x_range", [-0.32, -0.10])
-        self.declare_parameter("forehand_strike_y_range", [-1.5225, -1.2825])
-        self.declare_parameter("forehand_strike_z_range", [0.24, 0.45])
+        self.declare_parameter("forehand_strike_y_range", [-1.5250, -1.1725])
+        self.declare_parameter("forehand_strike_z_range", [0.08, 0.45])
         self.declare_parameter("forehand_velocity_x_range", [1.75, 3.40])
-        self.declare_parameter("forehand_velocity_y_range", [0.25, 1.10])
-        self.declare_parameter("forehand_velocity_z_range", [0.35, 1.45])
+        self.declare_parameter("forehand_velocity_y_range", [0.20, 1.10])
+        self.declare_parameter("forehand_velocity_z_range", [0.35, 1.60])
         self.declare_parameter("backhand_strike_x_range", [-0.05, 0.25])
-        self.declare_parameter("backhand_strike_y_range", [-1.0625, -0.6625])
-        self.declare_parameter("backhand_strike_z_range", [0.08, 0.34])
-        self.declare_parameter("backhand_velocity_x_range", [1.05, 3.00])
-        self.declare_parameter("backhand_velocity_y_range", [-0.25, 0.50])
-        self.declare_parameter("backhand_velocity_z_range", [0.45, 1.45])
-        self.declare_parameter("swing_side_split_y", -1.1725)   # mid-gap between trained boxes
-        self.declare_parameter("swing_side_hysteresis_y", 0.0)  # optional band around the split (m)
+        self.declare_parameter("backhand_strike_y_range", [-1.1725, 0.0])
+        self.declare_parameter("backhand_strike_z_range", [0.08, 0.45])
+        self.declare_parameter("backhand_velocity_x_range", [1.05, 3.10])
+        self.declare_parameter("backhand_velocity_y_range", [-1.10, 0.65])
+        self.declare_parameter("backhand_velocity_z_range", [0.35, 1.50])
+        self.declare_parameter("swing_side_split_y", -1.1725)
+        self.declare_parameter("swing_side_hysteresis_y", 0.0)
         self.declare_parameter("target_land_x", 2.055)   # fixed landing target x (m)
         self.declare_parameter("target_land_y", -0.7625)  # fixed landing target y (m)
         self.declare_parameter("delta_t_flight", 0.5)     # desired post-strike flight time (s)
@@ -96,7 +96,7 @@ class HOPEPlannerNode(Node):
         self.declare_parameter("racket_velocity_margin_mps", 0.0)
         # A new policy task must begin at the same 1.0 s lead used in training.
         # Once active, revisions remain admissible below this startup window.
-        self.declare_parameter("new_task_tts_min_s", 0.95)
+        self.declare_parameter("new_task_tts_min_s", 0.25)
         self.declare_parameter("new_task_tts_max_s", 1.0)
         # Table's +y edge in the play frame (table occupies y in [y_max - width, y_max]).
         self.declare_parameter("table_y_max", 0.0)

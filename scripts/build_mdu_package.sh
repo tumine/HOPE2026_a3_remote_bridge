@@ -12,6 +12,7 @@ Options:
   --jobs N       Parallel build jobs. Default: nproc.
   --sysroot PATH Rockchip sysroot archive. Default:
                  thirdparty/rockchip_sysroot/rockchip-1.0-aarch64-sysroot.tar.gz
+                 Also searches ../rockchip_sysroot and ../a3_deploy_example.
   -h, --help     Show this help message.
 USAGE
 }
@@ -20,6 +21,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 JOBS="$(nproc)"
 SYSROOT="${REPO_ROOT}/thirdparty/rockchip_sysroot/rockchip-1.0-aarch64-sysroot.tar.gz"
+WORKSPACE_SYSROOT="${REPO_ROOT}/../rockchip_sysroot/rockchip-1.0-aarch64-sysroot.tar.gz"
 LEGACY_SYSROOT="${REPO_ROOT}/../a3_deploy_example/thirdparty/rockchip_sysroot/rockchip-1.0-aarch64-sysroot.tar.gz"
 SYSROOT_EXPLICIT=0
 INSIDE_DOCKER=0
@@ -148,8 +150,8 @@ build_inside_docker() {
     exit 1
   fi
   if [[ "$(sha256sum "${package_dir}/models/hope_pingpong.onnx" | cut -d' ' -f1)" \
-      != "6e2fcf9c9793a568f0583ae9b6e7b0439fb83df004c356e85af85841afc2d074" ]]; then
-    echo "packaged model_21500 SHA256 mismatch" >&2
+      != "6e68f5ce582ac41856c23ac63c749b94c4ca7b96dbe041bdc0215332fbb6caba" ]]; then
+    echo "packaged model_48000 SHA256 mismatch" >&2
     exit 1
   fi
   if ! aarch64-linux-gnu-nm -C "${package_dir}/dist/a3_mdu_state_bridge" \
@@ -163,7 +165,7 @@ build_inside_docker() {
     exit 1
   fi
   echo "A3 backend factory: linked"
-  echo "ONNX Runtime and model_21500: linked and verified"
+  echo "ONNX Runtime and model_48000: linked and verified"
   echo "MDU package ready: ${package_dir}"
 }
 
@@ -176,7 +178,10 @@ if ! command -v docker >/dev/null 2>&1; then
   echo "docker is required" >&2
   exit 69
 fi
-if [[ "${SYSROOT_EXPLICIT}" -eq 0 && ! -f "${SYSROOT}" && -f "${LEGACY_SYSROOT}" ]]; then
+if [[ "${SYSROOT_EXPLICIT}" -eq 0 && ! -f "${SYSROOT}" && -f "${WORKSPACE_SYSROOT}" ]]; then
+  SYSROOT="${WORKSPACE_SYSROOT}"
+  echo "using Rockchip sysroot from workspace: ${SYSROOT}"
+elif [[ "${SYSROOT_EXPLICIT}" -eq 0 && ! -f "${SYSROOT}" && -f "${LEGACY_SYSROOT}" ]]; then
   SYSROOT="${LEGACY_SYSROOT}"
   echo "using Rockchip sysroot exported by a3_deploy_example: ${SYSROOT}"
 fi

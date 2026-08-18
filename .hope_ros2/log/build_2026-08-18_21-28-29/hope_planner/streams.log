@@ -1,0 +1,26 @@
+[0.295s] Invoking command in '/home/bth/workspace/a3_remote_bridge/26.7.25发球部署/pingpang_ustc-srf/hope_ws/src/hope_planner': AMENT_PREFIX_PATH=/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs:${CMAKE_PREFIX_PATH} LD_LIBRARY_PATH=/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages:/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../../../.hope_ros2/build/hope_planner build --build-base /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build install --record /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/install.log --single-version-externally-managed install_data
+[0.407s] running egg_info
+[0.407s] writing ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/PKG-INFO
+[0.407s] writing dependency_links to ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/dependency_links.txt
+[0.407s] writing entry points to ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/entry_points.txt
+[0.407s] writing requirements to ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/requires.txt
+[0.407s] writing top-level names to ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/top_level.txt
+[0.408s] reading manifest file '../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/SOURCES.txt'
+[0.408s] writing manifest file '../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info/SOURCES.txt'
+[0.408s] running build
+[0.408s] running build_py
+[0.409s] copying hope_planner/node.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner
+[0.409s] running install
+[0.409s] running install_lib
+[0.410s] copying /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build/lib/hope_planner/node.py -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner
+[0.410s] byte-compiling /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner/node.py to node.cpython-310.pyc
+[0.412s] running install_data
+[0.413s] copying config/hope_planner.yaml -> /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/share/hope_planner/config
+[0.413s] running install_egg_info
+[0.413s] removing '/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner-0.0.0-py3.10.egg-info' (and everything under it)
+[0.414s] Copying ../../../../../.hope_ros2/build/hope_planner/hope_planner.egg-info to /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages/hope_planner-0.0.0-py3.10.egg-info
+[0.414s] running install_scripts
+[0.425s] Installing hope_bag_to_csv script to /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/hope_planner
+[0.425s] Installing hope_planner_node script to /home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/hope_planner
+[0.425s] writing list of installed files to '/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/install.log'
+[0.440s] Invoked command in '/home/bth/workspace/a3_remote_bridge/26.7.25发球部署/pingpang_ustc-srf/hope_ws/src/hope_planner' returned '0': AMENT_PREFIX_PATH=/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs:${CMAKE_PREFIX_PATH} LD_LIBRARY_PATH=/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_planner/lib/python3.10/site-packages:/home/bth/workspace/a3_remote_bridge/.hope_ros2/install/hope_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../../../.hope_ros2/build/hope_planner build --build-base /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/build install --record /home/bth/workspace/a3_remote_bridge/.hope_ros2/build/hope_planner/install.log --single-version-externally-managed install_data

@@ -1,0 +1,7 @@
+[WARN] [1786979626.623799649] [a3_receive_input_gateway]: receive gateway started: mocap=/ppmocap/frame planner_input=/a3_mocap/ball_poses base_pose=/a3_mocap/pelvis_pose; inference=off joint_commands=off
+[INFO] [1786979627.616984622] [a3_receive_input_gateway]: gateway calibrated=no frame_age=-1.0ms frames=0 ball=0 base_poses=0 invalid=0 station_ok=no
+[INFO] [1786979628.616933268] [a3_receive_input_gateway]: gateway calibrated=no frame_age=-1.0ms frames=0 ball=0 base_poses=0 invalid=0 station_ok=no
+[INFO] [1786979629.617156684] [a3_receive_input_gateway]: gateway calibrated=no frame_age=-1.0ms frames=0 ball=0 base_poses=0 invalid=0 station_ok=no
+[INFO] [1786979630.617245344] [a3_receive_input_gateway]: gateway calibrated=no frame_age=-1.0ms frames=0 ball=0 base_poses=0 invalid=0 station_ok=no
+[INFO] [1786979631.617077344] [a3_receive_input_gateway]: gateway calibrated=no frame_age=-1.0ms frames=0 ball=0 base_poses=0 invalid=0 station_ok=no
+[INFO] [1786979632.617132583] [a3_receive_input_gateway]: gateway calibrated=no frame_age=-1.0ms frames=0 ball=0 base_poses=0 invalid=0 station_ok=no

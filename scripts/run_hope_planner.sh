@@ -6,14 +6,13 @@ ROS_SETUP="${A3_PC_ROS_SETUP:-/opt/ros/humble/setup.bash}"
 HOPE_SETUP="${A3_HOPE_ROS_SETUP:-${ROOT_DIR}/.hope_ros2/install/setup.bash}"
 TRAINING_SOURCE="${A3_TRAINING_SOURCE:-${ROOT_DIR}/26.7.25发球部署/pingpang_ustc-srf}"
 PLANNER_CONFIG="${A3_HOPE_PLANNER_CONFIG:-${TRAINING_SOURCE}/hope_ws/src/hope_planner/config/hope_planner.yaml}"
-# Live-ball experiment: the policy training clip starts at +1.0 s, but normal
-# physical arrivals are first predictable much later. Keep the training YAML
-# unchanged and make the deployment window explicit and easy to override.
+# Keep the explicitly requested live commissioning window. MuJoCo starts new
+# tasks near 1.0 s; values below that are a documented real-planner exception.
 LIVE_TTS_MIN_S="${A3_NEW_TASK_TTS_MIN_S:-0.25}"
 LIVE_TTS_MAX_S="${A3_NEW_TASK_TTS_MAX_S:-1.00}"
-LIVE_STRIKE_Y_MARGIN_M="${A3_STRIKE_Y_MARGIN_M:-0.07}"
-LIVE_STRIKE_Z_MARGIN_M="${A3_STRIKE_Z_MARGIN_M:-0.04}"
-LIVE_RACKET_VELOCITY_MARGIN_MPS="${A3_RACKET_VELOCITY_MARGIN_MPS:-0.15}"
+LIVE_STRIKE_Y_MARGIN_M="${A3_STRIKE_Y_MARGIN_M:-0.0}"
+LIVE_STRIKE_Z_MARGIN_M="${A3_STRIKE_Z_MARGIN_M:-0.0}"
+LIVE_RACKET_VELOCITY_MARGIN_MPS="${A3_RACKET_VELOCITY_MARGIN_MPS:-0.0}"
 
 for setup in "${ROS_SETUP}" "${HOPE_SETUP}"; do
   if [[ ! -r "${setup}" ]]; then
@@ -31,8 +30,8 @@ source "${HOPE_SETUP}"
 set -u
 
 export ROS_DOMAIN_ID="${A3_ROS_DOMAIN_ID:-232}"
-export ROS_LOCALHOST_ONLY=0
-export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
+export ROS_LOCALHOST_ONLY="${A3_ROS_LOCALHOST_ONLY:-0}"
+export ROS_AUTOMATIC_DISCOVERY_RANGE="${A3_ROS_DISCOVERY_RANGE:-SUBNET}"
 export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 export FASTRTPS_DEFAULT_PROFILES_FILE="${A3_PLANNER_FASTRTPS_PROFILE:-${ROOT_DIR}/config/fastrtps_pc_planner_mdu.xml}"
 export ROS_LOG_DIR="${A3_ROS_LOG_DIR:-${ROOT_DIR}/log/ros}"

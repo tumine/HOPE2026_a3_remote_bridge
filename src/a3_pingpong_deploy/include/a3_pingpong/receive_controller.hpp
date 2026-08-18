@@ -1,9 +1,11 @@
 #pragma once
 
+#include "a3_pingpong/a3_leg_limits.hpp"
 #include "a3_pingpong/planner_input.hpp"
 #include "robot_io/robot_io_backend.hpp"
 
 #include <atomic>
+#include <array>
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -31,7 +33,7 @@ struct ReceiveControllerOptions {
 
   // The ping-pong lifecycle can run its fixed READY target without a live
   // RacketCommand. Keep true for callers that require a command every tick;
-  // the model_21500 lifecycle sets this false and still requires live pose.
+  // the model_50000 lifecycle sets this false and still requires live pose.
   bool require_fresh_command{true};
 
   // Manual PASSIVE/PD_STAND must be usable before the PC planner/mocap path is
@@ -41,6 +43,19 @@ struct ReceiveControllerOptions {
   // False is the required bring-up default.  The policy and safety path can
   // be exercised without registering body-drive command publishers.
   bool publish_commands{false};
+
+  // A3 SDK leg order: left hip-p/r/y, knee, ankle-p/r, then right leg. The
+  // default commissioning guard protects only both hip-pitch joints. The
+  // remaining leg joints are intentionally not checked by this guard.
+  struct LegDampingSafety {
+    bool enabled{true};
+    std::array<double, kA3LegDof> lower{};
+    std::array<double, kA3LegDof> upper{};
+    std::array<bool, kA3LegDof> protected_joints{};
+    double damping_kd{2.0};
+
+    LegDampingSafety();
+  } leg_damping_safety;
 };
 
 enum class ReceiveTickResult {
@@ -51,6 +66,7 @@ enum class ReceiveTickResult {
   kPolicyUnavailable,
   kPolicyRejected,
   kCommandInvalid,
+  kLegLimitDamping,
   kCommandSent,
   kDryRun,
 };
@@ -60,6 +76,11 @@ enum class ReceiveTickResult {
 // velocity and feed-forward terms to zero.
 void BuildSafeHaltCommand(const robot_io::RobotState& state,
                           robot_io::RobotCommand& output);
+
+// Build a zero-position-error damping command. q_des follows the measured
+// state, Kp/tau_ff are zero, and Kd damps measured joint velocity.
+bool BuildDampingCommand(const robot_io::RobotState& state, double damping_kd,
+                         robot_io::RobotCommand& output);
 
 bool ValidateRobotCommand(const robot_io::RobotCommand& command,
                           int expected_dof);
@@ -94,6 +115,15 @@ class ReceiveController {
   std::uint64_t safe_halt_count() const noexcept {
     return safe_halt_count_.load(std::memory_order_relaxed);
   }
+  std::uint64_t leg_limit_damping_count() const noexcept {
+    return leg_limit_damping_count_.load(std::memory_order_relaxed);
+  }
+  bool leg_limit_damping_active() const noexcept {
+    return leg_limit_damping_active_.load(std::memory_order_acquire);
+  }
+  int leg_limit_joint_index() const noexcept {
+    return leg_limit_joint_index_.load(std::memory_order_relaxed);
+  }
   ReceiveTickResult last_result() const noexcept {
     return last_result_.load(std::memory_order_relaxed);
   }
@@ -103,6 +133,11 @@ class ReceiveController {
   void Run();
   ReceiveTickResult RunOneTick(std::int64_t now_ns);
   void MaybeSendSafeHalt(const robot_io::RobotState& state) noexcept;
+  void MaybeSendLegDamping(const robot_io::RobotState& state) noexcept;
+  bool FindLegLimitViolation(const robot_io::RobotState& state,
+                             const robot_io::RobotCommand* command,
+                             int* joint_index) const noexcept;
+  void LatchLegLimit(int joint_index) noexcept;
 
   robot_io::RobotIOBackend& backend_;
   PlannerInputMailbox& planner_mailbox_;
@@ -116,6 +151,9 @@ class ReceiveController {
   std::atomic<std::uint64_t> tick_count_{0};
   std::atomic<std::uint64_t> command_sent_count_{0};
   std::atomic<std::uint64_t> safe_halt_count_{0};
+  std::atomic<std::uint64_t> leg_limit_damping_count_{0};
+  std::atomic<bool> leg_limit_damping_active_{false};
+  std::atomic<int> leg_limit_joint_index_{-1};
   std::atomic<ReceiveTickResult> last_result_{ReceiveTickResult::kNoState};
 };
 

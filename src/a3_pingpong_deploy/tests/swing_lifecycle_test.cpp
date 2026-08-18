@@ -1,5 +1,6 @@
 #include "a3_pingpong/swing_lifecycle.hpp"
 
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <optional>
@@ -29,35 +30,44 @@ a3_pingpong::RacketTargetInput Command(std::uint64_t task_id,
 }  // namespace
 
 int main() {
-  const auto config = a3_pingpong::Model21500SwingLifecycleConfig();
+  const auto config = a3_pingpong::Model50000SwingLifecycleConfig();
   a3_pingpong::SwingLifecycle lifecycle(config);
+  const std::array<double, 3> base0{-0.5, -0.7625, 0.3064};
 
-  const auto ready = lifecycle.Update(std::nullopt);
+  const auto ready = lifecycle.Update(std::nullopt, base0);
   CHECK(lifecycle.phase() == a3_pingpong::SwingPhase::kReady);
   CHECK(std::abs(ready.position_w[0] - (-0.1798684298992157)) < 1.0e-12);
   CHECK(std::abs(ready.position_w[1] - (-1.457751166820526)) < 1.0e-12);
   CHECK(std::abs(ready.position_w[2] - 0.24860444187521936) < 1.0e-12);
   CHECK(std::abs(ready.time_to_strike_s - 1.0) < 1.0e-12);
+  const std::array<double, 3> moved_base{0.1, -0.2, 0.3};
+  const auto moved_ready = lifecycle.Update(std::nullopt, moved_base);
+  CHECK(std::abs(moved_ready.position_w[0] - 0.4201315701007843) <
+        1.0e-12);
+  CHECK(std::abs(moved_ready.position_w[1] - (-0.8952511668205261)) <
+        1.0e-12);
+  CHECK(std::abs(moved_ready.position_w[2] - 0.24220444187521934) <
+        1.0e-12);
   lifecycle.Advance();
-  CHECK(std::abs(lifecycle.Update(std::nullopt).time_to_strike_s - 1.0) <
+  CHECK(std::abs(lifecycle.Update(std::nullopt, moved_base).time_to_strike_s - 1.0) <
         1.0e-12);
 
-  auto target = lifecycle.Update(Command(1, 0, 1.0));
+  auto target = lifecycle.Update(Command(1, 0, 1.0), moved_base);
   CHECK(lifecycle.phase() == a3_pingpong::SwingPhase::kSwing);
   CHECK(lifecycle.active_task_id() == std::optional<std::uint64_t>(1));
   CHECK(std::abs(target.position_w[0] - 0.4) < 1.0e-12);
 
   lifecycle.Advance();
-  target = lifecycle.Update(Command(1, 0, 0.9));
+  target = lifecycle.Update(Command(1, 0, 0.9), moved_base);
   CHECK(std::abs(target.time_to_strike_s - 0.98) < 1.0e-12);
 
-  target = lifecycle.Update(Command(1, 1, 0.85));
+  target = lifecycle.Update(Command(1, 1, 0.85), moved_base);
   CHECK(lifecycle.applied_revision() == 1);
   CHECK(std::abs(target.position_w[0] - 0.41) < 1.0e-12);
   CHECK(std::abs(target.time_to_strike_s - 0.85) < 1.0e-12);
 
   // A different task cannot interrupt an active swing.
-  target = lifecycle.Update(Command(2, 0, 0.8, -1));
+  target = lifecycle.Update(Command(2, 0, 0.8, -1), moved_base);
   CHECK(lifecycle.active_task_id() == std::optional<std::uint64_t>(1));
   CHECK(target.swing_side == 1);
 
@@ -69,9 +79,9 @@ int main() {
   CHECK(!lifecycle.active_task_id());
 
   // The completed task cannot re-engage; the next task can.
-  target = lifecycle.Update(Command(1, 2, 0.7));
+  target = lifecycle.Update(Command(1, 2, 0.7), moved_base);
   CHECK(lifecycle.phase() == a3_pingpong::SwingPhase::kReady);
-  target = lifecycle.Update(Command(2, 0, 0.7, -1));
+  target = lifecycle.Update(Command(2, 0, 0.7, -1), moved_base);
   CHECK(lifecycle.phase() == a3_pingpong::SwingPhase::kSwing);
   CHECK(lifecycle.active_task_id() == std::optional<std::uint64_t>(2));
   CHECK(target.swing_side == -1);
@@ -79,5 +89,15 @@ int main() {
   lifecycle.Reset();
   CHECK(lifecycle.phase() == a3_pingpong::SwingPhase::kReady);
   CHECK(!lifecycle.last_engaged_task_id());
+
+  // A stale new id is consumed but never engages; its later revision cannot
+  // trigger a partial swing.
+  auto stale = Command(3, 0, -0.01);
+  target = lifecycle.Update(stale, moved_base);
+  CHECK(lifecycle.phase() == a3_pingpong::SwingPhase::kReady);
+  CHECK(lifecycle.last_engaged_task_id() ==
+        std::optional<std::uint64_t>(3));
+  target = lifecycle.Update(Command(3, 1, 0.5), moved_base);
+  CHECK(lifecycle.phase() == a3_pingpong::SwingPhase::kReady);
   return 0;
 }

@@ -10,25 +10,25 @@ hope_planner:
     ball_pose_index: 0
 
     # --- Strike regions ---
-    # The policy was trained on two disjoint station-relative position boxes, so
-    # the live planner predicts one plane per side. These are the same boxes in
-    # canonical table coordinates (robot station = [-0.5, -0.7625, -0.76]).
+    # model_50000 full-table/full-height checkpoint profile in canonical table
+    # coordinates. These are the effective boxes after table clipping and the
+    # moving-base station range are projected into the planner frame.
     # A physical prediction outside its side's y/z box, or a planned racket
     # velocity outside its side's envelope, is NOT clipped: no command is
     # published for that ball.
     use_side_aware_strike_regions: true
     forehand_strike_x_range: [-0.32, -0.10]
-    forehand_strike_y_range: [-1.5225, -1.2825]
-    forehand_strike_z_range: [0.24, 0.45]
+    forehand_strike_y_range: [-1.5250, -1.1725]
+    forehand_strike_z_range: [0.08, 0.45]
     forehand_velocity_x_range: [1.75, 3.40]
-    forehand_velocity_y_range: [0.25, 1.10]
-    forehand_velocity_z_range: [0.35, 1.45]
+    forehand_velocity_y_range: [0.20, 1.10]
+    forehand_velocity_z_range: [0.35, 1.60]
     backhand_strike_x_range: [-0.05, 0.25]
-    backhand_strike_y_range: [-1.0625, -0.6625]
-    backhand_strike_z_range: [0.08, 0.34]
-    backhand_velocity_x_range: [1.05, 3.00]
-    backhand_velocity_y_range: [-0.25, 0.50]
-    backhand_velocity_z_range: [0.45, 1.45]
+    backhand_strike_y_range: [-1.1725, 0.0000]
+    backhand_strike_z_range: [0.08, 0.45]
+    backhand_velocity_x_range: [1.05, 3.10]
+    backhand_velocity_y_range: [-1.10, 0.65]
+    backhand_velocity_z_range: [0.35, 1.50]
 
     # Legacy single-plane fallback, used only when side-aware regions are false.
     x_hit: 0.2
@@ -37,12 +37,10 @@ hope_planner:
     # The side is chosen once per incoming ball by splitting the predicted
     # lateral (y) crossing at swing_side_split_y: y below the split -> FOREHAND,
     # at/above -> BACKHAND.
-    # Mid-gap between the grounded training boxes above. The configured
-    # hysteresis must remain fully inside that gap; invalid configs fail startup.
+    # model_50000 full-table side split in the canonical planner table frame.
     swing_side_split_y: -1.1725
-    # Optional small hysteresis band (m) around the split so a ball arriving near
-    # the boundary does not flip the side between consecutive rallies. 0 disables.
-    swing_side_hysteresis_y: 0.04
+    # The checkpoint has no side-selection hysteresis band.
+    swing_side_hysteresis_y: 0.0
 
     # --- Fixed landing target (opponent half) ---
     target_land_x: 2.055           # opponent half-centre x (= table length * 3/4)
@@ -67,7 +65,7 @@ hope_planner:
     new_ball_incoming_confirm_samples: 5
     new_ball_nonincoming_confirm_samples: 10
     new_ball_rearm_min_x: 0.30
-    # Frozen training envelopes above remain exact. These margins are zero in
+    # Frozen model_50000 envelopes above remain exact. These margins are zero in
     # the canonical config and may be overridden only by live deployment.
     strike_y_margin_m: 0.0
     strike_z_margin_m: 0.0
@@ -76,7 +74,7 @@ hope_planner:
     # training lead of 1.0 s. Earlier candidates wait for later samples; a ball
     # already below the minimum is dropped without consuming task_id. Revisions
     # of an active task remain allowed below the window through contact.
-    new_task_tts_min_s: 0.95
+    new_task_tts_min_s: 0.25
     new_task_tts_max_s: 1.0
     max_predict_time: 2.0          # forward prediction horizon (s)
 

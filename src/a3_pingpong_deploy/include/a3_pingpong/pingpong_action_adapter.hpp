@@ -31,6 +31,14 @@ struct PingpongCommandGains {
   std::array<double, kPingpongActionDim> kd{};
 };
 
+PingpongActionAdapterConfig Model50000ActionAdapterConfig();
+PingpongCommandGains Model50000PolicyGains();
+// Compatibility aliases retained for existing callers.
+PingpongActionAdapterConfig Model48000ActionAdapterConfig();
+PingpongCommandGains Model48000PolicyGains();
+// Compatibility aliases for callers built against previous checkpoint names.
+PingpongActionAdapterConfig Model41500ActionAdapterConfig();
+PingpongCommandGains Model41500PolicyGains();
 PingpongActionAdapterConfig Model21500ActionAdapterConfig();
 PingpongCommandGains Model21500PolicyGains();
 PingpongCommandGains A3PdStandGains();
@@ -62,7 +70,7 @@ class PingpongActionAdapter {
 
   // Convert the 31-D model output into the exact RobotCommand consumed by the
   // official A3 RobotIO backend. dq_des and tau_ff are zero; q_des, Kp and Kd
-  // use the frozen model_21500 contract and its deployment gains.
+  // use the frozen model_50000 contract and its deployment gains.
   bool BuildPolicyCommand(
       const PingpongAction& raw_action,
       PingpongAction& applied_action,

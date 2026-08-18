@@ -21,26 +21,44 @@ struct SwingLifecycleConfig {
   double recovery_s{0.0};
   double ready_time_to_strike_s{1.0};
   std::int8_t ready_swing_side{1};
+  bool ready_target_tracks_live_base{true};
   std::array<double, 3> ready_reference_base_w{};
   std::array<double, 3> ready_target_rel_base_w{};
   std::array<double, 3> ready_target_velocity_w{};
 };
 
-// Frozen model_21500 lifecycle values from the HOPE deployment bundle.
+// Frozen model_50000 lifecycle values from the sim2sim bundle.
+SwingLifecycleConfig Model50000SwingLifecycleConfig();
+
+// Compatibility aliases retained for existing callers.
+SwingLifecycleConfig Model48000SwingLifecycleConfig();
+
+// Compatibility alias for callers that still use the previous checkpoint name.
+SwingLifecycleConfig Model41500SwingLifecycleConfig();
+
+// Compatibility alias for callers that still use the legacy policy name.
 SwingLifecycleConfig Model21500SwingLifecycleConfig();
 
 // C++ migration of pc_tools/a3_rl_contract.py::SwingLifecycle. A planner
 // command is accepted only once per new task_id. Once engaged, its TTS is
 // advanced locally at the policy rate, followed by the configured follow-
 // through and recovery phases. With no eligible command, the lifecycle emits
-// the fixed model_21500 READY target.
+// the model_50000 READY target relative to the current live pelvis.
 class SwingLifecycle {
  public:
   explicit SwingLifecycle(SwingLifecycleConfig config);
 
+  RacketTargetInput Update(
+      const std::optional<RacketTargetInput>& command,
+      const std::array<double, 3>& live_base_position_w);
+  // Compatibility overload. model_50000 runtime code must pass the live base.
   RacketTargetInput Update(const std::optional<RacketTargetInput>& command);
   void Advance();
   void Reset();
+
+  // Compatibility hook for fixed-reference callers. model_50000 runtime code
+  // passes live base position to Update() and does not use this as station state.
+  void SetReadyReferenceBase(const std::array<double, 3>& base_position_w);
 
   SwingPhase phase() const noexcept { return phase_; }
   std::optional<std::uint64_t> active_task_id() const noexcept {
@@ -53,8 +71,9 @@ class SwingLifecycle {
   const SwingLifecycleConfig& config() const noexcept { return config_; }
 
  private:
-  RacketTargetInput ReadyTarget() const;
-  bool CommandEligible(const RacketTargetInput& command) const;
+  RacketTargetInput ReadyTarget(
+      const std::array<double, 3>& live_base_position_w) const;
+  bool CommandStructurallyValid(const RacketTargetInput& command) const;
 
   SwingLifecycleConfig config_;
   SwingPhase phase_{SwingPhase::kReady};

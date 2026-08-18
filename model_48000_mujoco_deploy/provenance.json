@@ -1,0 +1,27 @@
+{
+  "checkpoint": {
+    "path": "hope_training/whole_body_tracking/logs/rsl_rl/hope_pingpong/2026-08-18_14-17-33_resume_41500_full_table_fast/model_48000.pt",
+    "iteration": 48000,
+    "sha256": "5ee96c21218a3d81c30b7e4c9df4713677db0f22459a75166482f42bfe8b832f"
+  },
+  "policy": {
+    "path": "policy/hope_pingpong.onnx",
+    "sha256": "6e68f5ce582ac41856c23ac63c749b94c4ca7b96dbe041bdc0215332fbb6caba",
+    "obs_dim": 111,
+    "action_dim": 31,
+    "control_hz": 50.0
+  },
+  "source_manifest": {
+    "path": "policy/policy_manifest.json",
+    "sha256": "3734c995c4a910cb46badaefc845a61213fcc761e4a8146dab93875712cbab49"
+  },
+  "source_configs": {
+    "env_yaml": "hope_training/whole_body_tracking/logs/rsl_rl/hope_pingpong/2026-08-18_14-17-33_resume_41500_full_table_fast/params/env.yaml",
+    "env_yaml_sha256": "8545461296d8616ff062b38f542e984cc8883f9877ad7b1b1390db0fd8b12b50",
+    "agent_yaml": "hope_training/whole_body_tracking/logs/rsl_rl/hope_pingpong/2026-08-18_14-17-33_resume_41500_full_table_fast/params/agent.yaml",
+    "agent_yaml_sha256": "81656b486fbf182d1643874e77ed290099d2315604ff7f3b2732da255ffeba9e"
+  },
+  "runtime_model": "../../../gjc_robot_model/agibot_a3/xml/agibot_a3.xml",
+  "contract": "config/model_48000_training_contract.yaml",
+  "strike_box": "config/strike_box.yaml"
+}

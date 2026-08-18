@@ -10,6 +10,8 @@ ManualKey ParseManualKey(char key) noexcept {
     case 'S': return ManualKey::kPdStand;
     case 'm':
     case 'M': return ManualKey::kMotion;
+    case 'v':
+    case 'V': return ManualKey::kUpperBodyServe;
     case 'x':
     case 'X': return ManualKey::kHalt;
     case 'i':
@@ -27,6 +29,7 @@ const char* ManualModeName(ManualMode mode) noexcept {
     case ManualMode::kPassive: return "passive";
     case ManualMode::kPdStand: return "pd_stand";
     case ManualMode::kMotion: return "motion";
+    case ManualMode::kUpperBodyServe: return "upper_body_serve";
     case ManualMode::kHalted: return "halted";
   }
   return "unknown";
@@ -57,7 +60,15 @@ ManualActionResult ManualControl::Apply(ManualKey key) noexcept {
       if (mode_ != ManualMode::kPdStand || !pd_stand_ready_) {
         return ManualActionResult::kRejectedNeedPdStand;
       }
+      pd_stand_ready_ = false;
       Enter(ManualMode::kMotion);
+      return ManualActionResult::kAccepted;
+    case ManualKey::kUpperBodyServe:
+      if (mode_ != ManualMode::kPdStand || !pd_stand_ready_) {
+        return ManualActionResult::kRejectedNeedPdStand;
+      }
+      pd_stand_ready_ = false;
+      Enter(ManualMode::kUpperBodyServe);
       return ManualActionResult::kAccepted;
     case ManualKey::kHalt:
       pd_stand_ready_ = false;
@@ -79,6 +90,12 @@ ManualActionResult ManualControl::Apply(ManualKey key) noexcept {
 
 void ManualControl::SetPdStandReady(bool ready) noexcept {
   pd_stand_ready_ = mode_ == ManualMode::kPdStand && ready;
+}
+
+void ManualControl::CompleteUpperBodyServe() noexcept {
+  if (mode_ != ManualMode::kUpperBodyServe) return;
+  pd_stand_ready_ = false;
+  Enter(ManualMode::kPdStand);
 }
 
 }  // namespace a3_pingpong

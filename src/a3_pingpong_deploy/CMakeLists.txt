@@ -1,15 +1,18 @@
+# The deployed actor is the frozen model_48000 checkpoint. Observation,
+# lifecycle, station, gains, and safety behavior remain on the current runtime.
+# FORCE avoids a stale previous-model path surviving in an existing CMake cache.
 set(A3_POLICY_ONNX_SOURCE
-  "${CMAKE_SOURCE_DIR}/26.7.25发球部署/pingpang_ustc-srf/a3_deploy/a3_pingpong_deploy_bundle/policy/hope_pingpong.onnx"
-  CACHE FILEPATH "Frozen model_21500 ONNX actor")
+  "${CMAKE_SOURCE_DIR}/model_48000_mujoco_deploy/policy/hope_pingpong.onnx"
+  CACHE FILEPATH "Frozen model_48000 ONNX actor" FORCE)
 set(A3_POLICY_ONNX_SHA256
-  "6e2fcf9c9793a568f0583ae9b6e7b0439fb83df004c356e85af85841afc2d074")
+  "6e68f5ce582ac41856c23ac63c749b94c4ca7b96dbe041bdc0215332fbb6caba")
 if(NOT EXISTS "${A3_POLICY_ONNX_SOURCE}")
-  message(FATAL_ERROR "model_21500 ONNX not found: ${A3_POLICY_ONNX_SOURCE}")
+  message(FATAL_ERROR "model_48000 ONNX not found: ${A3_POLICY_ONNX_SOURCE}")
 endif()
 file(SHA256 "${A3_POLICY_ONNX_SOURCE}" _a3_policy_onnx_actual_sha256)
 if(NOT _a3_policy_onnx_actual_sha256 STREQUAL A3_POLICY_ONNX_SHA256)
   message(FATAL_ERROR
-    "model_21500 ONNX SHA256 mismatch: ${_a3_policy_onnx_actual_sha256}")
+    "model_48000 ONNX SHA256 mismatch: ${_a3_policy_onnx_actual_sha256}")
 endif()
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
@@ -39,8 +42,11 @@ set_target_properties(a3_onnxruntime PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_a3_onnxruntime_include}")
 
 add_library(a3_pingpong_planner_input STATIC
+  src/lateral_station.cpp
   src/manual_control.cpp
   src/planner_input.cpp
+  src/planner_udp_protocol.cpp
+  src/planner_udp_receiver.cpp
   src/swing_lifecycle.cpp)
 
 target_include_directories(a3_pingpong_planner_input PUBLIC
@@ -68,7 +74,8 @@ target_link_libraries(a3_pingpong_onnx_actor PUBLIC
   a3_onnxruntime)
 
 add_library(a3_pingpong_action_adapter STATIC
-  src/pingpong_action_adapter.cpp)
+  src/pingpong_action_adapter.cpp
+  src/upper_body_serve.cpp)
 
 target_include_directories(a3_pingpong_action_adapter PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
@@ -116,10 +123,40 @@ add_custom_command(TARGET a3_mdu_planner_receiver POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${A3_POLICY_ONNX_SOURCE}"
     "${CMAKE_BINARY_DIR}/models/hope_pingpong.onnx"
+  COMMAND ${CMAKE_COMMAND} -E remove_directory
+    "${CMAKE_BINARY_DIR}/models/model_41500"
+  COMMAND ${CMAKE_COMMAND} -E make_directory
+    "${CMAKE_BINARY_DIR}/models/model_48000"
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/model_48000_mujoco_deploy/policy/policy_manifest.json"
+    "${CMAKE_BINARY_DIR}/models/model_48000/policy_manifest.json"
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/model_48000_mujoco_deploy/provenance.json"
+    "${CMAKE_BINARY_DIR}/models/model_48000/provenance.json"
+  COMMAND ${CMAKE_COMMAND} -E make_directory
+    "${CMAKE_BINARY_DIR}/models/model_50000"
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/model_50000_mujoco_sim2sim_bundle/policy/policy_manifest.json"
+    "${CMAKE_BINARY_DIR}/models/model_50000/policy_manifest.json"
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/model_50000_mujoco_sim2sim_bundle/provenance.json"
+    "${CMAKE_BINARY_DIR}/models/model_50000/provenance.json"
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/model_50000_mujoco_sim2sim_bundle/config/model_50000_training_contract.yaml"
+    "${CMAKE_BINARY_DIR}/models/model_50000/model_50000_training_contract.yaml"
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/model_50000_mujoco_sim2sim_bundle/config/action_adapter.yaml"
+    "${CMAKE_BINARY_DIR}/models/model_50000/action_adapter.yaml"
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/model_50000_mujoco_sim2sim_bundle/config/hope_pingpong_runtime.yaml"
+    "${CMAKE_BINARY_DIR}/models/model_50000/hope_pingpong_runtime.yaml"
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/model_50000_mujoco_sim2sim_bundle/config/strike_box.yaml"
+    "${CMAKE_BINARY_DIR}/models/model_50000/strike_box.yaml"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "$<TARGET_FILE:a3_onnxruntime>"
     "$<TARGET_FILE_DIR:a3_mdu_planner_receiver>/$<TARGET_FILE_NAME:a3_onnxruntime>"
-  COMMENT "Copying model_21500 and ONNX Runtime")
+  COMMENT "Copying model_48000 actor, current runtime contract, and ONNX Runtime")
 
 # hope_msgs is not installed on the robot image. Keep its generated C/C++
 # libraries beside the receiver so Fast DDS can load the matching type support.
@@ -149,10 +186,22 @@ if(A3_BUILD_TESTS)
   target_link_libraries(a3_planner_input_test PRIVATE a3_pingpong_planner_input)
   add_test(NAME a3_planner_input_test COMMAND a3_planner_input_test)
 
+  add_executable(a3_planner_udp_protocol_test
+    tests/planner_udp_protocol_test.cpp)
+  target_link_libraries(a3_planner_udp_protocol_test PRIVATE
+    a3_pingpong_planner_input)
+  add_test(NAME a3_planner_udp_protocol_test
+    COMMAND a3_planner_udp_protocol_test)
+
   add_executable(a3_swing_lifecycle_test tests/swing_lifecycle_test.cpp)
   target_link_libraries(a3_swing_lifecycle_test PRIVATE
     a3_pingpong_planner_input)
   add_test(NAME a3_swing_lifecycle_test COMMAND a3_swing_lifecycle_test)
+
+  add_executable(a3_lateral_station_test tests/lateral_station_test.cpp)
+  target_link_libraries(a3_lateral_station_test PRIVATE
+    a3_pingpong_planner_input)
+  add_test(NAME a3_lateral_station_test COMMAND a3_lateral_station_test)
 
   add_executable(a3_manual_control_test tests/manual_control_test.cpp)
   target_link_libraries(a3_manual_control_test PRIVATE
@@ -197,6 +246,13 @@ if(A3_BUILD_TESTS)
     "A3_Q_DES_GOLDEN_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/tests/action_q_des_golden.txt\"")
   add_test(NAME a3_pingpong_action_adapter_test
     COMMAND a3_pingpong_action_adapter_test)
+
+  add_executable(a3_upper_body_serve_test
+    tests/upper_body_serve_test.cpp)
+  target_link_libraries(a3_upper_body_serve_test PRIVATE
+    a3_pingpong_action_adapter
+    a3_pingpong_receive_controller)
+  add_test(NAME a3_upper_body_serve_test COMMAND a3_upper_body_serve_test)
 
   add_executable(a3_planner_input_smoke_sender
     tests/planner_input_smoke_sender.cpp)

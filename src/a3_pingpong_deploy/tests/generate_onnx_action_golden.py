@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Generate the model_21500 raw-action fixture with Python ONNX Runtime."""
+"""Generate the model_48000 raw-action fixture with Python ONNX Runtime."""
 
 from pathlib import Path
 
@@ -11,8 +11,7 @@ import onnxruntime as ort
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MODEL = (
     REPO_ROOT
-    / "26.7.25发球部署/pingpang_ustc-srf/a3_deploy"
-    / "a3_pingpong_deploy_bundle/policy/hope_pingpong.onnx"
+    / "model_48000_mujoco_deploy/policy/hope_pingpong.onnx"
 )
 OBSERVATION = Path(__file__).with_name("observation_golden.txt")
 

@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <fstream>
+#include <iostream>
 #include <limits>
 
 #define CHECK(condition)              \
@@ -41,10 +42,18 @@ int main() {
 
   std::ifstream action_fixture(A3_ACTION_GOLDEN_PATH);
   CHECK(action_fixture.good());
+  std::size_t index = 0;
   for (const float value : raw_action) {
     double expected = 0.0;
     CHECK(static_cast<bool>(action_fixture >> expected));
-    CHECK(std::abs(static_cast<double>(value) - expected) <= 2.0e-5);
+    const double error = std::abs(static_cast<double>(value) - expected);
+    if (error > 2.0e-5) {
+      std::cerr << "raw_action mismatch index=" << index
+                << " actual=" << value << " expected=" << expected
+                << " error=" << error << '\n';
+      return __LINE__;
+    }
+    ++index;
   }
   double extra = 0.0;
   CHECK(!(action_fixture >> extra));

@@ -1,0 +1,272 @@
+name: ours_backhand_guarded_1p8s
+swing_side: -1
+swing_name: backhand
+fps: 50.0
+frame_count: 91
+frame_time_s: 0.02
+duration_s: 1.8
+strike_frame: 50
+strike_phase: 0.5555555555555556
+strike_detection: peak_5_frame_smoothed_right_wrist_linear_speed
+ready_interval_frames:
+- 0
+- 6
+follow_through_end_frame: 68
+recover_end_frame: 88
+joint_order:
+- waist_yaw_joint
+- waist_roll_joint
+- waist_pitch_joint
+- head_yaw_joint
+- head_pitch_joint
+- left_shoulder_pitch_joint
+- left_shoulder_roll_joint
+- left_shoulder_yaw_joint
+- left_elbow_joint
+- left_wrist_roll_joint
+- left_wrist_pitch_joint
+- left_wrist_yaw_joint
+- right_shoulder_pitch_joint
+- right_shoulder_roll_joint
+- right_shoulder_yaw_joint
+- right_elbow_joint
+- right_wrist_roll_joint
+- right_wrist_pitch_joint
+- right_wrist_yaw_joint
+- left_hip_pitch_joint
+- left_hip_roll_joint
+- left_hip_yaw_joint
+- left_knee_joint
+- left_ankle_pitch_joint
+- left_ankle_roll_joint
+- right_hip_pitch_joint
+- right_hip_roll_joint
+- right_hip_yaw_joint
+- right_knee_joint
+- right_ankle_pitch_joint
+- right_ankle_roll_joint
+tracked_bodies:
+- pelvis_link
+- left_hip_roll_Link
+- left_knee_Link
+- left_ankle_roll_Link
+- right_hip_roll_Link
+- right_knee_Link
+- right_ankle_roll_Link
+- torso_Link
+- left_shoulder_roll_Link
+- left_elbow_Link
+- left_wrist_yaw_Link
+- right_shoulder_roll_Link
+- right_elbow_Link
+- right_wrist_yaw_Link
+anchor_body: torso_Link
+root_body: pelvis_link
+racket_link: right_wrist_yaw_Link
+racket_body: pingpang_red_Link
+mount_offset_xyz:
+- 0.21
+- 0.032
+- 0.032
+blade_normal_axis: y
+blade_normal_sign: -1
+source:
+  file: /home/fsr/HOPE/hope_training/motions/preprocessed/ours_backhand.csv
+  layout: g1_29
+  fps: 50.0
+  frame_range_1_based_inclusive: null
+  root_quaternion_order: xyzw
+  joint_units: radians
+root_alignment:
+  canonicalized_xy_and_heading: true
+  source_initial_yaw_deg: -85.00550863617639
+  a3_ground_alignment: true
+  extra_root_height_offset_m: 0.0
+  applied_root_z_shift_m: 0.18608110025525093
+full_swing_interval_frames:
+- 7
+- 87
+post_quiet_interval_frames:
+- 88
+- 90
+crop:
+  method: direct_npz_slice_no_resampling
+  source_motion: /home/fsr/HOPE/hope_training/motions/preprocessed/ours_backhand.npz
+  source_frame_range_zero_based_inclusive:
+  - 93
+  - 453
+  source_frame_range_one_based_inclusive:
+  - 94
+  - 454
+  source_strike_frame: 273
+  source_full_swing_interval_frames:
+  - 195
+  - 403
+  velocities_recomputed_after_crop: true
+retiming:
+  method: shared_bounded_motion_aware_inverse_arc_length_with_unit_speed_strike_guard
+  source_motion: ours_backhand_cropped.npz
+  source_sidecar: ours_backhand_cropped.yaml
+  source_npz_sha256: 3acd560d8f618dd73caaf6e69840a696e0a317fbc8194c29b418717939bdc509
+  source_sidecar_sha256: 4ebf787c1a05ddda8d2f7197aedeb244e506c8b8e2cd1c744cfb3a2834e2edb8
+  source_frame_range_zero_based_inclusive:
+  - 72
+  - 320
+  source_knots_frames:
+  - 72
+  - 174
+  - 186
+  - 320
+  output_knots_frames:
+  - 0
+  - 44
+  - 56
+  - 90
+  outer_average_source_frames_per_output_frame:
+  - 2.3181818181818183
+  - 3.9411764705882355
+  timing_reference_artifacts:
+  - motion: ours_forehand_cropped_smooth15_wrist_x.npz
+    npz_sha256: 0f19260da29452baf0510dc980a0270c609f3d14742fdcbd241fad0ba846bc9c
+    sidecar: ours_forehand_cropped_smooth15_wrist_x.yaml
+    sidecar_sha256: 4d32ef18bc4a72cc7a6c3adb5866ca15266fd543cd4c8f55dc5aec20771662a7
+  - motion: ours_backhand_cropped.npz
+    npz_sha256: 3acd560d8f618dd73caaf6e69840a696e0a317fbc8194c29b418717939bdc509
+    sidecar: ours_backhand_cropped.yaml
+    sidecar_sha256: 4ebf787c1a05ddda8d2f7197aedeb244e506c8b8e2cd1c744cfb3a2834e2edb8
+  source_frame_map:
+  - 72.0
+  - 73.0
+  - 80.03921214691499
+  - 86.29408578524497
+  - 91.68890757688476
+  - 96.30516928036278
+  - 100.28669418247674
+  - 103.7720203653977
+  - 106.87331140400298
+  - 109.67259575455955
+  - 112.23973088945522
+  - 114.61961958047067
+  - 116.8532590741577
+  - 118.96721066366806
+  - 120.98426679152577
+  - 122.92381128107503
+  - 124.80224379237276
+  - 126.63342827507621
+  - 128.42914141682667
+  - 130.19950083367567
+  - 131.95324725252377
+  - 133.69879926336964
+  - 135.44445916486222
+  - 137.19681147966836
+  - 138.96215335332087
+  - 140.7471402879613
+  - 142.55503094412225
+  - 144.3885640114888
+  - 146.24860653968963
+  - 148.13357374147597
+  - 150.03900591369145
+  - 151.9575656334224
+  - 153.87909984586034
+  - 155.79231966290692
+  - 157.68609743180167
+  - 159.55070214507012
+  - 161.37880455595737
+  - 163.16589258798334
+  - 164.90874974181844
+  - 166.6057397402008
+  - 168.2614482473979
+  - 169.8771381865294
+  - 171.4540843577038
+  - 173.0
+  - 174.0
+  - 175.0
+  - 176.0
+  - 177.0
+  - 178.0
+  - 179.0
+  - 180.0
+  - 181.0
+  - 182.0
+  - 183.0
+  - 184.0
+  - 185.0
+  - 186.0
+  - 187.0
+  - 188.7247934189085
+  - 190.501194182773
+  - 192.3394502805117
+  - 194.2519742236772
+  - 196.2535794634049
+  - 198.36159020021142
+  - 200.5957419461845
+  - 202.9777636399664
+  - 205.546627502864
+  - 208.324640406982
+  - 211.3495112251707
+  - 214.6474364457687
+  - 218.22489338430117
+  - 222.0534521112399
+  - 226.0630049383939
+  - 230.15796361857116
+  - 234.25731930543787
+  - 238.31883969503684
+  - 242.339033160446
+  - 246.34146541024003
+  - 250.36625751701055
+  - 254.46549840542707
+  - 258.7043124606681
+  - 263.1689592140722
+  - 267.98145063600805
+  - 273.3338814547013
+  - 279.52476676453426
+  - 287.0
+  - 295.0
+  - 303.0
+  - 311.0
+  - 319.0
+  - 320.0
+  guard_time_scale: 1.0
+  source_strike_frame: 180
+  output_strike_frame: 50
+  position_interpolation: linear
+  quaternion_interpolation: shortest_arc_slerp_wxyz
+  velocities_recomputed: true
+  endpoint_validation:
+    max_abs_joint_speed_rad_s: 0.057691335678100586
+    limit_rad_s: 0.5
+    max_racket_center_linear_speed_m_s: 0.025773733083551152
+    limit_m_s: 0.15
+  kinematic_diagnostics:
+    max_abs_joint_speed_rad_s: 6.0942769050598145
+    max_abs_joint_acceleration_rad_s2: 79.35179901123047
+    max_racket_center_linear_speed_m_s: 2.076554077239073
+    max_racket_center_linear_speed_frame: 81
+  strike_max_abs_error:
+    joint_pos: 0.0
+    joint_vel: 0.0
+    body_pos_w: 0.0
+    body_quat_w: 0.0
+    body_lin_vel_w: 0.0
+    body_ang_vel_w: 0.0
+  mapping_diagnostics:
+    cost: max(max_abs_joint_delta_over_velocity_limit, 0.25*l2_normalized_joint_arc,
+      racket_center_arc_over_5mps)
+    gaussian_sigma_source_frames: 12.0
+    segment_mean_cost_addition_factor: 0.4
+    density_floor_output_per_source: 0.125
+    pre_density_scale: 2.1399666766544323
+    post_density_scale: 1.7755572886852162
+    pre_density_range:
+    - 0.1366683806009459
+    - 1.0
+    post_density_range:
+    - 0.125
+    - 1.0
+    max_source_frames_per_output_step: 8.0
+    unit_speed_derivative_buffer_source_frames:
+    - 173
+    - 187
+    unit_speed_derivative_buffer_output_frames:
+    - 43
+    - 57

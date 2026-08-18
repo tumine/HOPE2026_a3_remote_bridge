@@ -1,6 +1,5 @@
 """Pure tests for side-aware, training-distribution-safe strike selection."""
 
-import ast
 from pathlib import Path
 
 import numpy as np
@@ -23,21 +22,21 @@ from hope_planner.task_timing import NewTaskTTSGate, TaskTimingDecision
 
 
 SPLIT = -1.1725
-HYSTERESIS = 0.04
+HYSTERESIS = 0.0
 REGIONS = {
     FOREHAND: StrikeRegion(
         FOREHAND,
         (-0.32, -0.10),
-        (-1.5225, -1.2825),
-        (0.24, 0.45),
-        ((1.75, 3.40), (0.25, 1.10), (0.35, 1.45)),
+        (-1.5250, -1.1725),
+        (0.08, 0.45),
+        ((1.75, 3.40), (0.20, 1.10), (0.35, 1.60)),
     ),
     BACKHAND: StrikeRegion(
         BACKHAND,
         (-0.05, 0.25),
-        (-1.0625, -0.6625),
-        (0.08, 0.34),
-        ((1.05, 3.00), (-0.25, 0.50), (0.45, 1.45)),
+        (-1.1725, 0.0),
+        (0.08, 0.45),
+        ((1.05, 3.10), (-1.10, 0.65), (0.35, 1.50)),
     ),
 }
 
@@ -90,8 +89,8 @@ def test_incoming_plane_crossing_ignores_non_crossing_segments(previous, current
 @pytest.mark.parametrize(
     "side,canonical,expected_floor",
     [
-        (FOREHAND, (-0.21, -1.4025, 0.345), (0.29, -0.64, 1.105)),
-        (BACKHAND, (0.10, -0.8625, 0.21), (0.60, -0.10, 0.97)),
+        (FOREHAND, (-0.21, -1.35, 0.25), (0.29, -0.5875, 1.01)),
+        (BACKHAND, (0.10, -0.85, 0.30), (0.60, -0.0875, 1.06)),
     ],
 )
 def test_in_box_candidates_publish_without_clipping(side, canonical, expected_floor):
@@ -110,9 +109,9 @@ def test_in_box_candidates_publish_without_clipping(side, canonical, expected_fl
     "side,position,axis",
     [
         (FOREHAND, (-0.21, -1.53, 0.345), "y"),
-        (FOREHAND, (-0.21, -1.4025, 0.46), "z"),
-        (BACKHAND, (0.10, -0.65, 0.21), "y"),
-        (BACKHAND, (0.10, -0.8625, 0.35), "z"),
+        (FOREHAND, (-0.21, -1.35, 0.46), "z"),
+        (BACKHAND, (0.10, 0.02, 0.21), "y"),
+        (BACKHAND, (0.10, -0.85, 0.46), "z"),
     ],
 )
 def test_real_prediction_outside_y_or_z_is_rejected_not_clipped(side, position, axis):
@@ -149,7 +148,7 @@ def test_velocity_outside_training_envelope_is_rejected_not_clipped(side, axis):
 
 def test_bounded_live_margins_admit_near_misses_without_changing_targets():
     region = REGIONS[BACKHAND]
-    position = np.array([region.x_hit, -1.10, 0.37])
+    position = np.array([region.x_hit, -1.16, 0.47])
     velocity = np.array([0.95, 0.0, 0.44])
 
     assert not region.contains_command(position, velocity)
@@ -188,8 +187,8 @@ def test_live_margins_still_reject_large_mocap_outliers():
         position_margin=margins,
         velocity_margin=0.15,
     )
-    assert "y=-3.0000 outside [-1.1325, -0.5925]" in reason
-    assert "z=0.8000 outside [0.0400, 0.3800]" in reason
+    assert "y=-3.0000 outside [-1.2425, 0.0700]" in reason
+    assert "z=0.8000 outside [0.0400, 0.4900]" in reason
 
 
 def test_locked_task_never_flips_to_other_valid_side():
@@ -247,46 +246,29 @@ def test_shipped_yaml_is_pinned_to_grounded_training_regions():
         assert configured_velocity == REGIONS[side].velocity
 
 
-def _training_command_keyword(name):
-    repo_root = Path(__file__).parents[4]
-    cfg_path = (
-        repo_root
-        / "hope_training/whole_body_tracking/source/whole_body_tracking/"
-        "whole_body_tracking/tasks/tracking/config/agibot_a3/hope_env_cfg.py"
-    )
-    tree = ast.parse(cfg_path.read_text(encoding="utf-8"))
-    for node in tree.body:
-        if isinstance(node, ast.ClassDef) and node.name == "CommandsCfg":
-            for statement in node.body:
-                if (
-                    isinstance(statement, ast.Assign)
-                    and any(
-                        isinstance(target, ast.Name) and target.id == "racket_target"
-                        for target in statement.targets
-                    )
-                    and isinstance(statement.value, ast.Call)
-                ):
-                    for keyword in statement.value.keywords:
-                        if keyword.arg == name:
-                            return ast.literal_eval(keyword.value)
-    raise AssertionError(f"training command keyword {name!r} not found")
+def test_planner_yaml_matches_model_48000_checkpoint_contract():
+    """Prevent deployment admission ranges drifting to continuation training."""
 
-
-def test_planner_yaml_matches_current_isaac_command_contract():
-    """Prevent planner admission ranges silently drifting from training."""
-
-    training_positions = _training_command_keyword("racket_pos_range_per_clip")
-    training_velocities = _training_command_keyword("racket_vel_range_per_clip")
-    translation = np.array([0.5, 0.7625, 0.76])
-    for index, side in enumerate((FOREHAND, BACKHAND)):
-        region = REGIONS[side]
-        canonical_position = np.asarray(training_positions[index]) - translation[:, None]
-        assert np.allclose(
-            canonical_position,
-            np.asarray((region.x, region.y, region.z)),
-            atol=5.0e-5,
+    repo_root = Path(__file__).parents[6]
+    package = repo_root / "model_48000_mujoco_deploy"
+    strike_box = yaml.safe_load(
+        (package / "config/strike_box.yaml").read_text(encoding="utf-8")
+    )["checkpoint_profile"]
+    contract = yaml.safe_load(
+        (package / "config/model_48000_training_contract.yaml").read_text(
+            encoding="utf-8"
         )
-        assert np.allclose(training_velocities[index], region.velocity)
+    )
+    assert strike_box["base_target_y_range"] == pytest.approx([-0.35, 0.6625])
+    assert strike_box["swing_side_hysteresis_y"] == pytest.approx(0.0)
+    for name, side in (("forehand", FOREHAND), ("backhand", BACKHAND)):
+        region = REGIONS[side]
+        position_box = strike_box["planner_table_frame_box"][name]
+        expected_position = tuple(tuple(position_box[axis]) for axis in "xyz")
+        assert np.allclose(expected_position, (region.x, region.y, region.z))
+        velocity_box = contract["racket_velocity_box"][name]
+        expected_velocity = tuple(tuple(velocity_box[axis]) for axis in "xyz")
+        assert np.allclose(expected_velocity, region.velocity)
 
 
 @pytest.mark.parametrize(

@@ -1,0 +1,2 @@
+[WARN] [1786989293.608385255] [a3_planner_udp_sender]: A3PP UDP sender started: source=192.168.1.11 destination=192.168.1.100:15001 rate=50.0Hz packet=96B estimated_wire=0.065Mbps
+[INFO] [1786989298.601790200] [a3_planner_udp_sender]: udp packets=250 payload_bytes=24000 pose_seq=0 command=none invalid=(pose:0,command:0) send_errors=0

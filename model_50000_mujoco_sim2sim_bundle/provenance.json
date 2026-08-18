@@ -1,0 +1,48 @@
+{
+  "bundle": "model_50000_mujoco_sim2sim_bundle",
+  "created_at": "2026-08-18T23:03:00+08:00",
+  "checkpoint": {
+    "path": "checkpoint/model_50000.pt",
+    "iteration": 50000,
+    "source_run": "2026-08-18_20-57-32_resume_48000_waist_kp150_fast",
+    "sha256": "125a8bcefa10fb75aee63d4e6d3ebb34761ac68473916ab64b8452ecdaa8ac46"
+  },
+  "policy": {
+    "path": "policy/hope_pingpong.onnx",
+    "sha256": "d4c05a15fe079f7f3366813d635e2aace5299df426ded377342e019f67fbb493",
+    "observation_dim": 111,
+    "action_dim": 31,
+    "control_hz": 50.0,
+    "observation_normalization": "none"
+  },
+  "waist_stiffness": {
+    "yaw_kp": 150.0,
+    "pitch_kp": 150.0,
+    "curriculum_duration_control_steps": 20000,
+    "control_steps_since_resume_at_checkpoint": 48000,
+    "complete": true
+  },
+  "critical_files": {
+    "policy_manifest.json": "243c918824ba90c14693d72efb9c179854a4e3bd91804252aac9592b83bfb1b3",
+    "config/hope_pingpong_runtime.yaml": "d741eaaf91bfe665c29bea1fe1b1912ada8f6bdf212313757d670f22fb8a0a1f",
+    "config/action_adapter.yaml": "f2d95f4c18ea95ba15891c0e2214ef71cc4929c7af8be442a971995ba741b350",
+    "config/model_50000_training_contract.yaml": "d513284accd1c8548f34965987bfd256a7b8db494a9a169a15c5494f344bbcb4",
+    "gjc_robot_model/agibot_a3/xml/agibot_a3.xml": "d6cb5421c9e1dc138c892d5677f6c832bb8182ec11ea4944fae85bf3cb0efb37",
+    "hope_training/whole_body_tracking/scripts/mujoco_eval_onnx.py": "555da033f5efac6c0706c5398d1921eae5b9d2cc01f63044026acc71a6878937",
+    "station_target.py": "e3abe24961f0f8860fb65db6f616834d1e485e4a2be1baccb63af7ef53dc9f87",
+    "lifecycle.py": "86e4323f1e66092d6baa3eb035d1003d565f02949efc7b36e2345ccb0d73607f"
+  },
+  "smoke_tests": {
+    "continuous_5_ball": {
+      "contacts": 5,
+      "returns": 1,
+      "success_rate": 0.2
+    },
+    "hard_edge_4_ball": {
+      "contacts": 2,
+      "returns": 2,
+      "success_rate": 0.5
+    },
+    "tts_0.25_no_serve": "passed"
+  }
+}

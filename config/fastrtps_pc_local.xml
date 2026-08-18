@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dds>
+  <profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+    <transport_descriptors>
+      <transport_descriptor>
+        <transport_id>pc_planner_loopback</transport_id>
+        <type>UDPv4</type>
+        <!-- Domain 232 leaves room for at most 62 participant IDs in the
+             standard RTPS UDP port mapping. 32 covers this PC stack safely. -->
+        <maxInitialPeersRange>32</maxInitialPeersRange>
+        <interfaceWhiteList>
+          <address>127.0.0.1</address>
+        </interfaceWhiteList>
+      </transport_descriptor>
+      <transport_descriptor>
+        <transport_id>pc_planner_shm</transport_id>
+        <type>SHM</type>
+        <segment_size>16777216</segment_size>
+        <port_queue_capacity>1024</port_queue_capacity>
+      </transport_descriptor>
+    </transport_descriptors>
+    <participant profile_name="pc_planner_local" is_default_profile="true">
+      <rtps>
+        <useBuiltinTransports>false</useBuiltinTransports>
+        <userTransports>
+          <transport_id>pc_planner_shm</transport_id>
+          <transport_id>pc_planner_loopback</transport_id>
+        </userTransports>
+        <builtin>
+          <initialPeersList>
+            <locator>
+              <udpv4>
+                <address>127.0.0.1</address>
+              </udpv4>
+            </locator>
+          </initialPeersList>
+        </builtin>
+      </rtps>
+    </participant>
+  </profiles>
+</dds>

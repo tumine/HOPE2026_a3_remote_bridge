@@ -88,5 +88,5 @@ def test_shipped_yaml_pins_training_lead_window():
     params = yaml.safe_load(config_path.read_text(encoding="utf-8"))[
         "hope_planner"
     ]["ros__parameters"]
-    assert params["new_task_tts_min_s"] == pytest.approx(0.95)
+    assert params["new_task_tts_min_s"] == pytest.approx(0.25)
     assert params["new_task_tts_max_s"] == pytest.approx(1.0)
