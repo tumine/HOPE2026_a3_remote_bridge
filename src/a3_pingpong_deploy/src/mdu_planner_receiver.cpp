@@ -80,7 +80,7 @@ void Usage(const char* program) {
       << "  --udp-port PORT             (default: 15001)\n"
       << "  --aimrt-cfg PATH            enable the RobotIO backend\n"
       << "  --observation-probe         build 111-D observations; no inference\n"
-      << "  --onnx-model PATH           run model_48000 inference\n"
+      << "  --onnx-model PATH           run model_53000 inference\n"
       << "  --action-dry-run            build full RobotCommand; do not send\n"
       << "  --upper-body-serve-dry-run  V-key upper-body serve; hold lower body\n"
       << "  --manual-control            P/S/M/V/X keyboard control state machine\n"
@@ -380,6 +380,14 @@ struct PolicyLifecycleDiagnostics {
   std::array<double, 2> current_base_xy{};
   std::array<double, 2> station_error_xy{};
   double observed_tts{1.0};
+  // Canonical A3 waist order: yaw, roll, pitch. policy_raw is the
+  // dimensionless ONNX output, q_* is in rad, and tau_* is in N*m.
+  bool waist_policy_valid{false};
+  std::array<double, 3> waist_policy_raw{};
+  std::array<double, 3> waist_q_command{};
+  std::array<double, 3> waist_q_feedback{};
+  std::array<double, 3> waist_tau_theoretical{};
+  std::array<double, 3> waist_tau_feedback{};
 };
 
 class ObservationProbe {
@@ -540,7 +548,7 @@ class ObservationProbe {
     if (!phase_report_initialized_ ||
         lifecycle_.phase() != last_reported_phase_ ||
         lifecycle_.active_task_id() != last_reported_task_id_) {
-      std::clog << "[model_50000 lifecycle] phase="
+      std::clog << "[model_53000 lifecycle] phase="
                 << SwingPhaseName(lifecycle_.phase()) << " active_task=";
       if (lifecycle_.active_task_id()) {
         std::clog << *lifecycle_.active_task_id();
@@ -644,6 +652,30 @@ class ObservationProbe {
       }
       latest_max_tracking_error_.store(max_tracking_error,
                                        std::memory_order_relaxed);
+
+      // Report the exact waist command represented by the decoded policy
+      // action. RobotCommand uses dq_des=0 and tau_ff=0, so this is the
+      // theoretical PD torque before any drive-side saturation or filtering.
+      if (state.q.size() >= 3 && state.dq.size() >= 3 &&
+          state.tau_est.size() >= 3 &&
+          state.q.head(3).array().isFinite().all() &&
+          state.dq.head(3).array().isFinite().all() &&
+          state.tau_est.head(3).array().isFinite().all()) {
+        const auto gains = a3_pingpong::Model50000PolicyGains();
+        std::lock_guard<std::mutex> lock(diagnostics_mutex_);
+        diagnostics_.waist_policy_valid = true;
+        for (std::size_t index = 0; index < 3; ++index) {
+          const auto state_index = static_cast<Eigen::Index>(index);
+          diagnostics_.waist_policy_raw[index] = raw_action[index];
+          diagnostics_.waist_q_command[index] = q_des[index];
+          diagnostics_.waist_q_feedback[index] = state.q[state_index];
+          diagnostics_.waist_tau_theoretical[index] =
+              gains.kp[index] * (q_des[index] - state.q[state_index]) -
+              gains.kd[index] * state.dq[state_index];
+          diagnostics_.waist_tau_feedback[index] =
+              state.tau_est[state_index];
+        }
+      }
 
       if (command_output_enabled_) {
         robot_io::RobotCommand command;
@@ -879,7 +911,7 @@ class PlannerReceiverNode : public rclcpp::Node {
     }
     status_timer_ = create_wall_timer(
         std::chrono::duration<double>(options_.status_period_s),
-        [this]() { LogStatus(); });
+        [this]() { LogWaistStatus(); });
 
     if (options_.input_transport == "udp") {
       RCLCPP_WARN(get_logger(),
@@ -910,6 +942,47 @@ class PlannerReceiverNode : public rclcpp::Node {
   }
 
  private:
+  void LogWaistStatus() {
+    const PolicyLifecycleDiagnostics diagnostics =
+        observation_probe_ ? observation_probe_->lifecycle_diagnostics()
+                           : PolicyLifecycleDiagnostics{};
+    const auto manual_mode =
+        observation_probe_ ? observation_probe_->manual_mode()
+                           : a3_pingpong::ManualMode::kPassive;
+    const auto tick_result =
+        controller_ ? controller_->last_result()
+                    : a3_pingpong::ReceiveTickResult::kNoState;
+    const bool policy_active =
+        diagnostics.waist_policy_valid &&
+        (!options_.manual_control ||
+         manual_mode == a3_pingpong::ManualMode::kMotion) &&
+        (tick_result == a3_pingpong::ReceiveTickResult::kCommandSent ||
+         tick_result == a3_pingpong::ReceiveTickResult::kDryRun);
+
+    RCLCPP_INFO(
+        get_logger(),
+        "waist_diag mode=%s result=%s active=%s order=[yaw,roll,pitch] "
+        "policy_raw=[%.3f,%.3f,%.3f] "
+        "q_exec_rad=[%.3f,%.3f,%.3f] "
+        "q_feedback_rad=[%.3f,%.3f,%.3f] "
+        "tau_theoretical_nm=[%.3f,%.3f,%.3f] "
+        "tau_feedback_nm=[%.3f,%.3f,%.3f]",
+        observation_probe_ ? a3_pingpong::ManualModeName(manual_mode)
+                           : "disabled",
+        TickResultName(tick_result), policy_active ? "yes" : "no",
+        diagnostics.waist_policy_raw[0], diagnostics.waist_policy_raw[1],
+        diagnostics.waist_policy_raw[2], diagnostics.waist_q_command[0],
+        diagnostics.waist_q_command[1], diagnostics.waist_q_command[2],
+        diagnostics.waist_q_feedback[0], diagnostics.waist_q_feedback[1],
+        diagnostics.waist_q_feedback[2],
+        diagnostics.waist_tau_theoretical[0],
+        diagnostics.waist_tau_theoretical[1],
+        diagnostics.waist_tau_theoretical[2],
+        diagnostics.waist_tau_feedback[0],
+        diagnostics.waist_tau_feedback[1],
+        diagnostics.waist_tau_feedback[2]);
+  }
+
   void OnCommand(const hope_msgs::msg::RacketCommand::SharedPtr& message) {
     if (!message) return;
     a3_pingpong::RacketTargetInput input;
@@ -1018,30 +1091,22 @@ class PlannerReceiverNode : public rclcpp::Node {
     const double raw_max_abs = observation_probe_
                                    ? observation_probe_->latest_raw_max_abs()
                                    : 0.0;
-    const auto action_decoded =
-        observation_probe_ ? observation_probe_->action_decode_count() : 0;
-    const auto action_rejected =
-        observation_probe_ ? observation_probe_->action_rejected_count() : 0;
-    const auto dry_run_commands =
-        observation_probe_ ? observation_probe_->dry_run_command_count() : 0;
-    const auto raw_clip_total =
-        observation_probe_ ? observation_probe_->raw_clip_total() : 0;
-    const auto position_clip_total =
-        observation_probe_ ? observation_probe_->position_clip_total() : 0;
-    const auto latest_position_clips = observation_probe_
-                                           ? observation_probe_
-                                                 ->latest_position_clip_count()
-                                           : 0;
-    const double q_des_max_abs = observation_probe_
-                                     ? observation_probe_->latest_q_des_max_abs()
-                                     : 0.0;
-    const double max_tracking_error =
-        observation_probe_
-            ? observation_probe_->latest_max_tracking_error()
-            : 0.0;
     const PolicyLifecycleDiagnostics lifecycle_diagnostics =
         observation_probe_ ? observation_probe_->lifecycle_diagnostics()
                            : PolicyLifecycleDiagnostics{};
+    const auto current_manual_mode =
+        observation_probe_ ? observation_probe_->manual_mode()
+                           : a3_pingpong::ManualMode::kPassive;
+    const auto current_tick_result =
+        controller_ ? controller_->last_result()
+                    : a3_pingpong::ReceiveTickResult::kNoState;
+    const bool waist_policy_active =
+        lifecycle_diagnostics.waist_policy_valid &&
+        (!options_.manual_control ||
+         current_manual_mode == a3_pingpong::ManualMode::kMotion) &&
+        (current_tick_result ==
+             a3_pingpong::ReceiveTickResult::kCommandSent ||
+         current_tick_result == a3_pingpong::ReceiveTickResult::kDryRun);
     const std::uint64_t active_task_id =
         lifecycle_diagnostics.active_task_id.value_or(0);
     const auto serve_phase = observation_probe_
@@ -1092,9 +1157,12 @@ class PlannerReceiverNode : public rclcpp::Node {
                 "base=[%.3f,%.3f],obs101_102=[%.3f,%.3f]) "
                 "inference=(enabled=%s,runs=%llu,rejected=%llu,"
                 "avg_ms=%.3f,max_ms=%.3f,raw_max_abs=%.3f) "
-                "action=(output=%s,decoded=%llu,rejected=%llu,commands=%llu,"
-                "raw_clips=%llu,pos_clips=%llu/latest:%u,q_des_max_abs=%.3f,"
-                "max_error=%.3f,gains=model_50000) "
+                "waist=(order=[yaw,roll,pitch],active=%s,"
+                "policy_raw=[%.3f,%.3f,%.3f],"
+                "q_cmd_rad=[%.3f,%.3f,%.3f],"
+                "q_fb_rad=[%.3f,%.3f,%.3f],"
+                "tau_pd_nm=[%.3f,%.3f,%.3f],"
+                "tau_fb_nm=[%.3f,%.3f,%.3f]) "
                 "udp=(accepted=%llu,rejected=%llu,reordered=%llu) "
                 "body_drive_publishers=%s",
                 options_.input_transport.c_str(),
@@ -1151,18 +1219,22 @@ class PlannerReceiverNode : public rclcpp::Node {
                 static_cast<unsigned long long>(inference_count),
                 static_cast<unsigned long long>(inference_rejected),
                 inference_average_ms, inference_max_ms, raw_max_abs,
-                options_.publish_commands
-                    ? "send"
-                    : ((options_.action_dry_run ||
-                        options_.upper_body_serve_dry_run)
-                           ? "dry_run"
-                           : "disabled"),
-                static_cast<unsigned long long>(action_decoded),
-                static_cast<unsigned long long>(action_rejected),
-                static_cast<unsigned long long>(dry_run_commands),
-                static_cast<unsigned long long>(raw_clip_total),
-                static_cast<unsigned long long>(position_clip_total),
-                latest_position_clips, q_des_max_abs, max_tracking_error,
+                waist_policy_active ? "yes" : "no",
+                lifecycle_diagnostics.waist_policy_raw[0],
+                lifecycle_diagnostics.waist_policy_raw[1],
+                lifecycle_diagnostics.waist_policy_raw[2],
+                lifecycle_diagnostics.waist_q_command[0],
+                lifecycle_diagnostics.waist_q_command[1],
+                lifecycle_diagnostics.waist_q_command[2],
+                lifecycle_diagnostics.waist_q_feedback[0],
+                lifecycle_diagnostics.waist_q_feedback[1],
+                lifecycle_diagnostics.waist_q_feedback[2],
+                lifecycle_diagnostics.waist_tau_theoretical[0],
+                lifecycle_diagnostics.waist_tau_theoretical[1],
+                lifecycle_diagnostics.waist_tau_theoretical[2],
+                lifecycle_diagnostics.waist_tau_feedback[0],
+                lifecycle_diagnostics.waist_tau_feedback[1],
+                lifecycle_diagnostics.waist_tau_feedback[2],
                 static_cast<unsigned long long>(udp_stats.accepted_packets),
                 static_cast<unsigned long long>(udp_stats.rejected_packets),
                 static_cast<unsigned long long>(
@@ -1274,10 +1346,10 @@ int main(int argc, char** argv) {
       RCLCPP_WARN(node->get_logger(),
                   "RobotIO controller enabled; observation=%s "
                   "inference=%s command_output=%s manual=%s upper_serve=%s "
-                  "gains=model_50000/pd_stand_production "
+                  "gains=model_53000/pd_stand_production "
                   "publish_enabled=%s",
                   observation_probe ? "111d" : "disabled",
-                  options.onnx_model.empty() ? "disabled" : "model_48000",
+                  options.onnx_model.empty() ? "disabled" : "model_53000",
                   options.publish_commands
                       ? "send"
                       : ((options.action_dry_run ||

@@ -1,18 +1,17 @@
-# The deployed actor is the frozen model_48000 checkpoint. Observation,
-# lifecycle, station, gains, and safety behavior remain on the current runtime.
+# The deployed actor and runtime contract come from the frozen model_53000 bundle.
 # FORCE avoids a stale previous-model path surviving in an existing CMake cache.
 set(A3_POLICY_ONNX_SOURCE
-  "${CMAKE_SOURCE_DIR}/model_48000_mujoco_deploy/policy/hope_pingpong.onnx"
-  CACHE FILEPATH "Frozen model_48000 ONNX actor" FORCE)
+  "${CMAKE_SOURCE_DIR}/model_53000_deploy_bundle/a3_deploy/model_53000_deploy_bundle/policy/hope_pingpong.onnx"
+  CACHE FILEPATH "Frozen model_53000 ONNX actor" FORCE)
 set(A3_POLICY_ONNX_SHA256
-  "6e68f5ce582ac41856c23ac63c749b94c4ca7b96dbe041bdc0215332fbb6caba")
+  "8f87d7d9fe6f47007b064cb65150e5fe82e98e944ddbfcb5653e6ed14e080057")
 if(NOT EXISTS "${A3_POLICY_ONNX_SOURCE}")
-  message(FATAL_ERROR "model_48000 ONNX not found: ${A3_POLICY_ONNX_SOURCE}")
+  message(FATAL_ERROR "model_53000 ONNX not found: ${A3_POLICY_ONNX_SOURCE}")
 endif()
 file(SHA256 "${A3_POLICY_ONNX_SOURCE}" _a3_policy_onnx_actual_sha256)
 if(NOT _a3_policy_onnx_actual_sha256 STREQUAL A3_POLICY_ONNX_SHA256)
   message(FATAL_ERROR
-    "model_48000 ONNX SHA256 mismatch: ${_a3_policy_onnx_actual_sha256}")
+    "model_53000 ONNX SHA256 mismatch: ${_a3_policy_onnx_actual_sha256}")
 endif()
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
@@ -125,38 +124,36 @@ add_custom_command(TARGET a3_mdu_planner_receiver POST_BUILD
     "${CMAKE_BINARY_DIR}/models/hope_pingpong.onnx"
   COMMAND ${CMAKE_COMMAND} -E remove_directory
     "${CMAKE_BINARY_DIR}/models/model_41500"
-  COMMAND ${CMAKE_COMMAND} -E make_directory
+  COMMAND ${CMAKE_COMMAND} -E remove_directory
     "${CMAKE_BINARY_DIR}/models/model_48000"
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/model_48000_mujoco_deploy/policy/policy_manifest.json"
-    "${CMAKE_BINARY_DIR}/models/model_48000/policy_manifest.json"
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/model_48000_mujoco_deploy/provenance.json"
-    "${CMAKE_BINARY_DIR}/models/model_48000/provenance.json"
-  COMMAND ${CMAKE_COMMAND} -E make_directory
+  COMMAND ${CMAKE_COMMAND} -E remove_directory
     "${CMAKE_BINARY_DIR}/models/model_50000"
+  COMMAND ${CMAKE_COMMAND} -E remove_directory
+    "${CMAKE_BINARY_DIR}/models/model_53000"
+  COMMAND ${CMAKE_COMMAND} -E make_directory
+    "${CMAKE_BINARY_DIR}/models/model_53000/config"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/model_50000_mujoco_sim2sim_bundle/policy/policy_manifest.json"
-    "${CMAKE_BINARY_DIR}/models/model_50000/policy_manifest.json"
+    "${CMAKE_SOURCE_DIR}/model_53000_deploy_bundle/a3_deploy/model_53000_deploy_bundle/policy/policy_manifest.json"
+    "${CMAKE_BINARY_DIR}/models/model_53000/policy_manifest.json"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/model_50000_mujoco_sim2sim_bundle/provenance.json"
-    "${CMAKE_BINARY_DIR}/models/model_50000/provenance.json"
+    "${CMAKE_SOURCE_DIR}/model_53000_deploy_bundle/a3_deploy/model_53000_deploy_bundle/bundle_manifest.json"
+    "${CMAKE_BINARY_DIR}/models/model_53000/bundle_manifest.json"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/model_50000_mujoco_sim2sim_bundle/config/model_50000_training_contract.yaml"
-    "${CMAKE_BINARY_DIR}/models/model_50000/model_50000_training_contract.yaml"
+    "${CMAKE_SOURCE_DIR}/model_53000_deploy_bundle/a3_deploy/model_53000_deploy_bundle/config/action_adapter.yaml"
+    "${CMAKE_BINARY_DIR}/models/model_53000/config/action_adapter.yaml"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/model_50000_mujoco_sim2sim_bundle/config/action_adapter.yaml"
-    "${CMAKE_BINARY_DIR}/models/model_50000/action_adapter.yaml"
+    "${CMAKE_SOURCE_DIR}/model_53000_deploy_bundle/a3_deploy/model_53000_deploy_bundle/config/runtime.yaml"
+    "${CMAKE_BINARY_DIR}/models/model_53000/config/runtime.yaml"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/model_50000_mujoco_sim2sim_bundle/config/hope_pingpong_runtime.yaml"
-    "${CMAKE_BINARY_DIR}/models/model_50000/hope_pingpong_runtime.yaml"
+    "${CMAKE_SOURCE_DIR}/model_53000_deploy_bundle/a3_deploy/model_53000_deploy_bundle/config/strike_box.yaml"
+    "${CMAKE_BINARY_DIR}/models/model_53000/config/strike_box.yaml"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/model_50000_mujoco_sim2sim_bundle/config/strike_box.yaml"
-    "${CMAKE_BINARY_DIR}/models/model_50000/strike_box.yaml"
+    "${CMAKE_SOURCE_DIR}/model_53000_deploy_bundle/a3_deploy/model_53000_deploy_bundle/config/ball_physics.yaml"
+    "${CMAKE_BINARY_DIR}/models/model_53000/config/ball_physics.yaml"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "$<TARGET_FILE:a3_onnxruntime>"
     "$<TARGET_FILE_DIR:a3_mdu_planner_receiver>/$<TARGET_FILE_NAME:a3_onnxruntime>"
-  COMMENT "Copying model_48000 actor, current runtime contract, and ONNX Runtime")
+  COMMENT "Copying model_53000 actor, runtime contract, and ONNX Runtime")
 
 # hope_msgs is not installed on the robot image. Keep its generated C/C++
 # libraries beside the receiver so Fast DDS can load the matching type support.

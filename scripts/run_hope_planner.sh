@@ -6,13 +6,17 @@ ROS_SETUP="${A3_PC_ROS_SETUP:-/opt/ros/humble/setup.bash}"
 HOPE_SETUP="${A3_HOPE_ROS_SETUP:-${ROOT_DIR}/.hope_ros2/install/setup.bash}"
 TRAINING_SOURCE="${A3_TRAINING_SOURCE:-${ROOT_DIR}/26.7.25发球部署/pingpang_ustc-srf}"
 PLANNER_CONFIG="${A3_HOPE_PLANNER_CONFIG:-${TRAINING_SOURCE}/hope_ws/src/hope_planner/config/hope_planner.yaml}"
+MODEL_53000_BUNDLE="${A3_MODEL_53000_BUNDLE:-${ROOT_DIR}/model_53000_deploy_bundle/a3_deploy/model_53000_deploy_bundle}"
+BALL_PHYSICS_CONFIG="${HOPE_BALL_PHYSICS_CONFIG:-${MODEL_53000_BUNDLE}/config/ball_physics.yaml}"
 # Keep the explicitly requested live commissioning window. MuJoCo starts new
 # tasks near 1.0 s; values below that are a documented real-planner exception.
-LIVE_TTS_MIN_S="${A3_NEW_TASK_TTS_MIN_S:-0.25}"
+LIVE_TTS_MIN_S="${A3_NEW_TASK_TTS_MIN_S:-0.20}"
 LIVE_TTS_MAX_S="${A3_NEW_TASK_TTS_MAX_S:-1.00}"
-LIVE_STRIKE_Y_MARGIN_M="${A3_STRIKE_Y_MARGIN_M:-0.0}"
-LIVE_STRIKE_Z_MARGIN_M="${A3_STRIKE_Z_MARGIN_M:-0.0}"
-LIVE_RACKET_VELOCITY_MARGIN_MPS="${A3_RACKET_VELOCITY_MARGIN_MPS:-0.0}"
+# Bounded real-robot admission margins. These admit the near-edge misses seen
+# in the 2026-08-19 ball logs while still rejecting large trajectory outliers.
+LIVE_STRIKE_Y_MARGIN_M="${A3_STRIKE_Y_MARGIN_M:-0.08}"
+LIVE_STRIKE_Z_MARGIN_M="${A3_STRIKE_Z_MARGIN_M:-0.08}"
+LIVE_RACKET_VELOCITY_MARGIN_MPS="${A3_RACKET_VELOCITY_MARGIN_MPS:-0.15}"
 
 for setup in "${ROS_SETUP}" "${HOPE_SETUP}"; do
   if [[ ! -r "${setup}" ]]; then
@@ -58,4 +62,4 @@ exec "${PLANNER_EXECUTABLE}" --ros-args \
   -p strike_y_margin_m:="${LIVE_STRIKE_Y_MARGIN_M}" \
   -p strike_z_margin_m:="${LIVE_STRIKE_Z_MARGIN_M}" \
   -p racket_velocity_margin_mps:="${LIVE_RACKET_VELOCITY_MARGIN_MPS}" \
-  -p ball_physics_path:="${TRAINING_SOURCE}/configs/ball_physics.yaml"
+  -p ball_physics_path:="${BALL_PHYSICS_CONFIG}"

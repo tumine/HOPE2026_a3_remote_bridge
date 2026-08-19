@@ -1,4 +1,4 @@
-# PC-side commissioning limits for model_21500 + PPMocap live deployment.
+# PC-side commissioning limits for model_53000 + PPMocap live deployment.
 
 control_hz: 50.0
 policy_blend: 1.0

@@ -96,7 +96,7 @@ class HOPEPlannerNode(Node):
         self.declare_parameter("racket_velocity_margin_mps", 0.0)
         # A new policy task must begin at the same 1.0 s lead used in training.
         # Once active, revisions remain admissible below this startup window.
-        self.declare_parameter("new_task_tts_min_s", 0.25)
+        self.declare_parameter("new_task_tts_min_s", 0.20)
         self.declare_parameter("new_task_tts_max_s", 1.0)
         # Table's +y edge in the play frame (table occupies y in [y_max - width, y_max]).
         self.declare_parameter("table_y_max", 0.0)

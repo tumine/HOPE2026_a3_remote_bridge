@@ -1,0 +1,25 @@
+{
+  "bundle": "model_53000_deploy_bundle",
+  "created": "2026-08-19",
+  "policy": {
+    "checkpoint_iteration": 53000,
+    "checkpoint_sha256": "d05cf7bb068c797bae323eaf4dee067a911216aa8b5a818251171b5ba237dc20",
+    "onnx": "policy/hope_pingpong.onnx",
+    "onnx_sha256": "8f87d7d9fe6f47007b064cb65150e5fe82e98e944ddbfcb5653e6ed14e080057",
+    "manifest": "policy/policy_manifest.json",
+    "manifest_sha256": "24b08c5da106e0379e9741e2f094667973715576b88b4120dff6d96aba09b53d"
+  },
+  "source_configs": {
+    "agent_sha256": "3c4797ae72b7c6286fe4533dead091e8e709032285530282e012fc7fe5898300",
+    "env_sha256": "90cf77104a739ae539bc18af37ebcb7152b7c048e976926c2c7890fa8a302edb"
+  },
+  "physics": {
+    "table_restitution": 0.9448,
+    "table_tangential_damping": 0.2079,
+    "ball_physics_sha256": "093d0216008e655bdf4d46eb8b07c3beb3d2ce9c41f8fdc4134463cd6be3ec3e"
+  },
+  "simulation_model": {
+    "path": "robot_model/agibot_a3/xml/agibot_a3.xml",
+    "xml_sha256": "d6cb5421c9e1dc138c892d5677f6c832bb8182ec11ea4944fae85bf3cb0efb37"
+  }
+}

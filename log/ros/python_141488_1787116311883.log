@@ -1,0 +1,10 @@
+[WARN] [1787116311.927330255] [a3_planner_udp_sender]: A3PP UDP sender started: source=192.168.1.11 destination=192.168.1.100:15001 rate=50.0Hz packet=96B estimated_wire=0.065Mbps
+[INFO] [1787116316.920622374] [a3_planner_udp_sender]: udp packets=250 payload_bytes=24000 pose_seq=1791 command=none invalid=(pose:0,command:0) send_errors=0
+[INFO] [1787116321.920417030] [a3_planner_udp_sender]: udp packets=500 payload_bytes=48000 pose_seq=3592 command=none invalid=(pose:0,command:0) send_errors=0
+[INFO] [1787116326.920350941] [a3_planner_udp_sender]: udp packets=750 payload_bytes=72000 pose_seq=5392 command=none invalid=(pose:0,command:0) send_errors=0
+[INFO] [1787116331.920522320] [a3_planner_udp_sender]: udp packets=1000 payload_bytes=96000 pose_seq=7191 command=none invalid=(pose:0,command:0) send_errors=0
+[INFO] [1787116336.920393873] [a3_planner_udp_sender]: udp packets=1250 payload_bytes=120000 pose_seq=8992 command=none invalid=(pose:0,command:0) send_errors=0
+[INFO] [1787116341.920501686] [a3_planner_udp_sender]: udp packets=1500 payload_bytes=144000 pose_seq=10791 command=none invalid=(pose:0,command:0) send_errors=0
+[INFO] [1787116346.920545473] [a3_planner_udp_sender]: udp packets=1750 payload_bytes=168000 pose_seq=12591 command=none invalid=(pose:0,command:0) send_errors=0
+[INFO] [1787116351.920605701] [a3_planner_udp_sender]: udp packets=2000 payload_bytes=192000 pose_seq=14391 command=none invalid=(pose:0,command:0) send_errors=0
+[INFO] [1787116356.920506573] [a3_planner_udp_sender]: udp packets=2250 payload_bytes=216000 pose_seq=16191 command=none invalid=(pose:0,command:0) send_errors=0

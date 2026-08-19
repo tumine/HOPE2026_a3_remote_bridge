@@ -22,6 +22,7 @@
 
 int main() {
   const auto adapter_config = a3_pingpong::Model50000ActionAdapterConfig();
+  CHECK(adapter_config.upper[2] == 0.418879);
   for (std::size_t index = 0; index < a3_pingpong::kA3LegDof; ++index) {
     const auto flat = static_cast<Eigen::Index>(
         a3_pingpong::kA3LegCommandStart + index);
@@ -74,8 +75,10 @@ int main() {
 
   CHECK(adapter.BuildPolicyCommand(
       raw_action, applied, command, &diagnostics, &reason));
-  CHECK(command.kp[0] == 150.0);
+  CHECK(command.kp[0] == 120.0);
   CHECK(command.kd[0] == 3.0);
+  CHECK(command.kp[2] == 100.0);
+  CHECK(command.kd[2] == 2.0);
   CHECK(command.kp[3] == 40.0);
   CHECK(command.kd[4] == 2.0);
   CHECK(command.kp[20] == 120.0);

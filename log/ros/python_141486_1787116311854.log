@@ -1,0 +1,61 @@
+[WARN] [1787116311.899824271] [a3_receive_input_gateway]: receive gateway started: mocap=/ppmocap/frame planner_input=/a3_mocap/ball_poses base_pose=/a3_mocap/pelvis_pose; inference=off joint_commands=off
+[INFO] [1787116311.900843045] [a3_receive_input_gateway]: ball tracking: lost
+[WARN] [1787116311.951196669] [a3_receive_input_gateway]: PPMocap calibrated: origin=near-left tabletop, +X=robot-to-opponent, +Y=robot-left, +Z=up
+[INFO] [1787116312.892058820] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=1.9ms frames=360 ball=0 base_poses=341 invalid=0 station_ok=yes
+[INFO] [1787116313.892444627] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.2ms frames=721 ball=0 base_poses=702 invalid=0 station_ok=yes
+[INFO] [1787116314.892066149] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=1.9ms frames=1080 ball=0 base_poses=1061 invalid=0 station_ok=yes
+[INFO] [1787116315.892380981] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.4ms frames=1441 ball=0 base_poses=1422 invalid=0 station_ok=yes
+[INFO] [1787116316.892148443] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.2ms frames=1801 ball=0 base_poses=1782 invalid=0 station_ok=yes
+[INFO] [1787116317.892054236] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.1ms frames=2161 ball=0 base_poses=2142 invalid=0 station_ok=yes
+[INFO] [1787116318.892281811] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.2ms frames=2521 ball=0 base_poses=2502 invalid=0 station_ok=yes
+[INFO] [1787116319.892760445] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=1.0ms frames=2881 ball=0 base_poses=2862 invalid=0 station_ok=yes
+[INFO] [1787116320.892032289] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.3ms frames=3241 ball=0 base_poses=3222 invalid=0 station_ok=yes
+[INFO] [1787116321.892030674] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.3ms frames=3601 ball=0 base_poses=3582 invalid=0 station_ok=yes
+[INFO] [1787116322.509950319] [a3_receive_input_gateway]: ball tracking: visible
+[INFO] [1787116322.619805127] [a3_receive_input_gateway]: ball tracking: lost
+[INFO] [1787116322.861882630] [a3_receive_input_gateway]: ball tracking: visible
+[INFO] [1787116322.892119407] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.4ms frames=3961 ball=52 base_poses=3942 invalid=0 station_ok=yes
+[INFO] [1787116322.977842036] [a3_receive_input_gateway]: ball tracking: lost
+[INFO] [1787116323.892063176] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.2ms frames=4321 ball=82 base_poses=4302 invalid=0 station_ok=yes
+[INFO] [1787116324.892021923] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.3ms frames=4681 ball=82 base_poses=4662 invalid=0 station_ok=yes
+[INFO] [1787116325.892847230] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.5ms frames=5041 ball=82 base_poses=5022 invalid=0 station_ok=yes
+[INFO] [1787116326.892018679] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.3ms frames=5401 ball=82 base_poses=5382 invalid=0 station_ok=yes
+[INFO] [1787116327.892041112] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.6ms frames=5761 ball=82 base_poses=5742 invalid=0 station_ok=yes
+[INFO] [1787116328.892042211] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.6ms frames=6121 ball=82 base_poses=6102 invalid=0 station_ok=yes
+[INFO] [1787116329.892240825] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.3ms frames=6481 ball=82 base_poses=6462 invalid=0 station_ok=yes
+[INFO] [1787116330.892032722] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.7ms frames=6841 ball=82 base_poses=6822 invalid=0 station_ok=yes
+[INFO] [1787116331.892016681] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.5ms frames=7201 ball=82 base_poses=7182 invalid=0 station_ok=yes
+[INFO] [1787116332.892023033] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.6ms frames=7561 ball=82 base_poses=7542 invalid=0 station_ok=yes
+[INFO] [1787116333.892018881] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.6ms frames=7921 ball=82 base_poses=7902 invalid=0 station_ok=yes
+[INFO] [1787116334.892054028] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.8ms frames=8281 ball=82 base_poses=8262 invalid=0 station_ok=yes
+[INFO] [1787116335.892024142] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.7ms frames=8641 ball=82 base_poses=8622 invalid=0 station_ok=yes
+[INFO] [1787116336.892091428] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=2.9ms frames=9000 ball=82 base_poses=8981 invalid=0 station_ok=yes
+[INFO] [1787116337.892071936] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.0ms frames=9360 ball=82 base_poses=9341 invalid=0 station_ok=yes
+[INFO] [1787116338.892089651] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.1ms frames=9720 ball=82 base_poses=9701 invalid=0 station_ok=yes
+[INFO] [1787116339.892193289] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.1ms frames=10080 ball=82 base_poses=10061 invalid=0 station_ok=yes
+[INFO] [1787116340.892239813] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.3ms frames=10440 ball=82 base_poses=10421 invalid=0 station_ok=yes
+[INFO] [1787116341.892263567] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=2.6ms frames=10800 ball=82 base_poses=10781 invalid=0 station_ok=yes
+[INFO] [1787116342.892238132] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.2ms frames=11160 ball=82 base_poses=11141 invalid=0 station_ok=yes
+[INFO] [1787116343.892127385] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.3ms frames=11520 ball=82 base_poses=11501 invalid=0 station_ok=yes
+[INFO] [1787116344.892060949] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.3ms frames=11880 ball=82 base_poses=11861 invalid=0 station_ok=yes
+[INFO] [1787116345.892117379] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.3ms frames=12240 ball=82 base_poses=12221 invalid=0 station_ok=yes
+[INFO] [1787116346.892101540] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.4ms frames=12600 ball=82 base_poses=12581 invalid=0 station_ok=yes
+[INFO] [1787116347.892076637] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=1.4ms frames=12960 ball=82 base_poses=12941 invalid=0 station_ok=yes
+[INFO] [1787116348.892095341] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.4ms frames=13320 ball=82 base_poses=13301 invalid=0 station_ok=yes
+[INFO] [1787116349.534890002] [a3_receive_input_gateway]: ball tracking: visible
+[INFO] [1787116349.892296277] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.1ms frames=13680 ball=211 base_poses=13661 invalid=0 station_ok=yes
+[INFO] [1787116350.079314902] [a3_receive_input_gateway]: ball tracking: lost
+[INFO] [1787116350.598828971] [a3_receive_input_gateway]: ball tracking: visible
+[INFO] [1787116350.892085762] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.6ms frames=14040 ball=384 base_poses=14021 invalid=0 station_ok=yes
+[INFO] [1787116351.892235107] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.3ms frames=14400 ball=744 base_poses=14381 invalid=0 station_ok=yes
+[INFO] [1787116352.892052871] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.6ms frames=14760 ball=1104 base_poses=14741 invalid=0 station_ok=yes
+[INFO] [1787116353.892058280] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.3ms frames=15120 ball=1464 base_poses=15101 invalid=0 station_ok=yes
+[INFO] [1787116353.942559479] [a3_receive_input_gateway]: ball tracking: lost
+[INFO] [1787116354.716389437] [a3_receive_input_gateway]: ball tracking: visible
+[INFO] [1787116354.892209630] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.7ms frames=15480 ball=1545 base_poses=15461 invalid=0 station_ok=yes
+[INFO] [1787116355.552339625] [a3_receive_input_gateway]: ball tracking: lost
+[INFO] [1787116355.892046066] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.8ms frames=15840 ball=1783 base_poses=15821 invalid=0 station_ok=yes
+[INFO] [1787116356.892102514] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=1.8ms frames=16200 ball=1783 base_poses=16181 invalid=0 station_ok=yes
+[INFO] [1787116357.892186305] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=1.1ms frames=16560 ball=1783 base_poses=16541 invalid=0 station_ok=yes
+[INFO] [1787116358.892487762] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=2.0ms frames=16920 ball=1783 base_poses=16901 invalid=0 station_ok=yes
+[INFO] [1787116359.892567721] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=330.0ms frames=17162 ball=1783 base_poses=17143 invalid=0 station_ok=yes

@@ -1,0 +1,52 @@
+# Strike/station contract used by model_53000. Coordinates are relative to the
+# nominal startup station except z, which is world height above the floor.
+coordinate_frame:
+  x: forward_from_startup_station_m
+  y: left_from_startup_station_m
+  z: world_height_above_floor_m
+
+table:
+  length_m: 2.74
+  width_m: 1.525
+  surface_height_m: 0.76
+  near_edge_from_station_x_m: 0.50
+
+swing_selection:
+  # Closed hand-off: no hysteresis gap remains at the split.
+  split_y_m: -0.41
+  hysteresis_y_m: 0.0
+  forehand_when: "strike_y <= -0.41"
+  backhand_when: "strike_y >= -0.41"
+
+strike_boxes:
+  forehand:
+    x_m: [0.18, 0.40]
+    y_m: [-0.76, -0.52]
+    z_m: [0.84, 1.21]
+    incoming_velocity_mps:
+      x: [-2.40, -0.90]
+      y: [-0.35, 0.35]
+      z: [-2.20, 1.00]
+    target_racket_velocity_mps:
+      x: [1.75, 3.40]
+      y: [0.20, 1.10]
+      z: [0.35, 1.60]
+  backhand:
+    x_m: [0.45, 0.75]
+    y_m: [-0.30, 0.10]
+    z_m: [0.84, 1.21]
+    incoming_velocity_mps:
+      x: [-2.30, -0.80]
+      y: [-0.35, 0.35]
+      z: [-2.80, 1.00]
+    target_racket_velocity_mps:
+      x: [1.05, 3.10]
+      y: [-1.10, 0.65]
+      z: [0.35, 1.50]
+
+lateral_station:
+  base_target_y_range_m: [-0.35, 0.6625]
+  forehand_reach_y_m: -0.64
+  backhand_reach_y_m: -0.10
+  formula: "base_target_y = clamp(strike_y - side_reach_y, range)"
+  base_target_x: "startup station x (fixed)"

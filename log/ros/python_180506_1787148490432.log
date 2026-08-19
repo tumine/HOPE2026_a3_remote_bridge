@@ -1,0 +1,2 @@
+[WARN] [1787148490.477587102] [a3_receive_input_gateway]: receive gateway started: mocap=/ppmocap/frame planner_input=/a3_mocap/ball_poses base_pose=/a3_mocap/pelvis_pose; inference=off joint_commands=off
+[INFO] [1787148491.470688572] [a3_receive_input_gateway]: gateway calibrated=no frame_age=-1.0ms frames=0 ball=0 base_poses=0 invalid=0 station_ok=no

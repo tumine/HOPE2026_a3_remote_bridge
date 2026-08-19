@@ -62,9 +62,10 @@ PingpongCommandGains Model50000PolicyGains() {
   PingpongCommandGains gains;
   // Real-robot deployment gains in canonical A3 SDK order:
   // waist, head, left arm, right arm, left leg, right leg.
-  // model_50000 completed the waist yaw/pitch Kp curriculum at 150/150.
+  // model_53000 simulation gains with explicitly requested real-robot waist
+  // stiffness overrides (yaw 85 -> 120, pitch 50 -> 100). Other joints stay exact.
   gains.kp = {
-      150.0, 50.0, 150.0, 40.0, 40.0,
+      120.0, 50.0, 100.0, 40.0, 40.0,
       40.0, 40.0, 30.0, 30.0, 30.0, 20.0, 20.0,
       40.0, 40.0, 30.0, 30.0, 30.0, 20.0, 20.0,
       80.0, 120.0, 80.0, 250.0, 50.0, 50.0,
@@ -257,7 +258,7 @@ bool PingpongActionAdapter::BuildPolicyCommand(
   if (!BuildPositionCommand(q_des, Model50000PolicyGains(), command, reason)) {
     return false;
   }
-  SetReason(reason, "valid model_50000 policy command");
+  SetReason(reason, "valid model_53000 policy command");
   return true;
 }
 

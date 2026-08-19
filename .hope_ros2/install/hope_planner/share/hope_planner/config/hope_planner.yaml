@@ -74,7 +74,7 @@ hope_planner:
     # training lead of 1.0 s. Earlier candidates wait for later samples; a ball
     # already below the minimum is dropped without consuming task_id. Revisions
     # of an active task remain allowed below the window through contact.
-    new_task_tts_min_s: 0.25
+    new_task_tts_min_s: 0.20
     new_task_tts_max_s: 1.0
     max_predict_time: 2.0          # forward prediction horizon (s)
 

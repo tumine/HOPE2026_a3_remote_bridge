@@ -1,0 +1,946 @@
+{
+  "action_saturation_fraction": 0.455188679245283,
+  "attempts": 12,
+  "clipped_action_ticks": 0,
+  "command_profile": "current_training_planner",
+  "contact_rate": 1.0,
+  "falls": 0,
+  "legal_incoming_bounce_rate": 1.0,
+  "legal_incoming_bounces": 12,
+  "max_abs_adapter_action": 7.443367958068848,
+  "max_abs_raw_action": 7.443367958068848,
+  "max_station_drift_m": 0.27710923815554445,
+  "min_pelvis_height_m": 1.0041815048044962,
+  "mujoco_contacts": 12,
+  "net_clear_rate": 1.0,
+  "net_clears": 12,
+  "nonfinite_actions": 0,
+  "nonfinite_observations": 0,
+  "opponent_bounces": 12,
+  "policy_lead_time_s": 1.0,
+  "policy_ticks": 1272,
+  "profile_metadata": {
+    "artifacts": {
+      "model_xml": {
+        "path": "/home/fsr/HOPE/gjc_robot_model/agibot_a3/xml/agibot_a3.xml",
+        "sha256": "d6cb5421c9e1dc138c892d5677f6c832bb8182ec11ea4944fae85bf3cb0efb37"
+      },
+      "onnx": {
+        "path": "/home/fsr/HOPE/hope_training/whole_body_tracking/logs/rsl_rl/hope_pingpong/2026-08-19_14-04-21_resume_48000_upright_pitch_push1/exported/model_53000/hope_pingpong.onnx",
+        "sha256": "8f87d7d9fe6f47007b064cb65150e5fe82e98e944ddbfcb5653e6ed14e080057"
+      },
+      "runtime_config": {
+        "path": "/home/fsr/HOPE/a3_deploy/a3_deploy_example/config/hope_pingpong_runtime.yaml",
+        "sha256": "19466c56757b1eb2272b9272512551dcc23082dfb807bdb88a22a8cc7ee3214d"
+      }
+    },
+    "name": "current_training_planner"
+  },
+  "proximity_contacts": 0,
+  "saturated_action_ticks": 579,
+  "success_rate": 1.0,
+  "tanh_saturation_fraction": 0.0,
+  "training_aligned_preroll": true,
+  "trials": [
+    {
+      "actual_incoming_bounces_table_xy": [
+        [
+          0.5512110439196354,
+          -1.481426749831607
+        ]
+      ],
+      "contact": "mujoco",
+      "contact_sample": {
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.015510989738762108,
+        "racket_to_target_pre_transition_m": 0.059310415741151805,
+        "racket_velocity_error_post_transition_mps": 0.13705066934710255,
+        "racket_velocity_error_pre_transition_mps": 0.1517456897273416
+      },
+      "fell": false,
+      "first_bounce_table_xy": [
+        2.06289902028158,
+        -0.42183662729435595
+      ],
+      "flight_time_s": 0.92,
+      "hold_seconds": 0.5,
+      "incoming_net_clear": true,
+      "initial_base_offset_xy": [
+        0.008217701239287258,
+        -0.09208531449445188
+      ],
+      "legal_incoming": true,
+      "min_ball_racket_distance_m": 0.038802619165482645,
+      "net_clear": true,
+      "planned_incoming_bounce": {
+        "incoming_net_crossing_z": 0.5533618647975035,
+        "incoming_velocity": [
+          -2.565147414461342,
+          -0.13676378341584788,
+          -3.099822586639603
+        ],
+        "outgoing_velocity": [
+          -2.0318532669948293,
+          -0.10833059284369312,
+          2.928712379857097
+        ],
+        "position_table": [
+          0.5527805726916961,
+          -1.4813430686007203,
+          0.02
+        ],
+        "time_s": 0.5692735852172772
+      },
+      "side": "forehand",
+      "strike_sample": {
+        "abs_time_to_strike_s": 0.0,
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "ball_to_target_post_transition_m": 0.03385803486163937,
+        "ball_to_target_pre_transition_m": 0.037468684804161205,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.015510989738762108,
+        "racket_to_target_pre_transition_m": 0.059310415741151805,
+        "racket_velocity_error_post_transition_mps": 0.13705066934710255,
+        "racket_velocity_error_pre_transition_mps": 0.1517456897273416
+      },
+      "success": true,
+      "target_position_w": [
+        0.3391816704787239,
+        -0.7543103982894295,
+        1.1650616191360217
+      ],
+      "target_velocity_w": [
+        2.4129341941391558,
+        0.732890908124403,
+        0.8147128787611817
+      ],
+      "trial": 0
+    },
+    {
+      "actual_incoming_bounces_table_xy": [
+        [
+          0.916663573651546,
+          -0.7380108032529643
+        ]
+      ],
+      "contact": "mujoco",
+      "contact_sample": {
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.059233129706013174,
+        "racket_to_target_pre_transition_m": 0.08434984424166214,
+        "racket_velocity_error_post_transition_mps": 0.4767722843907338,
+        "racket_velocity_error_pre_transition_mps": 0.4850329274670242
+      },
+      "fell": false,
+      "first_bounce_table_xy": [
+        1.7454021954901517,
+        -0.5916128299687047
+      ],
+      "flight_time_s": 0.98,
+      "hold_seconds": 0.34,
+      "incoming_net_clear": true,
+      "initial_base_offset_xy": [
+        0.008217701239287258,
+        -0.09208531449445188
+      ],
+      "legal_incoming": true,
+      "min_ball_racket_distance_m": 0.06637565537243117,
+      "net_clear": true,
+      "planned_incoming_bounce": {
+        "incoming_net_crossing_z": 0.432183165895978,
+        "incoming_velocity": [
+          -1.934562755029948,
+          0.15728308091722132,
+          -2.845297017884743
+        ],
+        "outgoing_velocity": [
+          -1.5323671582592218,
+          0.12458392839453102,
+          2.688236622497505
+        ],
+        "position_table": [
+          0.9178537832454028,
+          -0.7381075692179728,
+          0.02
+        ],
+        "time_s": 0.49629782262923
+      },
+      "side": "backhand",
+      "strike_sample": {
+        "abs_time_to_strike_s": 0.0,
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "ball_to_target_post_transition_m": 0.012269705236452072,
+        "ball_to_target_pre_transition_m": 0.04678962016739872,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.059233129706013174,
+        "racket_to_target_pre_transition_m": 0.08434984424166214,
+        "racket_velocity_error_post_transition_mps": 0.4767722843907338,
+        "racket_velocity_error_pre_transition_mps": 0.4850329274670242
+      },
+      "success": true,
+      "target_position_w": [
+        0.6800206488099636,
+        0.08135328681074769,
+        0.8938149776958126
+      ],
+      "target_velocity_w": [
+        1.6001166832350944,
+        -0.07875643397774253,
+        1.1051512678005206
+      ],
+      "trial": 1
+    },
+    {
+      "actual_incoming_bounces_table_xy": [
+        [
+          0.5133650895233295,
+          -1.5061970873687929
+        ]
+      ],
+      "contact": "mujoco",
+      "contact_sample": {
+        "action_observation_time_to_strike_s": 0.03999999999999938,
+        "post_transition_time_to_strike_s": 0.019999999999999383,
+        "racket_to_target_post_transition_m": 0.04456045818148945,
+        "racket_to_target_pre_transition_m": 0.0926456261000559,
+        "racket_velocity_error_post_transition_mps": 0.21431281392308618,
+        "racket_velocity_error_pre_transition_mps": 0.19328851557010227
+      },
+      "fell": false,
+      "first_bounce_table_xy": [
+        2.0681172632070064,
+        -0.5297758185319873
+      ],
+      "flight_time_s": 0.9400000000000001,
+      "hold_seconds": 0.36,
+      "incoming_net_clear": true,
+      "initial_base_offset_xy": [
+        0.008217701239287258,
+        -0.09208531449445188
+      ],
+      "legal_incoming": true,
+      "min_ball_racket_distance_m": 0.05221375690862942,
+      "net_clear": true,
+      "planned_incoming_bounce": {
+        "incoming_net_crossing_z": 0.5538523030753869,
+        "incoming_velocity": [
+          -2.349434689499695,
+          -0.03230159459873276,
+          -3.0854086728395256
+        ],
+        "outgoing_velocity": [
+          -1.8609872175527087,
+          -0.02558609308165622,
+          2.9150941140987836
+        ],
+        "position_table": [
+          0.5155670878011434,
+          -1.5061668128282844,
+          0.02
+        ],
+        "time_s": 0.5829564300922985
+      },
+      "side": "forehand",
+      "strike_sample": {
+        "abs_time_to_strike_s": 0.0,
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "ball_to_target_post_transition_m": 0.0629563154083247,
+        "ball_to_target_pre_transition_m": 0.03515769044829703,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.031881827215200054,
+        "racket_to_target_pre_transition_m": 0.04456045818148945,
+        "racket_velocity_error_post_transition_mps": 0.22419971866246838,
+        "racket_velocity_error_pre_transition_mps": 0.21431281392308618
+      },
+      "success": true,
+      "target_position_w": [
+        0.3461406284795821,
+        -0.7519390208995518,
+        1.1577190672155264
+      ],
+      "target_velocity_w": [
+        2.443777495439102,
+        0.7359666146820577,
+        0.85835520500255
+      ],
+      "trial": 2
+    },
+    {
+      "actual_incoming_bounces_table_xy": [
+        [
+          0.9380055893042663,
+          -0.7093468588391257
+        ]
+      ],
+      "contact": "mujoco",
+      "contact_sample": {
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.05551635824700404,
+        "racket_to_target_pre_transition_m": 0.08578810711386453,
+        "racket_velocity_error_post_transition_mps": 0.3517223038444837,
+        "racket_velocity_error_pre_transition_mps": 0.3600175332315836
+      },
+      "fell": false,
+      "first_bounce_table_xy": [
+        1.8183311227883092,
+        -0.5769782746817611
+      ],
+      "flight_time_s": 0.92,
+      "hold_seconds": 0.16,
+      "incoming_net_clear": true,
+      "initial_base_offset_xy": [
+        0.008217701239287258,
+        -0.09208531449445188
+      ],
+      "legal_incoming": true,
+      "min_ball_racket_distance_m": 0.055158676410895384,
+      "net_clear": true,
+      "planned_incoming_bounce": {
+        "incoming_net_crossing_z": 0.34890454808159344,
+        "incoming_velocity": [
+          -2.316734570299522,
+          0.09490676226375051,
+          -2.6390938119181238
+        ],
+        "outgoing_velocity": [
+          -1.8350854531342515,
+          0.07517564638911678,
+          2.493415833500243
+        ],
+        "position_table": [
+          0.9400584066720052,
+          -0.7094309540360425,
+          0.02
+        ],
+        "time_s": 0.5000213228331244
+      },
+      "side": "backhand",
+      "strike_sample": {
+        "abs_time_to_strike_s": 0.0,
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "ball_to_target_post_transition_m": 0.0007394375581771833,
+        "ball_to_target_pre_transition_m": 0.04500594497610528,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.05551635824700404,
+        "racket_to_target_pre_transition_m": 0.08578810711386453,
+        "racket_velocity_error_post_transition_mps": 0.3517223038444837,
+        "racket_velocity_error_pre_transition_mps": 0.3600175332315836
+      },
+      "success": true,
+      "target_position_w": [
+        0.6718786490202853,
+        0.08319142901056323,
+        0.9312219481603834
+      ],
+      "target_velocity_w": [
+        1.6667767671185818,
+        -0.0739109014715943,
+        1.019016662314495
+      ],
+      "trial": 3
+    },
+    {
+      "actual_incoming_bounces_table_xy": [
+        [
+          0.424167810567778,
+          -1.5022702034837128
+        ]
+      ],
+      "contact": "mujoco",
+      "contact_sample": {
+        "action_observation_time_to_strike_s": 0.03999999999999938,
+        "post_transition_time_to_strike_s": 0.019999999999999383,
+        "racket_to_target_post_transition_m": 0.049454642585383214,
+        "racket_to_target_pre_transition_m": 0.09956601861907662,
+        "racket_velocity_error_post_transition_mps": 0.24063620911281242,
+        "racket_velocity_error_pre_transition_mps": 0.20678412700082646
+      },
+      "fell": false,
+      "first_bounce_table_xy": [
+        1.988444208996137,
+        -0.5636281165393471
+      ],
+      "flight_time_s": 0.88,
+      "hold_seconds": 0.38,
+      "incoming_net_clear": true,
+      "initial_base_offset_xy": [
+        0.008217701239287258,
+        -0.09208531449445188
+      ],
+      "legal_incoming": true,
+      "min_ball_racket_distance_m": 0.04801385052979492,
+      "net_clear": true,
+      "planned_incoming_bounce": {
+        "incoming_net_crossing_z": 0.5199479246288348,
+        "incoming_velocity": [
+          -2.34102605534146,
+          -0.026920257739736584,
+          -3.019948317811477
+        ],
+        "outgoing_velocity": [
+          -1.8543267384359707,
+          -0.021323536155645348,
+          2.8532471706682836
+        ],
+        "position_table": [
+          0.4265357730417995,
+          -1.5022429734749012,
+          0.02
+        ],
+        "time_s": 0.5718840455746862
+      },
+      "side": "forehand",
+      "strike_sample": {
+        "abs_time_to_strike_s": 0.0,
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "ball_to_target_post_transition_m": 0.0527348849994358,
+        "ball_to_target_pre_transition_m": 0.03369899954573812,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.023336577912048993,
+        "racket_to_target_pre_transition_m": 0.049454642585383214,
+        "racket_velocity_error_post_transition_mps": 0.24265708166793667,
+        "racket_velocity_error_pre_transition_mps": 0.24063620911281242
+      },
+      "success": true,
+      "target_position_w": [
+        0.3413677893378968,
+        -0.7456341636670143,
+        1.1637059416229836
+      ],
+      "target_velocity_w": [
+        2.5140252548487827,
+        0.7477806200244784,
+        0.7878440649681225
+      ],
+      "trial": 4
+    },
+    {
+      "actual_incoming_bounces_table_xy": [
+        [
+          0.9820007158459323,
+          -0.6337843715308634
+        ]
+      ],
+      "contact": "mujoco",
+      "contact_sample": {
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.06035023264725699,
+        "racket_to_target_pre_transition_m": 0.08848414842420675,
+        "racket_velocity_error_post_transition_mps": 0.38964457198047353,
+        "racket_velocity_error_pre_transition_mps": 0.4111443986220877
+      },
+      "fell": false,
+      "first_bounce_table_xy": [
+        1.8116477683664394,
+        -0.5808809842463576
+      ],
+      "flight_time_s": 0.98,
+      "hold_seconds": 0.22,
+      "incoming_net_clear": true,
+      "initial_base_offset_xy": [
+        0.008217701239287258,
+        -0.09208531449445188
+      ],
+      "legal_incoming": true,
+      "min_ball_racket_distance_m": 0.05979979412247365,
+      "net_clear": true,
+      "planned_incoming_bounce": {
+        "incoming_net_crossing_z": 0.3967115873571165,
+        "incoming_velocity": [
+          -2.1204519540891122,
+          -0.14259575382518938,
+          -2.920467959542776
+        ],
+        "outgoing_velocity": [
+          -1.6796099928339858,
+          -0.1129500966049325,
+          2.7592581281760147
+        ],
+        "position_table": [
+          0.9842949895916819,
+          -0.6336300866419161,
+          0.02
+        ],
+        "time_s": 0.4898212015920725
+      },
+      "side": "backhand",
+      "strike_sample": {
+        "abs_time_to_strike_s": 0.0,
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "ball_to_target_post_transition_m": 0.0007834682263481783,
+        "ball_to_target_pre_transition_m": 0.05014885555972517,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.06035023264725699,
+        "racket_to_target_pre_transition_m": 0.08848414842420675,
+        "racket_velocity_error_post_transition_mps": 0.38964457198047353,
+        "racket_velocity_error_pre_transition_mps": 0.4111443986220877
+      },
+      "success": true,
+      "target_position_w": [
+        0.672966606729793,
+        0.07746895459140458,
+        0.9103286521231767
+      ],
+      "target_velocity_w": [
+        1.5868596657483802,
+        -0.04131932209768353,
+        1.0673701534838278
+      ],
+      "trial": 5
+    },
+    {
+      "actual_incoming_bounces_table_xy": [
+        [
+          0.5026666570473519,
+          -1.4840066101330285
+        ]
+      ],
+      "contact": "mujoco",
+      "contact_sample": {
+        "action_observation_time_to_strike_s": 0.03999999999999938,
+        "post_transition_time_to_strike_s": 0.019999999999999383,
+        "racket_to_target_post_transition_m": 0.04712508708676028,
+        "racket_to_target_pre_transition_m": 0.09600755994247144,
+        "racket_velocity_error_post_transition_mps": 0.22185882350051866,
+        "racket_velocity_error_pre_transition_mps": 0.1762193750079401
+      },
+      "fell": false,
+      "first_bounce_table_xy": [
+        2.009743705297098,
+        -0.5417701871951077
+      ],
+      "flight_time_s": 0.8200000000000001,
+      "hold_seconds": 0.44,
+      "incoming_net_clear": true,
+      "initial_base_offset_xy": [
+        0.008217701239287258,
+        -0.09208531449445188
+      ],
+      "legal_incoming": true,
+      "min_ball_racket_distance_m": 0.04845158385960972,
+      "net_clear": true,
+      "planned_incoming_bounce": {
+        "incoming_net_crossing_z": 0.5006988924874086,
+        "incoming_velocity": [
+          -2.7288360796328988,
+          -0.10575965908568123,
+          -2.934743515107076
+        ],
+        "outgoing_velocity": [
+          -2.161511058677219,
+          -0.0837722259617681,
+          2.7727456730731657
+        ],
+        "position_table": [
+          0.5042320762971289,
+          -1.4839459402351851,
+          0.02
+        ],
+        "time_s": 0.5233121017431889
+      },
+      "side": "forehand",
+      "strike_sample": {
+        "abs_time_to_strike_s": 0.0,
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "ball_to_target_post_transition_m": 0.055099757990682466,
+        "ball_to_target_pre_transition_m": 0.03922332714792982,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.02338748831042011,
+        "racket_to_target_pre_transition_m": 0.04712508708676028,
+        "racket_velocity_error_post_transition_mps": 0.2323684123921644,
+        "racket_velocity_error_pre_transition_mps": 0.22185882350051866
+      },
+      "success": true,
+      "target_position_w": [
+        0.35351677690616584,
+        -0.7446924970902477,
+        1.1423449728157415
+      ],
+      "target_velocity_w": [
+        2.4122689170728693,
+        0.7153095238035829,
+        0.7577509787343827
+      ],
+      "trial": 6
+    },
+    {
+      "actual_incoming_bounces_table_xy": [
+        [
+          1.0965545437453912,
+          -0.610629051017486
+        ]
+      ],
+      "contact": "mujoco",
+      "contact_sample": {
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.07219666213185362,
+        "racket_to_target_pre_transition_m": 0.0980646985823275,
+        "racket_velocity_error_post_transition_mps": 0.4432983288272579,
+        "racket_velocity_error_pre_transition_mps": 0.4768875042001595
+      },
+      "fell": false,
+      "first_bounce_table_xy": [
+        1.7734498580750226,
+        -0.5815027322566999
+      ],
+      "flight_time_s": 0.96,
+      "hold_seconds": 0.34,
+      "incoming_net_clear": true,
+      "initial_base_offset_xy": [
+        0.008217701239287258,
+        -0.09208531449445188
+      ],
+      "legal_incoming": true,
+      "min_ball_racket_distance_m": 0.07187124198022102,
+      "net_clear": true,
+      "planned_incoming_bounce": {
+        "incoming_net_crossing_z": 0.2775939891747634,
+        "incoming_velocity": [
+          -2.3955080084743323,
+          -0.1613015195419225,
+          -2.812487349339552
+        ],
+        "outgoing_velocity": [
+          -1.8974818935125186,
+          -0.12776693362915684,
+          2.6572380476560085
+        ],
+        "position_table": [
+          1.0987401069410625,
+          -0.6104818861308428,
+          0.02
+        ],
+        "time_s": 0.4739869826258543
+      },
+      "side": "backhand",
+      "strike_sample": {
+        "abs_time_to_strike_s": 0.0,
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "ball_to_target_post_transition_m": 0.0005188002896852396,
+        "ball_to_target_pre_transition_m": 0.05245551174473922,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.07219666213185362,
+        "racket_to_target_pre_transition_m": 0.0980646985823275,
+        "racket_velocity_error_post_transition_mps": 0.4432983288272579,
+        "racket_velocity_error_pre_transition_mps": 0.4768875042001595
+      },
+      "success": true,
+      "target_position_w": [
+        0.6976100016026539,
+        0.09450325259221927,
+        0.8719011209785998
+      ],
+      "target_velocity_w": [
+        1.5099459365488404,
+        -0.049129098329080564,
+        1.044431079259974
+      ],
+      "trial": 7
+    },
+    {
+      "actual_incoming_bounces_table_xy": [
+        [
+          0.5080073709661257,
+          -1.50631587105337
+        ]
+      ],
+      "contact": "mujoco",
+      "contact_sample": {
+        "action_observation_time_to_strike_s": 0.03999999999999938,
+        "post_transition_time_to_strike_s": 0.019999999999999383,
+        "racket_to_target_post_transition_m": 0.04421358200614634,
+        "racket_to_target_pre_transition_m": 0.09240490592884092,
+        "racket_velocity_error_post_transition_mps": 0.22201154287402636,
+        "racket_velocity_error_pre_transition_mps": 0.2032396810961234
+      },
+      "fell": false,
+      "first_bounce_table_xy": [
+        2.0453843096494873,
+        -0.5374367531684487
+      ],
+      "flight_time_s": 0.9400000000000001,
+      "hold_seconds": 0.24,
+      "incoming_net_clear": true,
+      "initial_base_offset_xy": [
+        0.008217701239287258,
+        -0.09208531449445188
+      ],
+      "legal_incoming": true,
+      "min_ball_racket_distance_m": 0.05549315427892078,
+      "net_clear": true,
+      "planned_incoming_bounce": {
+        "incoming_net_crossing_z": 0.5605530770551012,
+        "incoming_velocity": [
+          -2.206772148978014,
+          -0.03756703894945372,
+          -3.114961898740405
+        ],
+        "outgoing_velocity": [
+          -1.7479842192054849,
+          -0.029756851551862293,
+          2.9430160019299345
+        ],
+        "position_table": [
+          0.5085118802274917,
+          -1.506307282527783,
+          0.02
+        ],
+        "time_s": 0.5706702956529336
+      },
+      "side": "forehand",
+      "strike_sample": {
+        "abs_time_to_strike_s": 0.0,
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "ball_to_target_post_transition_m": 0.06762183024904558,
+        "ball_to_target_pre_transition_m": 0.03333088988326265,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.03217600022271716,
+        "racket_to_target_pre_transition_m": 0.04421358200614634,
+        "racket_velocity_error_post_transition_mps": 0.2158383475686428,
+        "racket_velocity_error_pre_transition_mps": 0.22201154287402636
+      },
+      "success": true,
+      "target_position_w": [
+        0.3569825463196231,
+        -0.7538307367762314,
+        1.1585604956525248
+      ],
+      "target_velocity_w": [
+        2.440174820683192,
+        0.7468377665537724,
+        0.8860563971806943
+      ],
+      "trial": 8
+    },
+    {
+      "actual_incoming_bounces_table_xy": [
+        [
+          0.9684601656250391,
+          -0.6264945888435464
+        ]
+      ],
+      "contact": "mujoco",
+      "contact_sample": {
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.057223640208843365,
+        "racket_to_target_pre_transition_m": 0.08566006961240773,
+        "racket_velocity_error_post_transition_mps": 0.3727085732056878,
+        "racket_velocity_error_pre_transition_mps": 0.38719126935679016
+      },
+      "fell": false,
+      "first_bounce_table_xy": [
+        1.8289297834748537,
+        -0.5732704884414187
+      ],
+      "flight_time_s": 0.8200000000000001,
+      "hold_seconds": 0.44,
+      "incoming_net_clear": true,
+      "initial_base_offset_xy": [
+        0.008217701239287258,
+        -0.09208531449445188
+      ],
+      "legal_incoming": true,
+      "min_ball_racket_distance_m": 0.05686248974645441,
+      "net_clear": true,
+      "planned_incoming_bounce": {
+        "incoming_net_crossing_z": 0.28009359374032616,
+        "incoming_velocity": [
+          -2.6093025066704687,
+          -0.1844016253155695,
+          -2.4198739983242663
+        ],
+        "outgoing_velocity": [
+          -2.0668285155336785,
+          -0.14606452741246262,
+          2.2862969536167665
+        ],
+        "position_table": [
+          0.9708946738666678,
+          -0.6263225400774669,
+          0.02
+        ],
+        "time_s": 0.42597292635123407
+      },
+      "side": "backhand",
+      "strike_sample": {
+        "abs_time_to_strike_s": 0.0,
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "ball_to_target_post_transition_m": 0.0005503305310411222,
+        "ball_to_target_pre_transition_m": 0.047545855055024955,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.057223640208843365,
+        "racket_to_target_pre_transition_m": 0.08566006961240773,
+        "racket_velocity_error_post_transition_mps": 0.3727085732056878,
+        "racket_velocity_error_pre_transition_mps": 0.38719126935679016
+      },
+      "success": true,
+      "target_position_w": [
+        0.661029800350684,
+        0.08224524857608251,
+        0.8944238985558266
+      ],
+      "target_velocity_w": [
+        1.659046311596425,
+        -0.04012325115682873,
+        1.0071712662329482
+      ],
+      "trial": 9
+    },
+    {
+      "actual_incoming_bounces_table_xy": [
+        [
+          0.6106103821444011,
+          -1.4999866687522059
+        ]
+      ],
+      "contact": "mujoco",
+      "contact_sample": {
+        "action_observation_time_to_strike_s": 0.03999999999999938,
+        "post_transition_time_to_strike_s": 0.019999999999999383,
+        "racket_to_target_post_transition_m": 0.04469871247265291,
+        "racket_to_target_pre_transition_m": 0.09251288064403368,
+        "racket_velocity_error_post_transition_mps": 0.20867248192476165,
+        "racket_velocity_error_pre_transition_mps": 0.16208629677879782
+      },
+      "fell": false,
+      "first_bounce_table_xy": [
+        2.0372653391490605,
+        -0.5205949231835165
+      ],
+      "flight_time_s": 0.88,
+      "hold_seconds": 0.48,
+      "incoming_net_clear": true,
+      "initial_base_offset_xy": [
+        0.008217701239287258,
+        -0.09208531449445188
+      ],
+      "legal_incoming": true,
+      "min_ball_racket_distance_m": 0.048810531517328844,
+      "net_clear": true,
+      "planned_incoming_bounce": {
+        "incoming_net_crossing_z": 0.48651601622916,
+        "incoming_velocity": [
+          -2.796911266601453,
+          -0.024679195814711598,
+          -2.946830852815233
+        ],
+        "outgoing_velocity": [
+          -2.215433414275011,
+          -0.019548391004833056,
+          2.784165789739832
+        ],
+        "position_table": [
+          0.6116461311454023,
+          -1.499977529580464,
+          0.02
+        ],
+        "time_s": 0.5375132014447654
+      },
+      "side": "forehand",
+      "strike_sample": {
+        "abs_time_to_strike_s": 0.0,
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "ball_to_target_post_transition_m": 0.05843764188293171,
+        "ball_to_target_pre_transition_m": 0.040766598721241554,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.028208618787415304,
+        "racket_to_target_pre_transition_m": 0.04469871247265291,
+        "racket_velocity_error_post_transition_mps": 0.2102486963857595,
+        "racket_velocity_error_pre_transition_mps": 0.20867248192476165
+      },
+      "success": true,
+      "target_position_w": [
+        0.35455641551825556,
+        -0.7434314319598764,
+        1.1230736971544968
+      ],
+      "target_velocity_w": [
+        2.3450284566156285,
+        0.682223530491722,
+        0.8352944609584924
+      ],
+      "trial": 10
+    },
+    {
+      "actual_incoming_bounces_table_xy": [
+        [
+          1.054855802167931,
+          -0.6263777780307265
+        ]
+      ],
+      "contact": "mujoco",
+      "contact_sample": {
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.07255943975141908,
+        "racket_to_target_pre_transition_m": 0.1003199275898005,
+        "racket_velocity_error_post_transition_mps": 0.41879027364333254,
+        "racket_velocity_error_pre_transition_mps": 0.4449830533342018
+      },
+      "fell": false,
+      "first_bounce_table_xy": [
+        1.7876893725337208,
+        -0.5490546678647666
+      ],
+      "flight_time_s": 0.8,
+      "hold_seconds": 0.06,
+      "incoming_net_clear": true,
+      "initial_base_offset_xy": [
+        0.008217701239287258,
+        -0.09208531449445188
+      ],
+      "legal_incoming": true,
+      "min_ball_racket_distance_m": 0.07249263898342093,
+      "net_clear": true,
+      "planned_incoming_bounce": {
+        "incoming_net_crossing_z": 0.25131861288781143,
+        "incoming_velocity": [
+          -2.6324995082177503,
+          -0.13474303604257742,
+          -2.508667868287663
+        ],
+        "outgoing_velocity": [
+          -2.08520286045928,
+          -0.10672995884932558,
+          2.370189401958184
+        ],
+        "position_table": [
+          1.0568467161006936,
+          -0.6262758741986587,
+          0.02
+        ],
+        "time_s": 0.37015208148086104
+      },
+      "side": "backhand",
+      "strike_sample": {
+        "abs_time_to_strike_s": 0.0,
+        "action_observation_time_to_strike_s": 0.019999999999999383,
+        "ball_to_target_post_transition_m": 0.0011027376803621912,
+        "ball_to_target_pre_transition_m": 0.050445455396203306,
+        "post_transition_time_to_strike_s": 0.0,
+        "racket_to_target_post_transition_m": 0.07255943975141908,
+        "racket_to_target_pre_transition_m": 0.1003199275898005,
+        "racket_velocity_error_post_transition_mps": 0.41879027364333254,
+        "racket_velocity_error_pre_transition_mps": 0.4449830533342018
+      },
+      "success": true,
+      "target_position_w": [
+        0.6746226134699251,
+        0.09355822823324594,
+        0.8634453510854563
+      ],
+      "target_velocity_w": [
+        1.5798964569098308,
+        -0.051928533103682,
+        1.0269334859291157
+      ],
+      "trial": 11
+    }
+  ]
+}

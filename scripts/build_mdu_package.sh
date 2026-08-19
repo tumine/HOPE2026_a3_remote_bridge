@@ -150,8 +150,8 @@ build_inside_docker() {
     exit 1
   fi
   if [[ "$(sha256sum "${package_dir}/models/hope_pingpong.onnx" | cut -d' ' -f1)" \
-      != "6e68f5ce582ac41856c23ac63c749b94c4ca7b96dbe041bdc0215332fbb6caba" ]]; then
-    echo "packaged model_48000 SHA256 mismatch" >&2
+      != "8f87d7d9fe6f47007b064cb65150e5fe82e98e944ddbfcb5653e6ed14e080057" ]]; then
+    echo "packaged model_53000 SHA256 mismatch" >&2
     exit 1
   fi
   if ! aarch64-linux-gnu-nm -C "${package_dir}/dist/a3_mdu_state_bridge" \
@@ -165,7 +165,7 @@ build_inside_docker() {
     exit 1
   fi
   echo "A3 backend factory: linked"
-  echo "ONNX Runtime and model_48000: linked and verified"
+  echo "ONNX Runtime and model_53000: linked and verified"
   echo "MDU package ready: ${package_dir}"
 }
 
