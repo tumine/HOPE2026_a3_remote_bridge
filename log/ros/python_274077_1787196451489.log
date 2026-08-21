@@ -1,0 +1,7 @@
+[WARN] [1787196451.558244898] [a3_receive_input_gateway]: receive gateway started: mocap=/ppmocap/frame planner_input=/a3_mocap/ball_poses base_pose=/a3_mocap/pelvis_pose; inference=off joint_commands=off
+[INFO] [1787196451.558905530] [a3_receive_input_gateway]: ball tracking: visible
+[WARN] [1787196451.608987092] [a3_receive_input_gateway]: PPMocap calibrated: origin=near-left tabletop, +X=robot-to-opponent, +Y=robot-left, +Z=up
+[INFO] [1787196452.541939473] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=1.9ms frames=301 ball=282 base_poses=282 invalid=0 station_ok=no
+[INFO] [1787196453.542147873] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=1.8ms frames=601 ball=582 base_poses=582 invalid=0 station_ok=no
+[INFO] [1787196454.541810728] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=1.6ms frames=901 ball=882 base_poses=882 invalid=0 station_ok=no
+[INFO] [1787196455.541742059] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=5.6ms frames=1200 ball=1181 base_poses=1181 invalid=0 station_ok=no

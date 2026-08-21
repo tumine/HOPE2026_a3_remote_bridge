@@ -1,0 +1,82 @@
+onnx:
+  mode: monolithic
+  model_path: models/a3_lower_body.onnx
+  token_transition_ticks: 15
+  backend: ort_cpu
+  rknn_core_mask: auto
+  intra_op_num_threads: 1
+  inter_op_num_threads: 1
+  fp16: false
+reference_motion:
+  motion_dir: motions
+  csv_path: motions/Neutral_kick_trash_001__A057.csv
+  idle_csv_path: teleop_motions/BMD_0319_a3_filtered_20260319_164305__stand_Skeleton0.csv
+  initial_index: 0
+  keyboard_shortcuts:
+    arrow_up: remote_forward_short
+    arrow_down: remote_backward_short
+    arrow_left: remote_turn_left_45
+    arrow_right: remote_turn_right_45
+  source_fps: 30.0
+  csv_frame_stride: 4
+  target_fps: 50.0
+  future_frame_skip: 5
+  on_end: hold_last
+  remote_motion_dir: remote_motions
+teleop:
+  enabled: true
+  topic: /ta/whole_body_command
+  delay_ms: 940.0
+  future_frame_skip: 5
+  fast_delay_ms: 220.0
+  fast_future_frame_skip: 1
+  stale_behavior: hold_last
+  stale_warn_ms: 250.0
+  yaw_offset_compensation: true
+  max_frames: 512
+  fallback_reference:
+    enabled: true
+    csv_path: teleop_motions/BMD_0319_a3_filtered_20260319_164305__stand_Skeleton0.csv
+    source_fps: 30.0
+    target_fps: 50.0
+    csv_frame_stride: 4
+    future_frame_skip: 5
+    fast_future_frame_skip: 1
+    on_end: hold_last
+  fallback_policy_blend: 0.25
+  fallback_max_delta_rad: 0.08
+  fallback_use_pd_stand_gains: false
+smpl_zmq:
+  enabled: true
+  host: <hdu_ip>
+  port: 5556
+  topic: pose
+  conflate: true
+  verbose: false
+  joint_order: isaaclab
+policy_driver:
+  policy_enabled: true
+  policy_hz: 50.0
+  phase_align_to_sync: true
+  sync_ready_offset_ms: 0.3
+  warmup_ticks: 150
+  pd_stand_ticks: 150
+  watchdog:
+    max_frame_age_ms: 50.0
+    max_unaligned_frames: 10
+  rt:
+    sched_fifo_priority: 0
+    cpu_affinity: -1
+backend:
+  aimrt_cfg_path: config/a3_aimrt_config.yaml
+  dry_run: false
+  sync_release_margin_ms: 0.25
+  max_group_internal_skew_ms: 0.05
+  max_group_pair_skew_ms: 1.0
+logging:
+  dump_ticks: 0
+  dump_path: logs/a3_deploy_dump.bin
+  debug_print_ticks: 0
+  frame_log_interval: 500
+  artificial_infer_delay_ms: 0.0
+  artificial_infer_delay_jitter_ms: 0.0

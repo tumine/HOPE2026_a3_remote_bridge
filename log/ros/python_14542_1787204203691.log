@@ -1,0 +1,16 @@
+[WARN] [1787204203.769516536] [a3_receive_input_gateway]: receive gateway started: mocap=/ppmocap/frame planner_input=/a3_mocap/ball_poses base_pose=/a3_mocap/pelvis_pose; inference=off joint_commands=off
+[INFO] [1787204204.759977176] [a3_receive_input_gateway]: gateway calibrated=no frame_age=-1.0ms frames=0 ball=0 base_poses=0 invalid=0 station_ok=no
+[INFO] [1787204205.759172737] [a3_receive_input_gateway]: gateway calibrated=no frame_age=-1.0ms frames=0 ball=0 base_poses=0 invalid=0 station_ok=no
+[INFO] [1787204206.563694639] [a3_receive_input_gateway]: ball tracking: lost
+[WARN] [1787204206.636844848] [a3_receive_input_gateway]: PPMocap calibrated: origin=near-left tabletop, +X=robot-to-opponent, +Y=robot-left, +Z=up
+[INFO] [1787204206.759040406] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.7ms frames=60 ball=0 base_poses=41 invalid=0 station_ok=yes
+[INFO] [1787204207.759508758] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.0ms frames=358 ball=0 base_poses=339 invalid=0 station_ok=yes
+[INFO] [1787204208.759052543] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.6ms frames=656 ball=0 base_poses=637 invalid=0 station_ok=yes
+[INFO] [1787204209.759116041] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.3ms frames=955 ball=0 base_poses=936 invalid=0 station_ok=yes
+[INFO] [1787204210.759109435] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=1.4ms frames=1254 ball=0 base_poses=1235 invalid=0 station_ok=yes
+[INFO] [1787204211.759103996] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=1.9ms frames=1553 ball=0 base_poses=1534 invalid=0 station_ok=yes
+[INFO] [1787204212.759190688] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=2.6ms frames=1852 ball=0 base_poses=1833 invalid=0 station_ok=yes
+[INFO] [1787204213.759123715] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=1.3ms frames=2151 ball=0 base_poses=2132 invalid=0 station_ok=yes
+[INFO] [1787204214.759140703] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=3.1ms frames=2450 ball=0 base_poses=2431 invalid=0 station_ok=yes
+[INFO] [1787204215.759053522] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.9ms frames=2750 ball=0 base_poses=2731 invalid=0 station_ok=yes
+[INFO] [1787204216.759103102] [a3_receive_input_gateway]: gateway calibrated=yes frame_age=0.9ms frames=3049 ball=0 base_poses=3030 invalid=0 station_ok=yes

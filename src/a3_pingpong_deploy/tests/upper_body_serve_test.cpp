@@ -2,9 +2,16 @@
 
 #include <Eigen/Core>
 
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
 #include <array>
+#include <chrono>
 #include <cmath>
 #include <optional>
+#include <string>
+#include <thread>
 
 #define CHECK(condition)                \
   do {                                  \
@@ -28,16 +35,83 @@ bool Near(double lhs, double rhs) {
   return std::abs(lhs - rhs) < 1.0e-12;
 }
 
+bool GripperHttpRoundTrip() {
+  const int listener = ::socket(AF_INET, SOCK_STREAM, 0);
+  if (listener < 0) return false;
+  sockaddr_in address{};
+  address.sin_family = AF_INET;
+  address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  address.sin_port = 0;
+  if (::bind(listener, reinterpret_cast<sockaddr*>(&address),
+             sizeof(address)) != 0 ||
+      ::listen(listener, 1) != 0) {
+    ::close(listener);
+    return false;
+  }
+  socklen_t address_length = sizeof(address);
+  if (::getsockname(listener, reinterpret_cast<sockaddr*>(&address),
+                    &address_length) != 0) {
+    ::close(listener);
+    return false;
+  }
+
+  std::thread server([listener] {
+    const int client = ::accept(listener, nullptr, nullptr);
+    if (client >= 0) {
+      std::array<char, 2048> request{};
+      (void)::recv(client, request.data(), request.size(), 0);
+      constexpr char response[] =
+          "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n"
+          "Content-Length: 23\r\nConnection: close\r\n\r\n"
+          "{\"header\":{\"code\":\"0\"}}";
+      (void)::send(client, response, sizeof(response) - 1, MSG_NOSIGNAL);
+      ::close(client);
+    }
+    ::close(listener);
+  });
+
+  a3_pingpong::GripperHttpConfig config;
+  config.host = "127.0.0.1";
+  config.port = ntohs(address.sin_port);
+  config.connect_timeout_ms = 500;
+  config.response_timeout_ms = 500;
+  a3_pingpong::GripperHttpClient client(config);
+  std::string reason;
+  const bool started = client.Start(&reason);
+  const auto request_id = client.Enqueue(a3_pingpong::GripperAction::kClose);
+  for (int attempt = 0; attempt < 200 && client.busy(); ++attempt) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+  }
+  const auto result = client.result();
+  client.Stop();
+  server.join();
+  return started && request_id && result.request_id == *request_id &&
+         result.action == a3_pingpong::GripperAction::kClose && result.success;
+}
+
 }  // namespace
 
 int main() {
   using namespace a3_pingpong;
 
+  GripperHttpConfig gripper_config;
+  CHECK(BuildGripperCommandJson(GripperAction::kClose, gripper_config) ==
+        "{\"data\":{\"left\":{\"agi_claw_cmd\":{\"cmd\":0,\"pos\":1200,"
+        "\"vel\":20,\"force\":20,\"clamp_method\":2,\"finger_pos\":0}},"
+        "\"right\":{\"agi_claw_cmd\":{\"cmd\":0,\"pos\":0,\"vel\":20,"
+        "\"force\":20,\"clamp_method\":2,\"finger_pos\":0}}}}");
+  CHECK(BuildGripperCommandJson(GripperAction::kOpen, gripper_config).find(
+            "\"cmd\":0,\"pos\":4096,\"vel\":20,\"force\":20") !=
+        std::string::npos);
+  CHECK(GripperHttpRoundTrip());
+
   auto state = State31();
   UpperBodyServeConfig config;
   config.prepare_duration_s = 0.04;
+  config.ready_dwell_s = 0.04;
   config.windup_duration_s = 0.04;
   config.swing_duration_s = 0.04;
+  config.release_time_s = 0.04;
   config.settle_duration_s = 0.04;
   config.return_duration_s = 0.04;
   UpperBodyServeTrajectory trajectory(config);
@@ -45,6 +119,8 @@ int main() {
   UpperBodyServeTarget upper{};
   UpperBodyServeDiagnostics diagnostics;
   std::string reason;
+  CHECK(!trajectory.Step(state, 0.02, upper, &diagnostics, &reason));
+  CHECK(trajectory.BeginHoming(state, &reason));
   CHECK(trajectory.Step(state, 0.02, upper, &diagnostics, &reason));
   CHECK(diagnostics.phase == UpperBodyServePhase::kPrepare);
   for (std::size_t index = 0; index < upper.size(); ++index) {
@@ -56,6 +132,12 @@ int main() {
   bool saw_swing = false;
   bool saw_settle = false;
   bool saw_return = false;
+  for (int tick = 0; tick < 4; ++tick) {
+    CHECK(trajectory.Step(state, 0.02, upper, &diagnostics, &reason));
+  }
+  CHECK(trajectory.ready());
+  CHECK(trajectory.ready_to_fire());
+  CHECK(trajectory.Fire(&reason));
   for (int tick = 0; tick < 30 && !diagnostics.complete; ++tick) {
     CHECK(trajectory.Step(state, 0.02, upper, &diagnostics, &reason));
     saw_windup |= diagnostics.phase == UpperBodyServePhase::kWindup;

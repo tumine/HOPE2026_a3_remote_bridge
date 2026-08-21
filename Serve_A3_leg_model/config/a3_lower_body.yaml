@@ -1,0 +1,198 @@
+# Runtime for the A3 225-D observation / 12-D lower-body policy.
+# Relative paths are resolved from this file.
+contract: a3_lower_body_225
+
+deployment:
+  model_path: ../models/a3_lower_body.onnx
+  aimrt_config_path: a3_aimrt_config.iceoryx.yaml
+  policy_hz: 50.0
+  pd_stand_ticks: 150
+  command_initial: [0.0, 0.0, 0.0]
+  # This exported run was trained with all three command ranges fixed at zero.
+  command_min: [0.0, 0.0, 0.0]
+  command_max: [0.0, 0.0, 0.0]
+  command_step: [0.05, 0.05, 0.05]
+  # Production A3 PD_STAND gains. They take effect immediately in stand mode;
+  # policy mode continues to use the training gains in the top-level kps/kds.
+  pd_stand_kps: [
+    400.0, 500.0, 500.0,
+    40.0, 40.0,
+    300.0, 200.0, 100.0, 200.0, 100.0, 50.0, 50.0,
+    300.0, 200.0, 150.0, 200.0, 100.0, 50.0, 50.0,
+    1500.0, 400.0, 300.0, 2000.0, 500.0, 500.0,
+    1500.0, 400.0, 300.0, 2000.0, 500.0, 500.0,
+  ]
+  pd_stand_kds: [
+    4.0, 4.0, 4.0,
+    2.0, 2.0,
+    2.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+    2.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+    8.0, 7.0, 7.0, 8.0, 5.0, 5.0,
+    8.0, 7.0, 7.0, 8.0, 5.0, 5.0,
+  ]
+  action_lower: [
+    -2.5132699013, -0.5235990286, -2.7227098942, 0.0, -0.9075710177, -0.3490659893,
+    -2.5132699013, -1.6057000160, -2.7227098942, 0.0, -0.9075710177, -0.3490659893,
+  ]
+  action_upper: [
+    2.9321498871, 1.6057000160, 2.7227098942, 2.4958200455, 0.5235990286, 0.3490659893,
+    2.9321498871, 0.5235990286, 2.7227098942, 2.4958200455, 0.5235990286, 0.3490659893,
+  ]
+  source_run: /home/humanoid/Downloads/policy
+  policy_onnx_sha256: 239b6b7bedcf82428c3838172ba6852de7a603d9366102569c8c18ff3a62e360
+  policy_pt_sha256: 582180f210852c922179e858c96f188c932d7a384617a622d11e802838dbd38f
+
+# Right-arm serving trajectory. Arm order is left 7 joints followed by right 7
+# joints, matching controlled_joints indices 5..18. Positions are radians.
+serve:
+  enabled: true
+  home: [
+      -1.10, 0.00, -0.00, 0.90, 1.57, -1.57, -0.00,   # 左臂
+      -0.57, -0.59, 0.65, 0.0, 0.01, 0.04, 0.70,       # 右臂
+  ]
+  windup_right: [
+      -0.33,   # right_shoulder_pitch
+      -0.55,   # right_shoulder_roll
+      0.71,    # right_shoulder_yaw
+      -0.07,   # right_elbow
+      -0.20,   # right_wrist_roll
+      -0.22,   # right_wrist_pitch
+      0.73,    # right_wrist_yaw
+  ]
+  hit_through_right: [
+      -0.55,   # right_shoulder_pitch
+      -0.59,   # right_shoulder_roll
+      0.56,    # right_shoulder_yaw
+      0.03,    # right_elbow
+      0.01,   # right_wrist_roll
+      0.05,   # right_wrist_pitch
+      0.73,    # right_wrist_yaw
+  ]
+  timing:
+    home_s: 5.0
+    windup_s: 0.50
+    swing_s: 0.1
+    release_s: 0.1
+    settle_s: 1.0
+    return_s: 1.0
+    close_wait_s: 0.5
+  gripper:
+    host: 10.42.10.12
+    port: 56422
+    path: /rpc/aimdk.protocol.HalHandService/SetHandCommand
+    open_position: 4096
+    close_position: 1200
+    right_position: 0
+    connect_timeout_ms: 3000
+    response_timeout_ms: 65000
+
+policy:
+  action_scale: 0.25
+  angular_velocity_scale: 0.2
+  joint_velocity_scale: 0.05
+  clip_actions: 100.0
+  clip_observations: 100.0
+
+  # Isaac articulation order interleaves the left and right leg joints.
+  observation_default_q: [
+    -0.22802, -0.22937,
+    -0.00684, 0.00684,
+    -0.05846, 0.05882,
+    0.44032, 0.44298,
+    -0.21979, -0.22116,
+    0.00037, -0.00029,
+  ]
+  default_leg_q: [
+    -0.22802, -0.00684, -0.05846, 0.44032, -0.21979, 0.00037,
+    -0.22937, 0.00684, 0.05882, 0.44298, -0.22116, -0.00029,
+  ]
+
+# Canonical A3 SDK/MuJoCo 31-DOF order.
+controlled_joints:
+  - waist_yaw_joint
+  - waist_roll_joint
+  - waist_pitch_joint
+  - head_yaw_joint
+  - head_pitch_joint
+  - left_shoulder_pitch_joint
+  - left_shoulder_roll_joint
+  - left_shoulder_yaw_joint
+  - left_elbow_joint
+  - left_wrist_roll_joint
+  - left_wrist_pitch_joint
+  - left_wrist_yaw_joint
+  - right_shoulder_pitch_joint
+  - right_shoulder_roll_joint
+  - right_shoulder_yaw_joint
+  - right_elbow_joint
+  - right_wrist_roll_joint
+  - right_wrist_pitch_joint
+  - right_wrist_yaw_joint
+  - left_hip_pitch_joint
+  - left_hip_roll_joint
+  - left_hip_yaw_joint
+  - left_knee_joint
+  - left_ankle_pitch_joint
+  - left_ankle_roll_joint
+  - right_hip_pitch_joint
+  - right_hip_roll_joint
+  - right_hip_yaw_joint
+  - right_knee_joint
+  - right_ankle_pitch_joint
+  - right_ankle_roll_joint
+
+policy_joints:
+  - left_hip_pitch_joint
+  - left_hip_roll_joint
+  - left_hip_yaw_joint
+  - left_knee_joint
+  - left_ankle_pitch_joint
+  - left_ankle_roll_joint
+  - right_hip_pitch_joint
+  - right_hip_roll_joint
+  - right_hip_yaw_joint
+  - right_knee_joint
+  - right_ankle_pitch_joint
+  - right_ankle_roll_joint
+
+observation_joints:
+  - left_hip_pitch_joint
+  - right_hip_pitch_joint
+  - left_hip_roll_joint
+  - right_hip_roll_joint
+  - left_hip_yaw_joint
+  - right_hip_yaw_joint
+  - left_knee_joint
+  - right_knee_joint
+  - left_ankle_pitch_joint
+  - right_ankle_pitch_joint
+  - left_ankle_roll_joint
+  - right_ankle_roll_joint
+
+# The training run's leg gains. Waist uses the first three gains to hold zero;
+# head and arms use conservative gains to hold their captured pose.
+kps: [
+  400.0, 500.0, 500.0,
+  20.0, 20.0,
+  200.0, 150.0, 80.0, 100.0, 60.0, 40.0, 40.0,
+  200.0, 150.0, 80.0, 100.0, 60.0, 40.0, 40.0,
+  80.0, 120.0, 80.0, 250.0, 50.0, 50.0,
+  80.0, 120.0, 80.0, 250.0, 50.0, 50.0,
+]
+kds: [
+  4.0, 4.0, 4.0,
+  1.0, 1.0,
+  2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+  2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+  3.0, 4.0, 3.0, 8.0, 2.0, 2.0,
+  3.0, 4.0, 3.0, 8.0, 2.0, 2.0,
+]
+
+simulation:
+  xml_path: ../sim/agibot_a3/xml/agibot_a3.xml
+  initial_keyframe: stand
+  orientation_sensor: pelvis_imu_quat
+  angular_velocity_sensor: pelvis_imu_gyro
+  duration: 120.0
+  dt: 0.001
+  control_decimation: 20

@@ -21,8 +21,10 @@
 #endif
 
 int main() {
-  const auto adapter_config = a3_pingpong::Model50000ActionAdapterConfig();
+  const auto adapter_config = a3_pingpong::Model72500ActionAdapterConfig();
   CHECK(adapter_config.upper[2] == 0.418879);
+  CHECK(adapter_config.locked[1]);
+  CHECK(adapter_config.locked[2]);
   for (std::size_t index = 0; index < a3_pingpong::kA3LegDof; ++index) {
     const auto flat = static_cast<Eigen::Index>(
         a3_pingpong::kA3LegCommandStart + index);
@@ -42,7 +44,7 @@ int main() {
   }
 
   a3_pingpong::PingpongActionAdapter adapter(
-      a3_pingpong::Model50000ActionAdapterConfig());
+      a3_pingpong::Model72500ActionAdapterConfig());
   a3_pingpong::PingpongAction applied{};
   robot_io::RobotCommand command;
   a3_pingpong::PingpongActionDiagnostics diagnostics;
@@ -50,7 +52,9 @@ int main() {
   CHECK(adapter.BuildZeroGainDryRunCommand(
       raw_action, applied, command, &diagnostics, &reason));
   CHECK(diagnostics.raw_clip_count == 0);
-  CHECK(diagnostics.position_clip_count == 3);
+  CHECK(diagnostics.position_clip_count == 2);
+  CHECK(applied[1] == 0.0F);
+  CHECK(applied[2] == 0.0F);
   CHECK(applied[3] == 0.0F);
   CHECK(applied[4] == 0.0F);
 
@@ -73,11 +77,27 @@ int main() {
   CHECK(command.kd.norm() == 0.0);
   CHECK(a3_pingpong::ValidateRobotCommand(command, 31));
 
+  // Even deliberately non-zero raw waist roll/pitch values are never executed
+  // or fed back to the next observation.
+  raw_action[1] = 1.25F;
+  raw_action[2] = -2.5F;
   CHECK(adapter.BuildPolicyCommand(
       raw_action, applied, command, &diagnostics, &reason));
-  CHECK(command.kp[0] == 120.0);
+  CHECK(applied[1] == 0.0F);
+  CHECK(applied[2] == 0.0F);
+  CHECK(command.q_des[1] == 0.0);
+  CHECK(command.q_des[2] == 0.0);
+  CHECK(command.kp[0] == 85.0);
+  CHECK(command.kp[1] == 500.0);
+  CHECK(command.kp[2] == 500.0);
+
+  CHECK(adapter.BuildPolicyCommand(
+      raw_action, applied, command, &diagnostics, &reason));
+  CHECK(command.kp[0] == 85.0);
   CHECK(command.kd[0] == 3.0);
-  CHECK(command.kp[2] == 100.0);
+  CHECK(command.kp[1] == 500.0);
+  CHECK(command.kd[1] == 2.0);
+  CHECK(command.kp[2] == 500.0);
   CHECK(command.kd[2] == 2.0);
   CHECK(command.kp[3] == 40.0);
   CHECK(command.kd[4] == 2.0);
@@ -92,7 +112,7 @@ int main() {
   std::array<double, a3_pingpong::kPingpongActionDim> start_q{};
   start_q.fill(1.0);
   const auto target_q =
-      a3_pingpong::Model50000ActionAdapterConfig().default_q;
+      a3_pingpong::Model72500ActionAdapterConfig().default_q;
   bool stand_ready = true;
   CHECK(a3_pingpong::BuildPdStandCommand(
       start_q, target_q, 0, 150, command, &stand_ready, &reason));

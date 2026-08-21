@@ -103,6 +103,10 @@ int main() {
                        observation, &reason));
   state.q[0] = -0.25;
   planner.command->swing_side = 0;
+  CHECK(builder.Build(state, planner, last_action, {-0.5, -0.7625},
+                      observation, &reason));
+  CHECK(std::abs(observation[110]) <= 1.0e-6F);
+  planner.command->swing_side = 2;
   CHECK(!builder.Build(state, planner, last_action, {-0.5, -0.7625},
                        observation, &reason));
   return 0;

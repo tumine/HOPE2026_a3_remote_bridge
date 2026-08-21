@@ -11,6 +11,9 @@ int main() {
   CHECK(ParseManualKey('s') == ManualKey::kPdStand);
   CHECK(ParseManualKey('M') == ManualKey::kMotion);
   CHECK(ParseManualKey('v') == ManualKey::kUpperBodyServe);
+  CHECK(ParseManualKey('C') == ManualKey::kServeClose);
+  CHECK(ParseManualKey('f') == ManualKey::kServeFire);
+  CHECK(ParseManualKey('G') == ManualKey::kGripperOpen);
   CHECK(ParseManualKey('?') == ManualKey::kUnknown);
 
   ManualControl control;

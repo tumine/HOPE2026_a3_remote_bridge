@@ -13,6 +13,9 @@ struct PingpongActionAdapterConfig {
   std::array<double, kPingpongActionDim> default_q{};
   std::array<double, kPingpongActionDim> lower{};
   std::array<double, kPingpongActionDim> upper{};
+  // Locked policy columns remain in the 31-D ONNX contract, but their applied
+  // action is fed back as zero and q_des is held at default_q.
+  std::array<bool, kPingpongActionDim> locked{};
   double action_scale{0.25};
   double action_clip_lower{-100.0};
   double action_clip_upper{100.0};
@@ -31,6 +34,8 @@ struct PingpongCommandGains {
   std::array<double, kPingpongActionDim> kd{};
 };
 
+PingpongActionAdapterConfig Model72500ActionAdapterConfig();
+PingpongCommandGains Model72500PolicyGains();
 PingpongActionAdapterConfig Model50000ActionAdapterConfig();
 PingpongCommandGains Model50000PolicyGains();
 // Compatibility aliases retained for existing callers.
@@ -70,7 +75,7 @@ class PingpongActionAdapter {
 
   // Convert the 31-D model output into the exact RobotCommand consumed by the
   // official A3 RobotIO backend. dq_des and tau_ff are zero; q_des, Kp and Kd
-  // use the frozen model_50000 contract and its deployment gains.
+  // use the frozen model_72500 contract and its hardware deployment gains.
   bool BuildPolicyCommand(
       const PingpongAction& raw_action,
       PingpongAction& applied_action,

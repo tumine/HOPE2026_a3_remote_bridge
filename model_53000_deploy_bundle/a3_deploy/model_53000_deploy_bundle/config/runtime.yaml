@@ -89,14 +89,9 @@ lifecycle:
   follow_through_s: 0.8
   recovery_s: 0.0
   ready_time_to_strike: 1.0
-  # Canonical policy-conditioning anchor while no RacketCommand is available.
-  # These are the first seed-0 forehand command's training-distribution values,
-  # retained by and validated with the packaged model_53000 policy.
-  # rel_base_w components remain on world axes; this is not a pelvis-yaw rotation.
-  # The non-zero target velocity conditions the learned pre-swing pose—it is not a
-  # claim that the physical racket is already moving at that velocity while idle.
-  ready_target_rel_base_w:
-    [0.3201315701007843, -0.6952511668205261, -0.057795558124780655]
-  ready_target_vel_w:
-    [2.3803303241729736, 0.6271703243255615, 1.0374835729599]
-  ready_swing_side: 1
+  # Deployment READY override: a stationary neutral/no-ball conditioning target.
+  # Position is expressed on world axes relative to the live pelvis. This is an
+  # intentional deployment override of the original strike-like training anchor.
+  ready_target_rel_base_w: [0.45, -0.25, 0.08]
+  ready_target_vel_w: [0.0, 0.0, 0.0]
+  ready_swing_side: 0

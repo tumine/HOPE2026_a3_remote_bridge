@@ -97,7 +97,7 @@ contact:
     dynamic_friction: 0.50
 
   paddle:                  # ball vs the racket face; n = paddle face normal.
-    restitution: 0.654     # measured normal restitution from racket strikes.
+    restitution: 0.8       # commissioned normal restitution used by the live planner.
     static_friction: 0.60  # (used only if the racket-link material is simulated)
     dynamic_friction: 0.60
     tangential_damping: 0.52    # tangential damping fraction on the racket face

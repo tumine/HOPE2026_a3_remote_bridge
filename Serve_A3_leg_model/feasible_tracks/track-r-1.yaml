@@ -1,0 +1,30 @@
+home: [
+      -1.10, 0.00, -0.00, 0.90, 1.57, -1.57, -0.00,   # 左臂
+      -0.57, -0.59, 0.65, 0.0, 0.01, 0.04, 0.70,       # 右臂
+  ]
+  windup_right: [
+      -0.33,   # right_shoulder_pitch
+      -0.55,   # right_shoulder_roll
+      0.71,    # right_shoulder_yaw
+      -0.07,   # right_elbow
+      -0.20,   # right_wrist_roll
+      -0.22,   # right_wrist_pitch
+      0.73,    # right_wrist_yaw
+  ]
+  hit_through_right: [
+      -0.55,   # right_shoulder_pitch
+      -0.59,   # right_shoulder_roll
+      0.56,    # right_shoulder_yaw
+      0.03,    # right_elbow
+      0.01,   # right_wrist_roll
+      0.05,   # right_wrist_pitch
+      0.73,    # right_wrist_yaw
+  ]
+  timing:
+    home_s: 5.0
+    windup_s: 0.50
+    swing_s: 0.10
+    release_s: 0.0
+    settle_s: 1.0
+    return_s: 1.0
+    close_wait_s: 0.5

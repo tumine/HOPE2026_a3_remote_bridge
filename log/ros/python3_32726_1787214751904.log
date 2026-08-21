@@ -1,0 +1,11 @@
+[INFO] [1787214751.971445509] [hope_planner]: HOPE planner started: strike_planes=FH:-0.210,BH:0.100 m, landing=[ 2.055  -0.7625], split_y=-1.173 m, new_task_tts=[0.250,1.000] s, ball_rearm=(vx_in<=-0.50, vx_out>=-0.10 m/s, confirm=5/10, x>=0.30 m), live_margins=(y=0.000m, z=0.000m, racket_v=0.000m/s), solve_period=0.020 s, ball_pose_index=0
+[WARN] [1787214887.852071654] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-0.2139 outside [-1.5225, -1.2825]; BH: y=-0.3114 outside [-1.0625, -0.6625])
+[WARN] [1787214889.395774682] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (BH: y=-1.1344 outside [-1.0625, -0.6625])
+[WARN] [1787214890.816768016] [hope_planner]: TTS_GATE ball=2 side=BACKHAND decision=WAIT tts=1.3061s window=[0.2500, 1.0000]s est_x=2.0095m est_vx=-2.1394m/s
+[WARN] [1787214890.833406679] [hope_planner]: TTS_GATE ball=2 side=BACKHAND decision=ACCEPT tts=0.8389s window=[0.2500, 1.0000]s est_x=1.9492m est_vx=-2.8683m/s
+[WARN] [1787214890.847450411] [hope_planner]: PLANNER_TASK_PUBLISHED ball=2 task=1 side=BACKHAND tts=0.8389s target=[0.1000,-0.9420,0.2689] racket_v=[1.7946,0.1649,0.9601]
+[WARN] [1787214890.853059773] [hope_planner]: locked BH task has no admitted same-side revision; command not published (FH: y=-0.9894 outside [-1.5225, -1.2825], z=0.2006 outside [0.2400, 0.4500]; BH: z=0.4049 outside [0.0800, 0.3400])
+[WARN] [1787214902.783178520] [hope_planner]: predicted command is outside the grounded Isaac target envelopes; command not published (FH: y=-0.3937 outside [-1.5225, -1.2825], z=0.1123 outside [0.2400, 0.4500])
+[WARN] [1787214902.873027528] [hope_planner]: TTS_GATE ball=3 side=BACKHAND decision=ACCEPT tts=0.7837s window=[0.2500, 1.0000]s est_x=1.8987m est_vx=-2.8668m/s
+[WARN] [1787214902.886615240] [hope_planner]: PLANNER_TASK_PUBLISHED ball=3 task=2 side=BACKHAND tts=0.7837s target=[0.1000,-0.9717,0.2975] racket_v=[1.9988,0.2186,0.8739]
+[WARN] [1787214903.609015119] [hope_planner]: STRIKE_PLANE_CROSS ball=3 plane=BACKHAND x=0.100 measured_y=-0.8338 measured_z=0.1640 result=ACCEPT: task_id=2 revision=24 side=BACKHAND tts=0.0227s target=[0.1000,-0.8236,0.1587] racket_v=[1.8063,0.0323,0.9989]

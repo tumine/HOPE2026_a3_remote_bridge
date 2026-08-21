@@ -1,0 +1,218 @@
+# Standalone deployment settings. Relative paths are resolved from this file.
+deployment:
+  model_path: ../models/policy.onnx
+  aimrt_config_path: a3_aimrt_config.iceoryx.yaml
+  policy_hz: 50.0
+  pd_stand_ticks: 150
+  command_initial: [0.0, 0.0, 0.0, 1.02]
+  command_step: [0.05, 0.05, 0.05, 0.02]
+  pd_stand_kps: [
+    400.0, 500.0, 500.0,
+    20.0, 20.0,
+    200.0, 200.0, 100.0, 200.0, 100.0, 50.0, 50.0,
+    200.0, 200.0, 100.0, 200.0, 100.0, 50.0, 50.0,
+    1500.0, 400.0, 300.0, 2000.0, 500.0, 500.0,
+    1500.0, 400.0, 300.0, 2000.0, 500.0, 500.0,
+  ]
+  pd_stand_kds: [
+    4.0, 4.0, 4.0,
+    2.0, 2.0,
+    2.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+    2.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+    8.0, 7.0, 7.0, 8.0, 5.0, 5.0,
+    8.0, 7.0, 7.0, 8.0, 5.0, 5.0,
+  ]
+  action_lower: [
+    -2.5132699013, -0.5235990286, -2.7227098942, 0.0, -0.9075710177, -0.3490659893,
+    -2.5132699013, -1.6057000160, -2.7227098942, 0.0, -0.9075710177, -0.3490659893,
+  ]
+  action_upper: [
+    2.9321498871, 1.6057000160, 2.7227098942, 2.4958200455, 0.5235990286, 0.3490659893,
+    2.9321498871, 0.5235990286, 2.7227098942, 2.4958200455, 0.5235990286, 0.3490659893,
+  ]
+  source_run: /home/humanoid/Downloads/policy
+  policy_onnx_sha256: 036f41bf2b3094f4cf4f1f023a6b084d2e6777d6e05d1c7e484efa38d1fdb442
+  policy_pt_sha256: 736c7e87eae88dacdadd9c5d922798be50d9a43e4d4a4322e7a3ae994649c56c
+
+# Right-arm serving trajectory. Arm order is left 7 joints followed by right 7
+# joints, matching controlled_joints indices 5..18. Positions are radians.
+serve:
+  enabled: true
+  home: [
+      -1.30, 0.00, -0.00, 1.30, 1.57, -1.57, -0.00,   # 左臂
+      -0.57, -0.59, 0.65, 0.0, 0.01, 0.04, 0.70,       # 右臂
+  ]
+  windup_right: [
+      -0.74,   # right_shoulder_pitch
+      -0.55,   # right_shoulder_roll
+      1.01,    # right_shoulder_yaw
+      -0.07,   # right_elbow
+      -0.20,   # right_wrist_roll
+      -0.12,   # right_wrist_pitch
+      0.73,    # right_wrist_yaw
+  ]
+  hit_through_right: [
+      -1.1,   # right_shoulder_pitch
+      -0.45,   # right_shoulder_roll
+      1.1,    # right_shoulder_yaw
+      0.23,    # right_elbow
+      -0.33,   # right_wrist_roll
+      0.37,   # right_wrist_pitch
+      1.03,    # right_wrist_yaw
+  ]
+  timing:
+    home_s: 5.0
+    windup_s: 0.50
+    swing_s: 0.03
+    release_s: 0.0
+    settle_s: 1.0
+    return_s: 1.0
+    close_wait_s: 0.5
+  gripper:
+    host: 10.42.10.12
+    port: 56422
+    path: /rpc/aimdk.protocol.HalHandService/SetHandCommand
+    open_position: 4096
+    close_position: 1000
+    right_position: 0
+    connect_timeout_ms: 3000
+    response_timeout_ms: 65000
+
+xml_path: ../sim/agibot_a3/xml/agibot_a3.xml
+initial_keyframe: stand
+orientation_sensor: pelvis_imu_quat
+angular_velocity_sensor: pelvis_imu_gyro
+
+simulation_duration: 120.0
+simulation_dt: 0.001
+control_decimation: 20
+history_length: 5
+
+action_scale: 0.25
+ang_vel_scale: 0.2
+dof_vel_scale: 0.05
+
+command_default: [0.3, 0.0, 0.0, 1.02]
+command_min: [-0.5, -0.4, -0.6, 0.80]
+command_max: [0.8, 0.4, 0.6, 1.07]
+height_normalization_center: 0.95
+
+# pygame joystick axes: left-stick vertical, left-stick horizontal,
+# right-stick horizontal. Negative signs make up/left positive commands.
+gamepad_index: 0
+gamepad_axes: [1, 0, 3]
+gamepad_axis_signs: [-1.0, -1.0, -1.0]
+gamepad_deadzone: 0.05
+gamepad_hat: 0
+gamepad_height_step: 0.02
+
+# MuJoCo actuator order. The policy controls only the 12 leg entries below.
+controlled_joints:
+  - waist_yaw_joint
+  - waist_roll_joint
+  - waist_pitch_joint
+  - head_yaw_joint
+  - head_pitch_joint
+  - left_shoulder_pitch_joint
+  - left_shoulder_roll_joint
+  - left_shoulder_yaw_joint
+  - left_elbow_joint
+  - left_wrist_roll_joint
+  - left_wrist_pitch_joint
+  - left_wrist_yaw_joint
+  - right_shoulder_pitch_joint
+  - right_shoulder_roll_joint
+  - right_shoulder_yaw_joint
+  - right_elbow_joint
+  - right_wrist_roll_joint
+  - right_wrist_pitch_joint
+  - right_wrist_yaw_joint
+  - left_hip_pitch_joint
+  - left_hip_roll_joint
+  - left_hip_yaw_joint
+  - left_knee_joint
+  - left_ankle_pitch_joint
+  - left_ankle_roll_joint
+  - right_hip_pitch_joint
+  - right_hip_roll_joint
+  - right_hip_yaw_joint
+  - right_knee_joint
+  - right_ankle_pitch_joint
+  - right_ankle_roll_joint
+
+policy_joints:
+  - left_hip_pitch_joint
+  - left_hip_roll_joint
+  - left_hip_yaw_joint
+  - left_knee_joint
+  - left_ankle_pitch_joint
+  - left_ankle_roll_joint
+  - right_hip_pitch_joint
+  - right_hip_roll_joint
+  - right_hip_yaw_joint
+  - right_knee_joint
+  - right_ankle_pitch_joint
+  - right_ankle_roll_joint
+
+# Isaac/PhysX resolves SceneEntityCfg joint observations in articulation order,
+# which is breadth-first and therefore interleaves the left and right legs.
+observation_joints:
+  - left_hip_pitch_joint
+  - right_hip_pitch_joint
+  - left_hip_roll_joint
+  - right_hip_roll_joint
+  - left_hip_yaw_joint
+  - right_hip_yaw_joint
+  - left_knee_joint
+  - right_knee_joint
+  - left_ankle_pitch_joint
+  - right_ankle_pitch_joint
+  - left_ankle_roll_joint
+  - right_ankle_roll_joint
+
+# Same standing targets and implicit-actuator gains as the Isaac Lab asset.
+default_angles: [
+  0.0, 0.0, 0.014,
+  0.0, 0.0,
+  0.295, 0.112, 0.0, 0.807, 0.0, 0.0, 0.0,
+  0.295, -0.112, 0.0, 0.807, 0.0, 0.0, 0.0,
+  -0.131, 0.008, -0.035, 0.252, -0.129, -0.010,
+  -0.131, -0.008, 0.035, 0.252, -0.129, 0.010,
+]
+
+# Lower-body reference in policy_joints order. Heights are metres and angles radians.
+height_knots: [0.80, 0.85, 0.90, 0.95, 1.00, 1.05, 1.07]
+height_default_angles:
+  - [-0.8598366941, -0.0833027681, -0.2032590564, 1.6793519739, -0.8422644112, -0.0072591654,
+     -0.8600986192,  0.0832355869,  0.2034542273, 1.6814949171, -0.8441668618,  0.0084601470]
+  - [-0.7753089377, -0.0664301553, -0.1879464589, 1.5101702305, -0.7578315247, -0.0078277192,
+     -0.7757238106,  0.0664778118,  0.1880708065, 1.5122875913, -0.7595385640,  0.0088906743]
+  - [-0.6818009061, -0.0495026626, -0.1693237693, 1.3242368826, -0.6650185078, -0.0083197631,
+     -0.6823374843,  0.0496563813,  0.1694030407, 1.3263118558, -0.6665489369,  0.0092608670]
+  - [-0.5747511002, -0.0325143800, -0.1461046622, 1.1128976850, -0.5594985545, -0.0087527639,
+     -0.5753768016,  0.0327667509,  0.1461613912, 1.1148979032, -0.5608575804,  0.0095826062]
+  - [-0.4442250339, -0.0154576827, -0.1154954765, 0.8572246716, -0.4318124031, -0.0091396741,
+     -0.4448884013,  0.0158020690,  0.1155487993, 0.8590695838, -0.4329769488,  0.0098625721]
+  - [-0.2560732422,  0.0016813331, -0.0680335784, 0.4918717093, -0.2493161237, -0.0094905977,
+     -0.2565703964, -0.0012514707,  0.0680771700, 0.4931705035, -0.2501051859,  0.0100970252]
+  - [-0.1143391921,  0.0085724559, -0.0306132216, 0.2183872050, -0.1127115482, -0.0096231946,
+     -0.1140194361, -0.0081103848,  0.0304900344, 0.2180092838, -0.1126259427,  0.0101622145]
+
+kps: [
+  # Policy-mode gains copied from Downloads/policy/env.yaml.
+  400.0, 500.0, 500.0,
+  20.0, 20.0,
+  100.0, 100.0, 100.0, 100.0, 100.0, 50.0, 50.0,
+  100.0, 100.0, 100.0, 100.0, 100.0, 50.0, 50.0,
+  150.0, 150.0, 100.0, 200.0, 50.0, 40.0,
+  150.0, 150.0, 100.0, 200.0, 50.0, 40.0,
+]
+
+kds: [
+  4.0, 4.0, 4.0,
+  2.0, 2.0,
+  2.0, 2.0, 2.0, 2.0, 2.0, 1.0, 1.0,
+  2.0, 2.0, 2.0, 2.0, 2.0, 1.0, 1.0,
+  3.0, 3.0, 4.0, 6.0, 2.0, 2.0,
+  3.0, 3.0, 4.0, 6.0, 2.0, 2.0,
+]

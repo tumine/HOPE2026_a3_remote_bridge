@@ -12,6 +12,12 @@ ManualKey ParseManualKey(char key) noexcept {
     case 'M': return ManualKey::kMotion;
     case 'v':
     case 'V': return ManualKey::kUpperBodyServe;
+    case 'c':
+    case 'C': return ManualKey::kServeClose;
+    case 'f':
+    case 'F': return ManualKey::kServeFire;
+    case 'g':
+    case 'G': return ManualKey::kGripperOpen;
     case 'x':
     case 'X': return ManualKey::kHalt;
     case 'i':
@@ -70,6 +76,10 @@ ManualActionResult ManualControl::Apply(ManualKey key) noexcept {
       pd_stand_ready_ = false;
       Enter(ManualMode::kUpperBodyServe);
       return ManualActionResult::kAccepted;
+    case ManualKey::kServeClose:
+    case ManualKey::kServeFire:
+    case ManualKey::kGripperOpen:
+      return ManualActionResult::kIgnored;
     case ManualKey::kHalt:
       pd_stand_ready_ = false;
       Enter(ManualMode::kHalted);

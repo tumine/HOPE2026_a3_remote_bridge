@@ -1,0 +1,2 @@
+curl -i -H 'content-type:application/json' -X POST 'http://127.0.0.1:50080/json/stop_app' -d '{"app_name": "mc"}'
+A3_TRANSPORT=iceoryx A3_ACTUATION_CONFIRM=ENABLE_A3_ACTUATION A3_ROBOT_SAFETY_READY=1 ./run_hope_lower_body.sh

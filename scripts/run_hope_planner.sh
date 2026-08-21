@@ -6,8 +6,8 @@ ROS_SETUP="${A3_PC_ROS_SETUP:-/opt/ros/humble/setup.bash}"
 HOPE_SETUP="${A3_HOPE_ROS_SETUP:-${ROOT_DIR}/.hope_ros2/install/setup.bash}"
 TRAINING_SOURCE="${A3_TRAINING_SOURCE:-${ROOT_DIR}/26.7.25发球部署/pingpang_ustc-srf}"
 PLANNER_CONFIG="${A3_HOPE_PLANNER_CONFIG:-${TRAINING_SOURCE}/hope_ws/src/hope_planner/config/hope_planner.yaml}"
-MODEL_53000_BUNDLE="${A3_MODEL_53000_BUNDLE:-${ROOT_DIR}/model_53000_deploy_bundle/a3_deploy/model_53000_deploy_bundle}"
-BALL_PHYSICS_CONFIG="${HOPE_BALL_PHYSICS_CONFIG:-${MODEL_53000_BUNDLE}/config/ball_physics.yaml}"
+MODEL_72500_BUNDLE="${A3_MODEL_72500_BUNDLE:-${ROOT_DIR}/model_72500_deploy_bundle}"
+BALL_PHYSICS_CONFIG="${HOPE_BALL_PHYSICS_CONFIG:-${MODEL_72500_BUNDLE}/config/ball_physics.yaml}"
 # Keep the explicitly requested live commissioning window. MuJoCo starts new
 # tasks near 1.0 s; values below that are a documented real-planner exception.
 LIVE_TTS_MIN_S="${A3_NEW_TASK_TTS_MIN_S:-0.20}"

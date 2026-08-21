@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "bundle": "model_64500_deploy_bundle",
+  "created_at": "2026-08-20",
+  "status": "mujoco_ready_stable_not_hardware_certified",
+  "policy": {
+    "checkpoint_iteration": 64500,
+    "checkpoint_file": "model_64500.pt",
+    "checkpoint_sha256": "7c6f7ba289477744ff9ba9b8b35e017dea3da7b3fa6348c641f7b204ff712e09",
+    "onnx": "policy/hope_pingpong.onnx",
+    "onnx_sha256": "d4f11e90e62cd1deba169b0139f5e3f7d18303443b71bde2f94ab51d6c895d3e",
+    "manifest": "policy/policy_manifest.json",
+    "manifest_sha256": "c2fa8c71cdfa5e62892341097e20a1c0da7ef5a0ebed1934b79f68e4cc709c05"
+  },
+  "source_configs": {
+    "agent": "provenance/agent.yaml",
+    "agent_sha256": "603b14f0daffff9389be720c86a1c18b1c35c0567c063fe635708e5e2af925b1",
+    "environment": "provenance/env.yaml",
+    "env_sha256": "0ae011627ed08dc8ad1dd60576f98699fc8c1b2e716c83bdf08b65d0b42738c8",
+    "git_diff": "provenance/HOPE.diff",
+    "git_diff_sha256": "3f8143f950cf150d196f3983de62a3a4bc02881c86170b8163082c56ab0cd921"
+  },
+  "deployment_configs": {
+    "runtime": "config/runtime.yaml",
+    "runtime_sha256": "c01ea995eae69272b410be793ee198f854112f7381992da524f08a2e18860a31",
+    "strike_box": "config/strike_box.yaml",
+    "strike_box_sha256": "490e09ee84f4ddf159e1584a8a4d730f66eec8198f1b69a262b34b6d5b63595e",
+    "action_adapter": "config/action_adapter.yaml",
+    "action_adapter_sha256": "f2d95f4c18ea95ba15891c0e2214ef71cc4929c7af8be442a971995ba741b350",
+    "joint_order": "config/joint_order_agibot_a3.yaml",
+    "joint_order_sha256": "29ce02a50bd73587ea63c980415f8119631507a594c53a60e71962750f936e13"
+  },
+  "physics": {
+    "ball_physics": "config/ball_physics.yaml",
+    "ball_physics_sha256": "093d0216008e655bdf4d46eb8b07c3beb3d2ce9c41f8fdc4134463cd6be3ec3e",
+    "table_restitution": 0.9448,
+    "table_tangential_damping": 0.2079
+  },
+  "simulation_model": {
+    "path": "robot_model/agibot_a3/xml/agibot_a3.xml",
+    "xml_sha256": "d6cb5421c9e1dc138c892d5677f6c832bb8182ec11ea4944fae85bf3cb0efb37"
+  },
+  "ready_reference": {
+    "motion": "reference_motion/hope_neutral_ready_crouch2cm_flatfeet_compact.npz",
+    "motion_sha256": "b2104877e018750e31f0f53d16943be7bdae5690add3e7dfb232889131f2fd06",
+    "metadata": "reference_motion/hope_neutral_ready_crouch2cm_flatfeet_compact.yaml",
+    "metadata_sha256": "70d3b4d51efe2ca4c417cae56b38204bb32612750c2c03b1f6bf5396847f77b8"
+  },
+  "validation": {
+    "ready_report": "validation/ready_no_command_10s.json",
+    "ready_report_sha256": "47225b4f9a077fa086580f8a84cee6c848457528f98d3bca85843ae7f88e65a2",
+    "duration_s": 10.0,
+    "control_ticks": 500,
+    "fell": false,
+    "max_station_drift_m": 0.02812332915930668,
+    "final_ready_joint_rms_rad": 0.3783944390878428,
+    "hardware_certified": false
+  }
+}

@@ -142,7 +142,11 @@ class PingPongReferenceRunner:
             self.bridge.close()
 
     def _print_status(self, tick: int, target) -> None:
-        side = "forehand" if target.swing_side >= 0 else "backhand"
+        side = (
+            "forehand" if target.swing_side > 0
+            else "backhand" if target.swing_side < 0
+            else "neutral"
+        )
         print(
             f"[ref] t={tick * self.cfg.control_dt:6.2f}s "
             f"phase={self.lifecycle.phase.value:<14} "

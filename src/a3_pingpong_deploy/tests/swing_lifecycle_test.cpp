@@ -36,18 +36,22 @@ int main() {
 
   const auto ready = lifecycle.Update(std::nullopt, base0);
   CHECK(lifecycle.phase() == a3_pingpong::SwingPhase::kReady);
-  CHECK(std::abs(ready.position_w[0] - (-0.1798684298992157)) < 1.0e-12);
-  CHECK(std::abs(ready.position_w[1] - (-1.457751166820526)) < 1.0e-12);
-  CHECK(std::abs(ready.position_w[2] - 0.24860444187521936) < 1.0e-12);
+  CHECK(std::abs(ready.position_w[0] - (-0.05)) < 1.0e-12);
+  CHECK(std::abs(ready.position_w[1] - (-1.0125)) < 1.0e-12);
+  CHECK(std::abs(ready.position_w[2] - 0.3864) < 1.0e-12);
+  const std::array<double, 3> zero_velocity{0.0, 0.0, 0.0};
+  CHECK(ready.velocity_w == zero_velocity);
   CHECK(std::abs(ready.time_to_strike_s - 1.0) < 1.0e-12);
+  CHECK(ready.swing_side == 0);
   const std::array<double, 3> moved_base{0.1, -0.2, 0.3};
   const auto moved_ready = lifecycle.Update(std::nullopt, moved_base);
-  CHECK(std::abs(moved_ready.position_w[0] - 0.4201315701007843) <
-        1.0e-12);
-  CHECK(std::abs(moved_ready.position_w[1] - (-0.8952511668205261)) <
-        1.0e-12);
-  CHECK(std::abs(moved_ready.position_w[2] - 0.24220444187521934) <
-        1.0e-12);
+  CHECK(std::abs(moved_ready.position_w[0] - 0.55) < 1.0e-12);
+  CHECK(std::abs(moved_ready.position_w[1] - (-0.45)) < 1.0e-12);
+  CHECK(std::abs(moved_ready.position_w[2] - 0.38) < 1.0e-12);
+  for (std::size_t index = 0; index < 3; ++index) {
+    CHECK(std::abs(moved_ready.position_w[index] - moved_base[index] -
+                   config.ready_target_rel_base_w[index]) < 1.0e-12);
+  }
   lifecycle.Advance();
   CHECK(std::abs(lifecycle.Update(std::nullopt, moved_base).time_to_strike_s - 1.0) <
         1.0e-12);

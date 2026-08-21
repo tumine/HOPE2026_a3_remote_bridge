@@ -1,0 +1,2385 @@
+diff --git a/a3_deploy/a3_deploy_example/README.md b/a3_deploy/a3_deploy_example/README.md
+index 42cecd6..7f30655 100644
+--- a/a3_deploy/a3_deploy_example/README.md
++++ b/a3_deploy/a3_deploy_example/README.md
+@@ -50,7 +50,9 @@ The 111-D observation, in order:
+ `fixed_station_error_xy(2)` (historical name; moving base-target error), `racket_target_rel_base(3)`,
+ `racket_target_vel_w(3)`, `time_to_strike(1)`, `swing_side(1)`.
+ 
+-`swing_side` (+1 forehand / -1 backhand) is chosen once per `task_id` and locked.
++For a real ball task, `swing_side` (+1 forehand / -1 backhand) is chosen once per
++`task_id` and locked. The lifecycle emits `0` only while there is no ball command
++and the policy is in READY.
+ See `../../docs/POLICY_INTERFACE.md` and `../../docs/PLANNER_INTERFACE.md` for the
+ observation and command details.
+ 
+diff --git a/a3_deploy/a3_deploy_example/config/action_adapter.yaml b/a3_deploy/a3_deploy_example/config/action_adapter.yaml
+index b71c496..583c8e7 100644
+--- a/a3_deploy/a3_deploy_example/config/action_adapter.yaml
++++ b/a3_deploy/a3_deploy_example/config/action_adapter.yaml
+@@ -31,13 +31,19 @@
+ #                    deterministic safety clamp. Vendor hard limits / motor
+ #                    protection / e-stop remain the robot backend's responsibility.
+ #
+-# head_yaw_joint / head_pitch_joint are passive at deploy (held at their default);
+-# they still occupy their action columns so every vector here is length 31. Training
+-# and deployment zero those action columns independently of this uniform scale.
++# Locked joints still occupy their action columns so the policy/checkpoint contract
++# remains 31-D. Training, MuJoCo and deployment zero these applied-action columns,
++# feed back zero in last_action, and hold q_des at default_q. The neck is handled by
++# the runtime's passive_neck switch; the two waist axes below are part of the shared
++# train/deploy adapter contract.
+ 
+ raw_action_transform: identity
+ action_clip: [-100.0, 100.0]
+ 
++locked_joint_names:
++  - waist_roll_joint
++  - waist_pitch_joint
++
+ action_scale: 0.25   # rad per raw-action unit, uniform across all 31 columns
+ 
+ default_q:            # rad, example neutral upright stand
+diff --git a/a3_deploy/a3_deploy_example/config/hope_pingpong_runtime.yaml b/a3_deploy/a3_deploy_example/config/hope_pingpong_runtime.yaml
+index 7c2ecbf..64cca06 100644
+--- a/a3_deploy/a3_deploy_example/config/hope_pingpong_runtime.yaml
++++ b/a3_deploy/a3_deploy_example/config/hope_pingpong_runtime.yaml
+@@ -41,9 +41,11 @@ simulation:
+   # These remain simulation values, not vendor real-robot deploy gains.
+   pd_gains:
+     joints:
++      # Policy columns 1/2 are ignored by action_adapter.yaml and held at zero.
++      # Rated effort limits remain enforced by the robot/MuJoCo model.
+       waist_yaw_joint: {kp: 85.0, kd: 3.0}
+-      waist_roll_joint: {kp: 50.0, kd: 2.0}
+-      waist_pitch_joint: {kp: 50.0, kd: 2.0}
++      waist_roll_joint: {kp: 500.0, kd: 2.0}
++      waist_pitch_joint: {kp: 500.0, kd: 2.0}
+       head_yaw_joint: {kp: 40.0, kd: 2.0}
+       head_pitch_joint: {kp: 40.0, kd: 2.0}
+       left_shoulder_pitch_joint: {kp: 40.0, kd: 3.0}
+@@ -90,13 +92,12 @@ lifecycle:
+   recovery_s: 0.0
+   ready_time_to_strike: 1.0
+   # Canonical policy-conditioning anchor while no RacketCommand is available.
+-  # These are the first seed-0 forehand command's training-distribution values,
+-  # validated with the current model_21500 policy for 10 s of stable MuJoCo idle.
++  # This matches the independent physical READY reference: racket 45 cm forward,
++  # 25 cm right and 8 cm above the pelvis, with zero requested racket velocity.
++  # swing_side=0 is the explicit no-ball marker; real swings remain +/-1.
+   # rel_base_w components remain on world axes; this is not a pelvis-yaw rotation.
+-  # The non-zero target velocity conditions the learned pre-swing pose—it is not a
+-  # claim that the physical racket is already moving at that velocity while idle.
+   ready_target_rel_base_w:
+-    [0.3201315701007843, -0.6952511668205261, -0.057795558124780655]
++    [0.45, -0.25, 0.08]
+   ready_target_vel_w:
+-    [2.3803303241729736, 0.6271703243255615, 1.0374835729599]
+-  ready_swing_side: 1
++    [0.0, 0.0, 0.0]
++  ready_swing_side: 0
+diff --git a/a3_deploy/a3_deploy_example/reference/README.md b/a3_deploy/a3_deploy_example/reference/README.md
+index 81a228c..6a46b65 100644
+--- a/a3_deploy/a3_deploy_example/reference/README.md
++++ b/a3_deploy/a3_deploy_example/reference/README.md
+@@ -134,11 +134,12 @@ demonstration feed so the sim is runnable without a planner; it is **not** part
+ the deploy contract and is not a scripted swing. Its target/velocity examples are
+ the centres of the Isaac per-side training boxes; the swing trajectory is always
+ produced by the learned policy. `--idle` runs with no commands at all.
+-In READY, the shipped current-policy runtime holds the explicit
++In READY, the runtime holds the explicit
+ `ready_target_rel_base_w`, `ready_target_vel_w`, `ready_time_to_strike`, and
+-`ready_swing_side` values from `config/hope_pingpong_runtime.yaml`. These form a
+-policy-conditioning anchor sampled from the training command distribution; the
+-non-zero target velocity is an input condition, not measured idle racket motion.
++`ready_swing_side` values from `config/hope_pingpong_runtime.yaml`. These match the
++independent physical no-ball pose: the racket target is fixed relative to the live
++pelvis, velocity is zero, and `swing_side=0` explicitly separates READY from real
++forehand/backhand commands (`+1/-1`).
+ Older runtime YAMLs without the new fields retain the original
+ `ready_reach_x/y/z` plus zero-velocity fallback.
+ 
+diff --git a/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/action_adapter.py b/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/action_adapter.py
+index dfe56ec..f136595 100644
+--- a/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/action_adapter.py
++++ b/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/action_adapter.py
+@@ -37,6 +37,7 @@ class ActionAdapter:
+     clamp_upper: np.ndarray   # (31,) upper joint-position clamp, rad
+     raw_action_transform: str = "identity"
+     action_clip: tuple[float, float] | None = None
++    locked_joint_names: tuple[str, ...] = ()
+ 
+     def __post_init__(self) -> None:
+         for field in ("default_q", "action_scale", "clamp_lower", "clamp_upper"):
+@@ -48,6 +49,7 @@ class ActionAdapter:
+             raise ValueError("action_adapter clamp_lower must be <= clamp_upper for every joint")
+         self.raw_action_transform = _resolve_raw_action_transform(self.raw_action_transform)
+         self.action_clip = _resolve_action_clip(self.action_clip)
++        self.locked_joint_names = _resolve_locked_joint_names(self.locked_joint_names)
+ 
+     def clip_raw_action(self, raw_action: np.ndarray) -> np.ndarray:
+         """Clip actor output to the configured applied-action interval."""
+@@ -56,9 +58,15 @@ class ActionAdapter:
+             raise ValueError(
+                 f"raw_action trailing dimension must be {NUM_JOINTS}, got {raw.shape}"
+             )
+-        if self.action_clip is None:
+-            return raw.copy()
+-        return np.clip(raw, self.action_clip[0], self.action_clip[1])
++        accepted = (
++            raw.copy()
++            if self.action_clip is None
++            else np.clip(raw, self.action_clip[0], self.action_clip[1])
++        )
++        if self.locked_joint_names:
++            columns = [JOINT_NAMES.index(name) for name in self.locked_joint_names]
++            accepted[..., columns] = 0.0
++        return accepted
+ 
+     def transform_raw_action(self, raw_action: np.ndarray) -> np.ndarray:
+         """Map actor output into the normalized residual domain.
+@@ -90,6 +98,7 @@ class ActionAdapter:
+         default_q = _resolve_per_joint(doc["default_q"], "default_q")
+         raw_action_transform = _resolve_raw_action_transform(doc.get("raw_action_transform"))
+         action_clip = _resolve_action_clip(doc.get("action_clip"))
++        locked_joint_names = _resolve_locked_joint_names(doc.get("locked_joint_names"))
+ 
+         scale_spec = doc["action_scale"]
+         if isinstance(scale_spec, (int, float)):
+@@ -107,6 +116,7 @@ class ActionAdapter:
+             clamp_upper=clamp_upper,
+             raw_action_transform=raw_action_transform,
+             action_clip=action_clip,
++            locked_joint_names=locked_joint_names,
+         )
+ 
+ 
+@@ -145,3 +155,13 @@ def _resolve_action_clip(spec) -> tuple[float, float] | None:
+     if lower > upper:
+         raise ValueError("action_clip lower must be <= upper")
+     return lower, upper
++
++
++def _resolve_locked_joint_names(spec) -> tuple[str, ...]:
++    names = tuple(str(name) for name in (spec or ()))
++    if len(set(names)) != len(names):
++        raise ValueError("locked_joint_names must not contain duplicates")
++    missing = [name for name in names if name not in JOINT_NAMES]
++    if missing:
++        raise ValueError(f"locked_joint_names contains unknown joints: {missing}")
++    return names
+diff --git a/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/lifecycle.py b/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/lifecycle.py
+index c1a89ba..c769e07 100644
+--- a/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/lifecycle.py
++++ b/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/lifecycle.py
+@@ -82,8 +82,10 @@ class LifecycleConfig:
+ 
+         if self.ready_swing_side is not None:
+             side = int(self.ready_swing_side)
+-            if side not in (FOREHAND, BACKHAND):
+-                raise ValueError("ready_swing_side must be +1 (forehand) or -1 (backhand)")
++            if side not in (BACKHAND, 0, FOREHAND):
++                raise ValueError(
++                    "ready_swing_side must be -1 (backhand), 0 (READY), or +1 (forehand)"
++                )
+             self.ready_swing_side = side
+ 
+ 
+diff --git a/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/observation.py b/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/observation.py
+index 3297924..d8b8ff2 100644
+--- a/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/observation.py
++++ b/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/observation.py
+@@ -17,7 +17,7 @@ There is exactly one layout; no normalization is applied (raw observation).
+ | [103:106]  | racket_target_rel_base  | 3   | world, m               |
+ | [106:109]  | racket_target_vel_w     | 3   | world, m/s             |
+ | [109:110]  | time_to_strike          | 1   | s                      |
+-| [110:111]  | swing_side              | 1   | +1 forehand / -1 back  |
++| [110:111]  | swing_side              | 1   | +1 fore / -1 back / 0 READY |
+ 
+ The historical wire name ``fixed_station_error_xy`` is retained so the 111-D
+ layout does not move. Its value is now ``base_target_xy - current_base_xy``:
+@@ -25,8 +25,9 @@ the x target stays at startup while y is derived from the planner's hit point an
+ selected forehand/backhand reach. During READY it returns to the startup station.
+ 
+ (*) ``last_action`` is the previous tick's APPLIED action: the actor output clipped
+-to the shared interval, with the passive head columns (idx 3, 4) zeroed, exactly as
+-training processes its applied-action feedback. Those two columns are always 0 here.
++to the shared interval, with adapter-locked waist roll/pitch (idx 1, 2) and passive
++head (idx 3, 4) zeroed, exactly as training processes its applied-action feedback.
++Those four columns are always 0 here.
+ """
+ 
+ from __future__ import annotations
+@@ -65,7 +66,7 @@ class ObsTarget:
+     pos_w: np.ndarray   # (3,) racket target position, world m
+     vel_w: np.ndarray   # (3,) racket target velocity, world m/s
+     time_to_strike: float
+-    swing_side: float   # +1 forehand / -1 backhand
++    swing_side: float   # +1 forehand / -1 backhand / 0 no-ball READY
+ 
+ 
+ def build_observation(
+diff --git a/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/runner.py b/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/runner.py
+index 546274d..81e6126 100644
+--- a/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/runner.py
++++ b/a3_deploy/a3_deploy_example/reference/a3_deploy_onnx_ref_pingpong/runner.py
+@@ -7,9 +7,9 @@ Per tick, in order:
+   2. poll the latest RacketCommand and emit the current swing goal;
+   3. assemble the 111-D observation;
+   4. run the ONNX actor -> raw_action[31];
+-  5. clip the raw action to its shared interval, zero the passive head columns
+-     (idx 3, 4), and feed that APPLIED action back as the next last_action —
+-     matching training;
++  5. clip the raw action to its shared interval; the ActionAdapter zeros locked
++     waist roll/pitch (idx 1, 2), then the runner zeros passive head columns
++     (idx 3, 4); feed that APPLIED action back as the next last_action;
+   6. pass the applied action through the shared ActionAdapter -> 31 joint targets
+      (holding the passive neck at its default);
+   7. write the targets, step the sim, then advance the strike clock once.
+@@ -110,9 +110,10 @@ class PingPongReferenceRunner:
+                     state, target, self.last_action, self.default_q, self.base_target_xy
+                 )
+                 raw_action = self.policy.infer(obs)
+-                # The APPLIED action is clipped by the shared adapter before feedback.
+-                # With a passive neck the head columns are then zeroed; training exposes
+-                # the same clipped/zeroed columns in its last_action observation.
++                # The shared adapter clips the APPLIED action and zeros configured
++                # locked joints (waist roll/pitch for this policy). With a passive
++                # neck the head columns are then zeroed. Training exposes the same
++                # clipped/zeroed columns in its last_action observation.
+                 applied_action = self.cfg.action_adapter.clip_raw_action(raw_action)
+                 if self.cfg.passive_neck:
+                     applied_action[_HEAD_IDX] = 0.0
+diff --git a/configs/ball_physics.yaml b/configs/ball_physics.yaml
+index 19646a9..cfcedb2 100644
+--- a/configs/ball_physics.yaml
++++ b/configs/ball_physics.yaml
+@@ -80,10 +80,10 @@ contact:
+     dynamic_friction: 1.0
+ 
+   table:                   # ball vs the (static) table top; normal n = +z
+-    restitution: 0.9215    # measured normal restitution from table bounces
++    restitution: 0.9448    # high-confidence fitted normal restitution
+     static_friction: 0.40
+     dynamic_friction: 0.40
+-    tangential_damping: 0.369   # fraction of tangential speed removed per bounce
++    tangential_damping: 0.2079  # medium-confidence fitted tangential speed loss
+     tangential_cap: 2.0         # Coulomb friction cap on the tangential impulse
+ 
+   floor:                   # ball vs the floor (out-of-play)
+diff --git a/hope_training/whole_body_tracking/README.md b/hope_training/whole_body_tracking/README.md
+index a8fe06a..3790e64 100644
+--- a/hope_training/whole_body_tracking/README.md
++++ b/hope_training/whole_body_tracking/README.md
+@@ -92,10 +92,12 @@ python scripts/train.py task=HOPEPingPong algo=ppo headless=true \
+     +resume=forehand_ready_2026_07_26
+ ```
+ 
+-The default reset mixture reserves a fixed 10% environment cohort for no-ball READY training.
+-Those environments receive the exact deploy READY observation, start from a sampled lateral offset,
+-and learn to return to the table-centred station. Waist/arm first-frame tracking stays active during
+-the return; strict full-body first-frame tracking starts inside 0.15 m of centre. The other 90%
++The default reset mixture reserves a fixed 20% environment cohort for no-ball READY training.
++Those environments receive the exact deploy READY observation (`racket_rel_base=[0.45,-0.25,0.08]`,
++zero target velocity, and `swing_side=0` as an explicit no-ball marker), start from a sampled lateral offset,
++and learn to return to the table-centred station. Their full-body target is a dedicated compact,
++flat-foot neutral READY pose (zero waist yaw/roll), not a swing clip's asymmetric first frame.
++The other 80%
+ retain the 80/20 quiet-stand/RSI mixture; RSI starts use stable
+ dual-support frames with a 10--20 tick settle. Racket position and incoming-velocity boxes expand
+ from centered subsets to their complete ranges over 200k control steps. TensorBoard logs
+diff --git a/hope_training/whole_body_tracking/cfg/base/randomization_base.yaml b/hope_training/whole_body_tracking/cfg/base/randomization_base.yaml
+index 5d05c31..d999cb7 100644
+--- a/hope_training/whole_body_tracking/cfg/base/randomization_base.yaml
++++ b/hope_training/whole_body_tracking/cfg/base/randomization_base.yaml
+@@ -4,4 +4,4 @@
+ # range to null to disable that randomization.
+ domain_rand:
+   link_mass_range: [0.9, 1.1]   # +/-10% link-mass scale -> events.link_mass (randomize_rigid_body_mass)
+-  pd_gain_range: null           # null DISABLES events.pd_gains; set e.g. [0.8, 1.2] to randomize
++  pd_gain_range: [0.9, 1.1]     # keep every joint, including all waist joints, at +/-10% PD randomization
+diff --git a/hope_training/whole_body_tracking/cfg/task/HOPEPingPong.yaml b/hope_training/whole_body_tracking/cfg/task/HOPEPingPong.yaml
+index ddeae68..24a8bf0 100644
+--- a/hope_training/whole_body_tracking/cfg/task/HOPEPingPong.yaml
++++ b/hope_training/whole_body_tracking/cfg/task/HOPEPingPong.yaml
+@@ -30,8 +30,8 @@ defaults:
+ #   72--320. Source frames 173--187 remain at unit speed, including a one-frame
+ #   derivative buffer around the +/-0.12 s strike reward window.
+ # Override on the CLI with motion_file= / motion_file_2= only for an intentional experiment.
+-motion_file: hope_training/motions/preprocessed/ours_forehand_guarded_1p8s_wrist_x.npz
+-motion_file_2: hope_training/motions/preprocessed/ours_backhand_guarded_1p8s.npz
++motion_file: hope_training/motions/preprocessed/ours_forehand_guarded_1p8s_wrist_x_upright8deg_pelvis2deg_crouch2cm_flatfeet_waist_pitch_roll_locked0.npz
++motion_file_2: hope_training/motions/preprocessed/ours_backhand_guarded_1p8s_upright8deg_pelvis2deg_crouch2cm_flatfeet_armfix_waist_pitch_roll_locked0.npz
+ 
+ env:
+   # A 91-frame swing consumes 1.82 s of actor steps (both endpoints included);
+@@ -51,7 +51,7 @@ motion:
+ #   rewards.racket_position.weight: 12.0
+ #   rewards.racket_velocity.weight: 8.0
+ #   commands.motion.stand_start_prob: 0.9
+-#   commands.motion.forehand_ready_pose_prob: 0.10
++#   commands.motion.forehand_ready_pose_prob: 0.20
+ #   commands.racket_target.target_curriculum_duration_steps: 300000
+ #   rewards.base_position.weight: 2.5
+ overrides: {}
+diff --git a/hope_training/whole_body_tracking/scripts/motionplay.py b/hope_training/whole_body_tracking/scripts/motionplay.py
+index 5df2f82..7154f3f 100644
+--- a/hope_training/whole_body_tracking/scripts/motionplay.py
++++ b/hope_training/whole_body_tracking/scripts/motionplay.py
+@@ -1,4 +1,4 @@
+-"""Play the HOPE forehand/backhand reference motions on Agibot A3 in Isaac Lab.
++"""Play the HOPE swing or independent READY references on Agibot A3 in Isaac Lab.
+ 
+ This is a direct reference-motion viewer: it writes the NPZ root and joint state to the
+ articulation every physics tick.  It does not load a policy, run rewards, or use the motion
+@@ -15,6 +15,9 @@ Examples:
+     # Play once and hold the final frame.
+     python scripts/motionplay.py --motion backhand --no-loop
+ 
++    # Inspect the compact no-ball READY pose.
++    python scripts/motionplay.py --motion ready
++
+     # Hold the strike frame from each motion's YAML sidecar, side by side.
+     python scripts/motionplay.py --motion both --view strike
+ """
+@@ -43,20 +46,29 @@ parser = argparse.ArgumentParser(
+ )
+ parser.add_argument(
+     "--motion",
+-    choices=("both", "forehand", "backhand"),
++    choices=("both", "forehand", "backhand", "ready"),
+     default="both",
+     help="Motion to show. 'both' places forehand and backhand robots side by side.",
+ )
++parser.add_argument(
++    "--ready-file",
++    type=pathlib.Path,
++    default=_MOTION_DIR
++    / "hope_neutral_ready_crouch2cm_flatfeet_compact_waist_pitch_roll_locked0.npz",
++    help="Independent no-ball READY NPZ file.",
++)
+ parser.add_argument(
+     "--forehand-file",
+     type=pathlib.Path,
+-    default=_MOTION_DIR / "ours_forehand_guarded_1p8s_wrist_x.npz",
++    default=_MOTION_DIR
++    / "ours_forehand_guarded_1p8s_wrist_x_upright8deg_pelvis2deg_crouch2cm_flatfeet_waist_pitch_roll_locked0.npz",
+     help="Forehand HOPE NPZ file.",
+ )
+ parser.add_argument(
+     "--backhand-file",
+     type=pathlib.Path,
+-    default=_MOTION_DIR / "ours_backhand_guarded_1p8s.npz",
++    default=_MOTION_DIR
++    / "ours_backhand_guarded_1p8s_upright8deg_pelvis2deg_crouch2cm_flatfeet_armfix_waist_pitch_roll_locked0.npz",
+     help="Backhand HOPE NPZ file.",
+ )
+ parser.add_argument("--speed", type=float, default=1.0, help="Playback speed multiplier (> 0).")
+@@ -167,6 +179,8 @@ def _selected_motion_paths() -> list[tuple[str, pathlib.Path]]:
+         selected = [("FOREHAND", args_cli.forehand_file)]
+     elif args_cli.motion == "backhand":
+         selected = [("BACKHAND", args_cli.backhand_file)]
++    elif args_cli.motion == "ready":
++        selected = [("READY", args_cli.ready_file)]
+     else:
+         selected = [
+             ("FOREHAND", args_cli.forehand_file),
+@@ -188,17 +202,21 @@ def _load_motion(path: pathlib.Path) -> MotionLoader:
+         import yaml
+ 
+         metadata = yaml.safe_load(path.with_suffix(".yaml").read_text(encoding="utf-8")) or {}
+-        swing_side = int(metadata.get("swing_side", 0))
+-        offsets = {
+-            1: A3_FOREHAND_MOTION_GROUND_OFFSET,
+-            -1: A3_BACKHAND_MOTION_GROUND_OFFSET,
+-        }
+-        if swing_side not in offsets:
+-            raise ValueError(
+-                f"{path.with_suffix('.yaml')}: swing_side must be +1/-1 to apply "
+-                "the training ground-height correction (or pass --raw-source-height)"
+-            )
+-        motion.body_pos_w[:, :, 2].add_(offsets[swing_side])
++        if metadata.get("pose_type") == "independent_no_ball_ready":
++            offset = float(metadata["neutral_ready_pose"]["ground_height_offset_m"])
++        else:
++            swing_side = int(metadata.get("swing_side", 0))
++            offsets = {
++                1: A3_FOREHAND_MOTION_GROUND_OFFSET,
++                -1: A3_BACKHAND_MOTION_GROUND_OFFSET,
++            }
++            if swing_side not in offsets:
++                raise ValueError(
++                    f"{path.with_suffix('.yaml')}: swing_side must be +1/-1 to apply "
++                    "the training ground-height correction (or pass --raw-source-height)"
++                )
++            offset = offsets[swing_side]
++        motion.body_pos_w[:, :, 2].add_(offset)
+     return motion
+ 
+ 
+diff --git a/hope_training/whole_body_tracking/scripts/mujoco_eval_onnx.py b/hope_training/whole_body_tracking/scripts/mujoco_eval_onnx.py
+index 5fefba5..2dd8bcf 100644
+--- a/hope_training/whole_body_tracking/scripts/mujoco_eval_onnx.py
++++ b/hope_training/whole_body_tracking/scripts/mujoco_eval_onnx.py
+@@ -155,8 +155,8 @@ class _TableBounceModel:
+         ball = cfg.get("ball", {})
+         contact = cfg.get("contact", {}).get("table", {})
+         radius = float(ball.get("radius", 0.020))
+-        restitution = float(contact.get("restitution", 0.9215))
+-        damping = float(contact.get("tangential_damping", 0.369))
++        restitution = float(contact.get("restitution", 0.9448))
++        damping = float(contact.get("tangential_damping", 0.2079))
+         model = cls(
+             horizontal_retention=1.0 - damping,
+             vertical_restitution=restitution,
+@@ -873,6 +873,13 @@ def run_eval(args) -> dict:
+         validate_lateral_station_policy_manifest,
+     )
+ 
++    waist_policy_names = (
++        "waist_yaw_joint",
++        "waist_roll_joint",
++        "waist_pitch_joint",
++    )
++    waist_policy_indices = tuple(JOINT_NAMES.index(name) for name in waist_policy_names)
++
+     # Shared success metric + physics config (pure NumPy; the DEFINITION only -- fed
+     # real simulated events here, never an analytic predicted-landing rollout). Loaded
+     # directly by file path so importing it does NOT drag in the Isaac Lab training
+@@ -908,6 +915,8 @@ def run_eval(args) -> dict:
+     args.control_dt_hint = dt
+     if args.num_serves < 0:
+         raise ValueError("--num-serves must be non-negative")
++    if args.waist_policy_output_every <= 0:
++        raise ValueError("--waist-policy-output-every must be positive")
+     if args.hold_min_seconds < 0.0 or args.hold_max_seconds < args.hold_min_seconds:
+         raise ValueError("hold range must satisfy 0 <= min <= max")
+     if (
+@@ -1106,6 +1115,10 @@ def run_eval(args) -> dict:
+         if not np.all(np.isfinite(raw_action)):
+             diagnostics.nonfinite_actions += 1
+             raise FloatingPointError("ONNX policy action became non-finite")
++        print_waist_policy_output = (
++            args.print_waist_policy_output
++            and (diagnostics.policy_ticks - 1) % args.waist_policy_output_every == 0
++        )
+         diagnostics.max_abs_raw_action = max(
+             diagnostics.max_abs_raw_action, float(np.max(np.abs(raw_action)))
+         )
+@@ -1138,6 +1151,27 @@ def run_eval(args) -> dict:
+         q_des = runtime_cfg.action_adapter.decode(applied_action)
+         if runtime_cfg.passive_neck:
+             q_des[head_idx] = default_q[head_idx]
++        if print_waist_policy_output:
++            waist_indices = list(waist_policy_indices)
++            waist_q_des_rad = np.asarray(q_des[waist_indices], dtype=np.float64)
++            waist_q_rad = np.asarray(state.q[waist_indices], dtype=np.float64)
++            context = (
++                f"tick={diagnostics.policy_ticks - 1} "
++                f"sim_time={float(scene.data.time):.3f} "
++                f"phase={lifecycle.phase.value} "
++                f"side={'forehand' if target.swing_side >= 0 else 'backhand'} "
++                f"tts={float(target.time_to_strike):+.3f}"
++            )
++            print(
++                "[policy_targets] "
++                + context
++                + " waist_q_des_deg=("
++                + ",".join(f"{value:+.3f}" for value in np.rad2deg(waist_q_des_rad))
++                + ") waist_q_actual_deg=("
++                + ",".join(f"{value:+.3f}" for value in np.rad2deg(waist_q_rad))
++                + ")",
++                flush=True,
++            )
+         scene.write_targets(q_des, kp, kd)
+         events = scene.step()
+         # ``target`` was observed before this transition.  Advance the lifecycle
+@@ -1881,6 +1915,17 @@ def parse_args() -> argparse.Namespace:
+         default=None,
+         help="Write detailed contacts, near-misses, strike errors, falls and action statistics as JSON.",
+     )
++    parser.add_argument(
++        "--print-waist-policy-output",
++        action="store_true",
++        help="Print decoded and measured waist joint positions for curve recording.",
++    )
++    parser.add_argument(
++        "--waist-policy-output-every",
++        type=int,
++        default=1,
++        help="With --print-waist-policy-output, print once per N policy ticks.",
++    )
+     return parser.parse_args()
+ 
+ 
+diff --git a/hope_training/whole_body_tracking/scripts/mujoco_pingpong_scene.py b/hope_training/whole_body_tracking/scripts/mujoco_pingpong_scene.py
+index f7e91bd..3918d34 100644
+--- a/hope_training/whole_body_tracking/scripts/mujoco_pingpong_scene.py
++++ b/hope_training/whole_body_tracking/scripts/mujoco_pingpong_scene.py
+@@ -172,9 +172,9 @@ class PingPongRealPhysicsScene:
+         self.velocity_clip = float(drag.get("velocity_clip", 50.0))
+         self.gravity = g
+         table_contact = ball_cfg.get("contact", {}).get("table", {})
+-        self._table_restitution = float(table_contact.get("restitution", 0.9215))
++        self._table_restitution = float(table_contact.get("restitution", 0.9448))
+         self._table_tangential_damping = float(
+-            table_contact.get("tangential_damping", 0.369)
++            table_contact.get("tangential_damping", 0.2079)
+         )
+         self._table_tangential_cap = float(
+             table_contact.get("tangential_cap", 2.0)
+@@ -333,7 +333,7 @@ class PingPongRealPhysicsScene:
+             pair.friction = [fr, fr, 0.005, 1e-4, 1e-4]
+             pair.condim = 3
+ 
+-        _add_pair("ball_geom", "table_geom", _restitution("table", 0.9215), _friction("table", 0.40))
++        _add_pair("ball_geom", "table_geom", _restitution("table", 0.9448), _friction("table", 0.40))
+         _add_pair("ball_geom", "net_geom", _restitution("net", 0.10), _friction("net", 0.50))
+         _add_pair("ball_geom", "right_racket_collision", _restitution("paddle", 0.654), _friction("paddle", 0.60))
+         _add_pair("ball_geom", "floor", _restitution("floor", 0.40), _friction("floor", 0.80))
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/robots/agibot_a3.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/robots/agibot_a3.py
+index 0166c18..9741182 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/robots/agibot_a3.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/robots/agibot_a3.py
+@@ -152,8 +152,8 @@ A3_MOUNT_OFFSET = (0.21021, 0.032078, 0.032036)
+ # World-z corrections measured from the minimum foot collision-mesh vertex over
+ # every source-motion frame. They leave 1 mm clearance and are shared by
+ # training RSI/imitation and the direct motion viewer.
+-A3_FOREHAND_MOTION_GROUND_OFFSET = 0.0774785241
+-A3_BACKHAND_MOTION_GROUND_OFFSET = 0.0767081053
++A3_FOREHAND_MOTION_GROUND_OFFSET = 0.0502601563
++A3_BACKHAND_MOTION_GROUND_OFFSET = 0.0504016769
+ 
+ # Grounded pelvis height for the shared default_q. It was measured against the
+ # imported A3 collision meshes: z=1.0 penetrates the floor by about 66 mm,
+@@ -265,7 +265,10 @@ AGIBOT_A3_CFG = ArticulationCfg(
+             joint_names_expr=["waist_yaw_joint", "waist_roll_joint", "waist_pitch_joint"],
+             effort_limit_sim={"waist_yaw_joint": 220.0, "waist_roll_joint": 46.0, "waist_pitch_joint": 118.0},
+             velocity_limit_sim={"waist_yaw_joint": 12.0, "waist_roll_joint": 22.7, "waist_pitch_joint": 9.2},
+-            stiffness={"waist_yaw_joint": 85.0, "waist_roll_joint": 50.0, "waist_pitch_joint": 50.0},
++            # Roll/pitch are target-locked at mechanical zero by the shared
++            # ActionAdapter and use the requested nominal KP=500. Yaw remains
++            # policy-controlled with the model_68000-lineage gain.
++            stiffness={"waist_yaw_joint": 85.0, "waist_roll_joint": 500.0, "waist_pitch_joint": 500.0},
+             damping={"waist_yaw_joint": 3.0, "waist_roll_joint": 2.0, "waist_pitch_joint": 2.0},
+             armature={"waist_yaw_joint": 0.066, "waist_roll_joint": 0.015, "waist_pitch_joint": 0.088},
+         ),
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/table_tennis/physics_config.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/table_tennis/physics_config.py
+index c54d8ac..2ce769a 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/table_tennis/physics_config.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/table_tennis/physics_config.py
+@@ -84,9 +84,11 @@ DEFAULTS: dict = {
+             "dynamic_friction": 1.0,
+         },
+         "table": {
+-            "restitution": 0.9215,      # measured effective ball<->table normal restitution
++            "restitution": 0.9448,      # high-confidence effective table restitution
+             "static_friction": 0.40,
+             "dynamic_friction": 0.40,
++            "tangential_damping": 0.2079,
++            "tangential_cap": 2.0,
+         },
+         "floor": {
+             "restitution": 0.40,
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/actor_observation_contract.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/actor_observation_contract.py
+index 92f541b..462d4a5 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/actor_observation_contract.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/actor_observation_contract.py
+@@ -16,7 +16,7 @@ Layout (assembly order is fixed; slices are contiguous):
+     [103:106]  racket_target_rel_base  target racket position minus base position, world (m)
+     [106:109]  racket_target_vel_w     desired racket velocity, world (m/s)
+     [109:110]  time_to_strike          remaining time to the strike (s)
+-    [110:111]  swing_side              forehand +1 / backhand -1 (locked per task)
++    [110:111]  swing_side              forehand +1 / backhand -1 / no-ball READY 0
+ 
+ Total = 3+31+31+31+3+2+2+3+3+1+1 = 111.
+ 
+@@ -79,7 +79,12 @@ HOPE_PINGPONG = ActorObservationContract(
+         ),
+         ActorObservationTerm("racket_target_vel_w", 3, "planner", "desired racket velocity, world frame"),
+         ActorObservationTerm("time_to_strike", 1, "planner", "time remaining until the strike"),
+-        ActorObservationTerm("swing_side", 1, "planner", "forehand (+1) / backhand (-1), locked per task"),
++        ActorObservationTerm(
++            "swing_side",
++            1,
++            "planner_or_lifecycle",
++            "forehand (+1) / backhand (-1), locked per task; no-ball READY (0)",
++        ),
+     ),
+ )
+ 
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/hope_env_cfg.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/hope_env_cfg.py
+index 0c44bdc..dfa13ce 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/hope_env_cfg.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/agibot_a3/hope_env_cfg.py
+@@ -66,8 +66,15 @@ def _find_motion_clip(name: str) -> str:
+     return os.path.join("hope_training", "motions", "preprocessed", name)
+ 
+ 
+-FOREHAND_CLIP = _find_motion_clip("ours_forehand_guarded_1p8s_wrist_x.npz")
+-BACKHAND_CLIP = _find_motion_clip("ours_backhand_guarded_1p8s.npz")
++FOREHAND_CLIP = _find_motion_clip(
++    "ours_forehand_guarded_1p8s_wrist_x_upright8deg_pelvis2deg_crouch2cm_flatfeet_waist_pitch_roll_locked0.npz"
++)
++BACKHAND_CLIP = _find_motion_clip(
++    "ours_backhand_guarded_1p8s_upright8deg_pelvis2deg_crouch2cm_flatfeet_armfix_waist_pitch_roll_locked0.npz"
++)
++READY_CLIP = _find_motion_clip(
++    "hope_neutral_ready_crouch2cm_flatfeet_compact_waist_pitch_roll_locked0.npz"
++)
+ 
+ 
+ def _canonical_joint_entity() -> SceneEntityCfg:
+@@ -89,23 +96,26 @@ class CommandsCfg:
+         body_names=A3_TRACKED_BODIES,
+         joint_names=AGIBOT_A3_JOINT_NAMES,
+         motion_file=[FOREHAND_CLIP, BACKHAND_CLIP],  # clip 0 = forehand, clip 1 = backhand
++        ready_pose_file=READY_CLIP,
++        ready_pose_ground_height_offset=0.0502601563,
+         # Fast full-table continuation: retain enough forehand rehearsal while
+         # assigning most active swings to the previously under-covered backhand.
+         clip_sampling_weights=(0.35, 0.65),
+         # Constant lifts measured from the lowest foot collision-mesh vertex
+         # over every frame. Each leaves 1 mm minimum clearance and is also used
+         # by RSI root initialization through the grounded motion tensor.
+-        ground_height_offset_per_clip=(0.0774785241, 0.0767081053),
++        ground_height_offset_per_clip=(0.0502601563, 0.0504016769),
+         wrap_teleport=False,
+         # Most resets now reproduce the real deploy entry: a quiet default stand.
+         # The remaining RSI starts are restricted to kinematically stable dual-support
+         # frames and held briefly before their reference clock starts advancing.
+         stand_start_prob=0.80,
+         stand_start_min_hold=25,
+-        # Ten percent of true resets are no-ball READY rehearsals held for the
++        # Twenty percent of true resets are no-ball READY rehearsals held for the
+         # complete episode. They start laterally displaced, return to centre,
+-        # then receive strict full-body forehand-first-frame supervision.
+-        forehand_ready_pose_prob=0.10,
++        # then receive strict full-body neutral-READY supervision from a
++        # dedicated one-frame reference (not either swing clip's first frame).
++        forehand_ready_pose_prob=0.20,
+         forehand_ready_clip_id=0,
+         forehand_ready_start_y_range=(-0.35, 0.6625),
+         forehand_ready_curriculum_start_y_range=(-0.35, 0.35),
+@@ -186,23 +196,30 @@ class CommandsCfg:
+         station_curriculum_start_step=0,
+         station_curriculum_duration_steps=100_000,
+         station_edge_sample_prob=0.35,
+-        # The former command-level 10% mixture is disabled: MotionCommand now
+-        # owns an exact 10% episode-level forehand-first-frame ready branch.
++        # The former command-level stationary mixture is disabled: MotionCommand
++        # now owns the exact 20% episode-level independent no-ball READY branch.
+         ready_stationary_prob=0.0,
+         forehand_ready_station_offset_xy=(0.0, 0.0),
+         # Exact no-ball READY observation used by MuJoCo and the real runner.
++        # It matches the dedicated physical READY reference instead of reusing a
++        # sampled forehand strike target. Zero target velocity and swing_side=0
++        # form an explicit no-ball marker without changing the 111-D contract.
+         ready_target_rel_base_w=(
+-            0.3201315701007843,
+-            -0.6952511668205261,
+-            -0.057795558124780655,
++            0.45,
++            -0.25,
++            0.08,
+         ),
+         ready_target_vel_w=(
+-            2.3803303241729736,
+-            0.6271703243255615,
+-            1.0374835729599,
++            0.0,
++            0.0,
++            0.0,
+         ),
+         ready_time_to_strike=1.0,
+-        ready_swing_side=1,
++        ready_swing_side=0,
++        base_height_curriculum_start_height=A3_STAND_PELVIS_HEIGHT,
++        base_height_curriculum_target_height=A3_STAND_PELVIS_HEIGHT - 0.020,
++        base_height_curriculum_start_step=0,
++        base_height_curriculum_duration_steps=100_000,
+         table_y_range=(-0.7625, 0.7625),
+         swing_side_split_y=-0.41,
+         # Closed, zero-width hand-off: forehand y <= -0.41 and backhand
+@@ -214,7 +231,7 @@ class CommandsCfg:
+ 
+ @configclass
+ class ActionsCfg:
+-    """31-D clipped linear joint-position residual with one shared scale (passive head)."""
++    """31-D residual; passive head plus adapter-configured locked waist axes."""
+ 
+     joint_pos = mdp.ClampedJointPositionActionCfg(
+         asset_name="robot",
+@@ -303,11 +320,25 @@ class RewardsCfg:
+     # Survival/balance. Timeout is not penalized; physical fall terminations are.
+     termination_penalty = RewTerm(func=mdp.is_terminated, weight=-100.0)
+     upright = RewTerm(func=mdp.flat_orientation_l2, weight=-2.0)
++    # Keep both the floating base (pelvis) and torso from solving racket reach
++    # by leaning forward/backward. Unlike ``upright``, this isolates pitch and
++    # remains invariant to world yaw and pure roll.
++    base_torso_pitch = RewTerm(
++        func=mdp.body_pitch_l2,
++        weight=-5.0,
++        params={
++            "asset_cfg": SceneEntityCfg(
++                "robot",
++                body_names=[A3_ROOT_BODY, "torso_Link"],
++                preserve_order=True,
++            ),
++        },
++    )
+     base_height = RewTerm(
+-        func=mdp.base_height_tracking_exp,
++        func=mdp.base_height_command_tracking_exp,
+         weight=0.5,
+         params={
+-            "target_height": A3_STAND_PELVIS_HEIGHT,
++            "command_name": "racket_target",
+             "std": 0.08,
+             "asset_cfg": SceneEntityCfg("robot"),
+         },
+@@ -350,10 +381,10 @@ class RewardsCfg:
+     # free to step.  Strict full-body first-frame tracking starts only on arrival.
+     forehand_ready_upper_body = RewTerm(
+         func=mdp.forehand_ready_upper_body_joint_tracking,
+-        weight=1.0,
++        weight=2.0,
+         params={
+             "command_name": "motion",
+-            "std": 0.20,
++            "std": 0.30,
+             "asset_cfg": SceneEntityCfg(
+                 "robot",
+                 joint_names=list(A3_READY_UPPER_JOINTS),
+@@ -361,18 +392,63 @@ class RewardsCfg:
+             ),
+         },
+     )
++    # Do not dilute the three waist errors across every arm/full-body joint.
++    forehand_ready_waist = RewTerm(
++        func=mdp.forehand_ready_upper_body_joint_tracking,
++        weight=4.0,
++        params={
++            "command_name": "motion",
++            "std": 0.12,
++            "asset_cfg": SceneEntityCfg(
++                "robot",
++                joint_names=[
++                    "waist_yaw_joint",
++                    "waist_roll_joint",
++                    "waist_pitch_joint",
++                ],
++                preserve_order=True,
++            ),
++        },
++    )
+     forehand_ready_full_body = RewTerm(
+         func=mdp.forehand_ready_full_body_tracking,
+-        weight=2.0,
++        weight=6.0,
+         params={
+             "command_name": "motion",
+             "racket_command_name": "racket_target",
+-            "std_pos": 0.12,
+-            "std_ori": 0.25,
+-            "std_joint": 0.20,
++            "std_pos": 0.18,
++            "std_ori": 0.35,
++            "std_joint": 0.30,
+             "arrival_radius": 0.15,
+         },
+     )
++    # The ordinary pose rewards supervise measured q only. This READY-only term
++    # also discourages extreme waist q_des values being used as hidden PD torque.
++    forehand_ready_waist_target = RewTerm(
++        func=mdp.forehand_ready_action_target_l2,
++        weight=-2.0,
++        params={
++            "command_name": "motion",
++            "action_name": "joint_pos",
++            "joint_names": [
++                "waist_yaw_joint",
++                "waist_roll_joint",
++                "waist_pitch_joint",
++            ],
++        },
++    )
++    forehand_ready_foot_flat = RewTerm(
++        func=mdp.forehand_ready_foot_flat_orientation,
++        weight=-2.0,
++        params={
++            "command_name": "motion",
++            "asset_cfg": SceneEntityCfg(
++                "robot", body_names=list(A3_FEET_BODIES), preserve_order=True
++            ),
++            "sole_normal_axis": 2,
++            "sole_normal_sign": 1.0,
++        },
++    )
+     # Moving-station driver and HOPE_OLD phase-gated stability stack.
+     base_position = RewTerm(
+         func=mdp.base_position_tracking_exp,
+@@ -647,9 +723,9 @@ class EventCfg:
+             "distribution": "log_uniform",
+         },
+     )
+-    # Checkpoint-safe random push curriculum. A root-velocity impulse is the
+-    # standard Isaac Lab approximation of a brief shove: no vertical impulse,
+-    # moderate planar/yaw disturbance, and independent 4--7 s timing per env.
++    # Checkpoint-safe random push curriculum. The final planar root-velocity
++    # envelope reaches +/-1 m/s; angular components remain lower to avoid
++    # turning a robustness shove into an unrecoverable airborne spin.
+     push_robot = EventTerm(
+         func=mdp.push_by_setting_velocity_curriculum,
+         mode="interval",
+@@ -657,18 +733,43 @@ class EventCfg:
+         params={
+             "asset_cfg": SceneEntityCfg("robot"),
+             "velocity_range": {
+-                "x": (-0.30, 0.30),
+-                "y": (-0.30, 0.30),
++                "x": (-1.00, 1.00),
++                "y": (-1.00, 1.00),
+                 "z": (0.0, 0.0),
+-                "roll": (-0.15, 0.15),
+-                "pitch": (-0.15, 0.15),
+-                "yaw": (-0.30, 0.30),
++                "roll": (-0.30, 0.30),
++                "pitch": (-0.30, 0.30),
++                "yaw": (-0.60, 0.60),
+             },
+             "curriculum_start_step": 10_000,
+-            "curriculum_duration_steps": 100_000,
++            "curriculum_duration_steps": 200_000,
+             "curriculum_initial_fraction": 0.0,
+         },
+     )
++    # Direct torso shove for waist/trunk robustness.  This is an instantaneous
++    # one-physics-step world-frame wrench (5 ms), not a force held for 6--10 s.
++    # At full scale the horizontal impulse is at most 12.5 N*s and the roll/
++    # pitch angular impulse is at most 1.5 N*m*s.
++    push_torso = EventTerm(
++        func=mdp.apply_torso_wrench_impulse_curriculum,
++        mode="interval",
++        interval_range_s=(6.0, 10.0),
++        params={
++            "asset_cfg": SceneEntityCfg("robot", body_names=A3_ANCHOR_BODY),
++            "force_range": {
++                "x": (-2500.0, 2500.0),
++                "y": (-2500.0, 2500.0),
++                "z": (0.0, 0.0),
++            },
++            "torque_range": {
++                "roll": (-300.0, 300.0),
++                "pitch": (-300.0, 300.0),
++                "yaw": (-180.0, 180.0),
++            },
++            "curriculum_start_step": 0,
++            "curriculum_duration_steps": 240_000,
++            "curriculum_initial_fraction": 0.10,
++        },
++    )
+ 
+ 
+ @configclass
+@@ -705,6 +806,13 @@ class HOPEPingPongEnvCfg(ManagerBasedRLEnvCfg):
+         self.actions.joint_pos.action_clip = adapter.action_clip
+         self.actions.joint_pos.scale = adapter.action_scale_by_name()
+         self.actions.joint_pos.position_clamp = adapter.position_clamp_by_name()
++        # Preserve the 31-D checkpoint interface while making locked joints
++        # physically non-actuated by the policy and zero in last_action.
++        self.actions.joint_pos.passive_joint_names = tuple(
++            dict.fromkeys(
++                (*AGIBOT_A3_PASSIVE_HEAD_JOINT_NAMES, *adapter.locked_joint_names)
++            )
++        )
+ 
+         self.viewer.eye = (1.5, 1.5, 1.5)
+         self.viewer.origin_type = "asset_root"
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/command_curriculum.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/command_curriculum.py
+index a70539f..c164cee 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/command_curriculum.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/command_curriculum.py
+@@ -32,25 +32,33 @@ def curriculum_fraction(initial_fraction: float, progress: float) -> float:
+     return initial + (1.0 - initial) * phase
+ 
+ 
+-def curriculum_scaled_velocity_range(
+-    velocity_range: dict[str, tuple[float, float]], scale: float
++def curriculum_scaled_range(
++    value_range: dict[str, tuple[float, float]], scale: float
+ ) -> dict[str, tuple[float, float]]:
+-    """Scale a six-axis velocity-impulse envelope without changing its centre."""
++    """Scale an axis-keyed disturbance envelope without changing its centre."""
+ 
+     scale = float(scale)
+     if not 0.0 <= scale <= 1.0:
+-        raise ValueError("push curriculum scale must lie in [0, 1]")
++        raise ValueError("disturbance curriculum scale must lie in [0, 1]")
+     scaled: dict[str, tuple[float, float]] = {}
+-    for axis, limits in velocity_range.items():
++    for axis, limits in value_range.items():
+         lo, hi = (float(value) for value in limits)
+         if lo > hi:
+-            raise ValueError(f"velocity_range[{axis!r}] must satisfy min <= max")
++            raise ValueError(f"value_range[{axis!r}] must satisfy min <= max")
+         centre = 0.5 * (lo + hi)
+         radius = 0.5 * (hi - lo) * scale
+         scaled[axis] = (centre - radius, centre + radius)
+     return scaled
+ 
+ 
++def curriculum_scaled_velocity_range(
++    velocity_range: dict[str, tuple[float, float]], scale: float
++) -> dict[str, tuple[float, float]]:
++    """Scale a six-axis velocity-impulse envelope without changing its centre."""
++
++    return curriculum_scaled_range(velocity_range, scale)
++
++
+ def contract_box_about_center(box: torch.Tensor, fraction: float) -> torch.Tensor:
+     """Contract ``[..., axis, (lo, hi)]`` ranges about their midpoint."""
+ 
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/commands.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/commands.py
+index b91e860..f418214 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/commands.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/commands.py
+@@ -177,6 +177,23 @@ class MotionCommand(CommandTerm):
+             self.motion.seg_len,
+             self.cfg.ground_height_offset_per_clip,
+         )
++        self.ready_motion: MotionLoader | None = None
++        if self.cfg.ready_pose_file:
++            self.ready_motion = MotionLoader(
++                self.cfg.ready_pose_file,
++                len(self.cfg.body_names),
++                self.cfg.joint_names,
++                self.cfg.body_names,
++                device=self.device,
++            )
++            if self.ready_motion.num_segments != 1 or self.ready_motion.time_step_total != 1:
++                raise ValueError("ready_pose_file must contain exactly one reference frame")
++            apply_segment_height_offsets(
++                self.ready_motion.body_pos_w,
++                self.ready_motion.seg_start,
++                self.ready_motion.seg_len,
++                (float(self.cfg.ready_pose_ground_height_offset),),
++            )
+         if self.motion.joint_pos.shape[1] != len(self.cfg.joint_names):
+             raise ValueError(
+                 f"Motion clips store {self.motion.joint_pos.shape[1]} joints but the canonical "
+@@ -216,9 +233,9 @@ class MotionCommand(CommandTerm):
+         # Pre-swing hold: while hold_counter > 0 the reference clock is frozen at the swing's first
+         # frame ("waiting for the ball"); ``in_hold`` is exposed for rewards.
+         self.hold_counter = torch.zeros(self.num_envs, dtype=torch.long, device=self.device)
+-        # Episode-level no-ball READY branch. These environments stay on the
+-        # forehand segment's first frame for the complete episode. The robot is
+-        # dynamic: it must walk back from a lateral reset and then hold the pose.
++        # Episode-level no-ball READY branch. These environments use an
++        # independent neutral pose when ready_pose_file is configured; the old
++        # forehand-first-frame behavior remains only as a compatibility fallback.
+         self.forehand_ready_pose = torch.zeros(
+             self.num_envs, dtype=torch.bool, device=self.device
+         )
+@@ -281,6 +298,20 @@ class MotionCommand(CommandTerm):
+             self.metrics[key] = torch.zeros(self.num_envs, device=self.device)
+ 
+     # --- reference (target) state, hold-aware ------------------------------------------------- #
++    def _ready_reference(self, field: str) -> torch.Tensor:
++        if self.ready_motion is not None:
++            return getattr(self.ready_motion, field)[0]
++        clip_idx = int(self.cfg.forehand_ready_clip_id)
++        return getattr(self.motion, field)[self.motion.seg_start[clip_idx]]
++
++    def _replace_ready(self, value: torch.Tensor, field: str) -> torch.Tensor:
++        if self.ready_motion is None:
++            return value
++        ready = self._ready_reference(field)
++        shape = (1,) * (value.ndim - 1)
++        mask = self.forehand_ready_pose.reshape(self.num_envs, *shape)
++        return torch.where(mask, ready.unsqueeze(0), value)
++
+     @property
+     def command(self) -> torch.Tensor:
+         """Reference joint stream [joint_pos(31), joint_vel(31)] — critic/privileged use only."""
+@@ -297,7 +328,7 @@ class MotionCommand(CommandTerm):
+         jp = self.motion.joint_pos[self.time_steps]
+         dq = self.robot.data.default_joint_pos[:, self.joint_indexes]
+         default_hold = self.in_hold & self._hold_default_pose
+-        return torch.where(default_hold[:, None], dq, jp)
++        return self._replace_ready(torch.where(default_hold[:, None], dq, jp), "joint_pos")
+ 
+     @property
+     def joint_vel(self) -> torch.Tensor:
+@@ -306,11 +337,12 @@ class MotionCommand(CommandTerm):
+ 
+     @property
+     def body_pos_w(self) -> torch.Tensor:
+-        return self.motion.body_pos_w[self.time_steps] + self._env.scene.env_origins[:, None, :]
++        value = self._replace_ready(self.motion.body_pos_w[self.time_steps], "body_pos_w")
++        return value + self._env.scene.env_origins[:, None, :]
+ 
+     @property
+     def body_quat_w(self) -> torch.Tensor:
+-        return self.motion.body_quat_w[self.time_steps]
++        return self._replace_ready(self.motion.body_quat_w[self.time_steps], "body_quat_w")
+ 
+     @property
+     def body_lin_vel_w(self) -> torch.Tensor:
+@@ -324,11 +356,11 @@ class MotionCommand(CommandTerm):
+ 
+     @property
+     def anchor_pos_w(self) -> torch.Tensor:
+-        return self.motion.body_pos_w[self.time_steps, self.motion_anchor_body_index] + self._env.scene.env_origins
++        return self.body_pos_w[:, self.motion_anchor_body_index]
+ 
+     @property
+     def anchor_quat_w(self) -> torch.Tensor:
+-        return self.motion.body_quat_w[self.time_steps, self.motion_anchor_body_index]
++        return self.body_quat_w[:, self.motion_anchor_body_index]
+ 
+     # --- robot state (tracked bodies) --------------------------------------------------------- #
+     @property
+@@ -505,8 +537,9 @@ class MotionCommand(CommandTerm):
+             return
+ 
+         # TRUE episode reset: reserve an exact fraction for a dynamically held
+-        # forehand-first-frame ready pose.  The remainder follows the normal
+-        # DEFAULT STAND / reference-state-init mixture.
++        # no-ball READY pose.  A configured independent reference is preferred;
++        # forehand-first-frame is retained only for older configurations.  The
++        # remainder follows the normal DEFAULT STAND / RSI mixture.
+         ready_mask = self._forehand_ready_cohort[env_ids]
+         ready_ids = env_ids[ready_mask]
+         regular_ids = env_ids[~ready_mask]
+@@ -524,15 +557,22 @@ class MotionCommand(CommandTerm):
+             frame = self.motion.seg_start[clip_idx]
+             self.time_steps[ready_ids] = frame
+             self.hold_counter[ready_ids] = 0
+-            # Unlike the ordinary stand hold, expose the actual forehand first
+-            # frame as the joint/body target.
++            # Unlike the ordinary stand hold, expose the dedicated READY
++            # joint/body reference (or the compatibility fallback).
+             self._hold_default_pose[ready_ids] = False
+ 
+             frames = self.time_steps[ready_ids]
+-            root_pos = (
+-                self.motion.body_pos_w[frames, self.motion_root_body_index].clone()
+-                + self._env.scene.env_origins[ready_ids]
+-            )
++            if self.ready_motion is not None:
++                ready_root_pos = self._ready_reference("body_pos_w")[
++                    self.motion_root_body_index
++                ]
++                root_pos = ready_root_pos.unsqueeze(0).repeat(len(ready_ids), 1)
++                root_pos += self._env.scene.env_origins[ready_ids]
++            else:
++                root_pos = (
++                    self.motion.body_pos_w[frames, self.motion_root_body_index].clone()
++                    + self._env.scene.env_origins[ready_ids]
++                )
+             # Start the no-ball cohort from a real lateral displacement.  Its
+             # separate station command remains table-centred, so these resets
+             # train "return to centre, then hold READY" instead of merely
+@@ -546,11 +586,22 @@ class MotionCommand(CommandTerm):
+                 self.device,
+             )
+             root_pos[:, 1] = self._env.scene.env_origins[ready_ids, 1] + ready_y
+-            root_ori = self.motion.body_quat_w[
+-                frames, self.motion_root_body_index
+-            ].clone()
++            if self.ready_motion is not None:
++                ready_root_ori = self._ready_reference("body_quat_w")[
++                    self.motion_root_body_index
++                ]
++                root_ori = ready_root_ori.unsqueeze(0).repeat(len(ready_ids), 1)
++            else:
++                root_ori = self.motion.body_quat_w[
++                    frames, self.motion_root_body_index
++                ].clone()
+             zero_root_vel = torch.zeros(len(ready_ids), 6, device=self.device)
+-            joint_pos = self.motion.joint_pos[frames].clone()
++            if self.ready_motion is not None:
++                joint_pos = self._ready_reference("joint_pos").unsqueeze(0).repeat(
++                    len(ready_ids), 1
++                )
++            else:
++                joint_pos = self.motion.joint_pos[frames].clone()
+             limits = self.robot.data.soft_joint_pos_limits[ready_ids][
+                 :, self.joint_indexes, :
+             ]
+@@ -689,9 +740,9 @@ class MotionCommand(CommandTerm):
+         self.body_pos_relative_w = delta_pos + quat_apply(delta_ori, self.body_pos_w - anchor_pos)
+ 
+         # Normal swing imitation is intentionally invariant to the robot's
+-        # current XY/yaw.  The fixed forehand-ready cohort is not: pin its
++        # current XY/yaw.  The fixed no-ball READY cohort is not: pin its
+         # whole reference skeleton to the table-centered station and preserve
+-        # the source first-frame world orientation.
++        # the READY reference world orientation.
+         ready_ids = torch.where(self.forehand_ready_pose)[0]
+         if len(ready_ids) > 0:
+             fixed_pos = self.body_pos_w[ready_ids].clone()
+@@ -730,6 +781,10 @@ class MotionCommandCfg(CommandTermCfg):
+ 
+     asset_name: str = MISSING
+     motion_file: str = MISSING  # a single path, or a list of clip paths (concatenated on time)
++    # Optional independent one-frame no-ball pose. When omitted, the selected
++    # forehand first frame remains the backwards-compatible READY target.
++    ready_pose_file: str | None = None
++    ready_pose_ground_height_offset: float = 0.0
+     anchor_body_name: str = MISSING
+     body_names: list[str] = MISSING
+     joint_names: list[str] = MISSING
+@@ -754,10 +809,9 @@ class MotionCommandCfg(CommandTermCfg):
+     stand_start_prob: float = 0.25
+     stand_start_min_hold: int = 25
+ 
+-    # Episode-level fixed-ready branch.  These environments initialize from a
+-    # lateral offset, return to centre, and track the selected first frame for
+-    # the whole episode without advancing its reference clock.
+-    # Clip 0 is the canonical forehand in HOPE.
++    # Episode-level fixed-ready branch. These environments initialize from a
++    # lateral offset, return to centre, and track the independent neutral pose
++    # for the whole episode without advancing its reference clock.
+     forehand_ready_pose_prob: float = 0.0
+     forehand_ready_clip_id: int = 0
+     forehand_ready_start_y_range: tuple[float, float] = (0.0, 0.0)
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/events.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/events.py
+index b30f1b6..63f0032 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/events.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/events.py
+@@ -12,6 +12,7 @@ from isaaclab.managers import SceneEntityCfg
+ 
+ from whole_body_tracking.tasks.tracking.mdp.command_curriculum import (
+     curriculum_fraction,
++    curriculum_scaled_range,
+     curriculum_scaled_velocity_range,
+     linear_curriculum_progress,
+ )
+@@ -55,6 +56,72 @@ def push_by_setting_velocity_curriculum(
+     env._hope_push_curriculum_scale = float(scale)
+ 
+ 
++def apply_torso_wrench_impulse_curriculum(
++    env: ManagerBasedEnv,
++    env_ids: torch.Tensor,
++    force_range: dict[str, tuple[float, float]],
++    torque_range: dict[str, tuple[float, float]],
++    curriculum_start_step: int,
++    curriculum_duration_steps: int,
++    curriculum_initial_fraction: float = 0.0,
++    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
++):
++    """Apply a one-physics-step world-frame wrench impulse to selected torso bodies.
++
++    Isaac Lab clears the instantaneous wrench composer after every physics step,
++    so this event is a genuine shove rather than a force that silently persists
++    until the next interval or episode reset.  The configured values are force
++    and torque amplitudes; their impulses are those amplitudes multiplied by the
++    simulation time step.
++    """
++
++    asset: Articulation = env.scene[asset_cfg.name]
++    if env_ids is None:
++        env_ids = torch.arange(env.scene.num_envs, device=asset.device)
++
++    progress = linear_curriculum_progress(
++        getattr(env, "common_step_counter", 0),
++        int(curriculum_start_step),
++        int(curriculum_duration_steps),
++    )
++    scale = curriculum_fraction(float(curriculum_initial_fraction), progress)
++    scaled_force = curriculum_scaled_range(force_range, scale)
++    scaled_torque = curriculum_scaled_range(torque_range, scale)
++
++    num_bodies = (
++        len(asset_cfg.body_ids)
++        if isinstance(asset_cfg.body_ids, list)
++        else asset.num_bodies
++    )
++    shape = (len(env_ids), num_bodies, 3)
++    force_limits = torch.tensor(
++        [scaled_force.get(axis, (0.0, 0.0)) for axis in ("x", "y", "z")],
++        dtype=torch.float,
++        device=asset.device,
++    )
++    torque_limits = torch.tensor(
++        [scaled_torque.get(axis, (0.0, 0.0)) for axis in ("roll", "pitch", "yaw")],
++        dtype=torch.float,
++        device=asset.device,
++    )
++    forces = math_utils.sample_uniform(
++        force_limits[:, 0], force_limits[:, 1], shape, device=asset.device
++    )
++    torques = math_utils.sample_uniform(
++        torque_limits[:, 0], torque_limits[:, 1], shape, device=asset.device
++    )
++    asset.instantaneous_wrench_composer.set_forces_and_torques(
++        forces=forces,
++        torques=torques,
++        body_ids=asset_cfg.body_ids,
++        env_ids=env_ids,
++        is_global=True,
++    )
++
++    env._hope_torso_push_curriculum_progress = float(progress)
++    env._hope_torso_push_curriculum_scale = float(scale)
++
++
+ def randomize_joint_default_pos(
+     env: ManagerBasedEnv,
+     env_ids: torch.Tensor | None,
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_commands.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_commands.py
+index 3404185..8c54b68 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_commands.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_commands.py
+@@ -116,10 +116,26 @@ class RacketTargetCommand(CommandTerm):
+             raise ValueError("READY observation contract values must all be finite")
+         if float(cfg.ready_time_to_strike) <= float(cfg.strike_window_s):
+             raise ValueError("ready_time_to_strike must lie before the strike window")
+-        if int(cfg.ready_swing_side) not in (-1, 1):
+-            raise ValueError("ready_swing_side must be +1 or -1")
++        if int(cfg.ready_swing_side) not in (-1, 0, 1):
++            raise ValueError("ready_swing_side must be -1, 0 (READY), or +1")
++        base_height_values = (
++            cfg.base_height_curriculum_start_height,
++            cfg.base_height_curriculum_target_height,
++        )
++        if not all(math.isfinite(float(value)) for value in base_height_values):
++            raise ValueError("base-height curriculum values must be finite")
++        if min(float(value) for value in base_height_values) <= 0.0:
++            raise ValueError("base-height curriculum values must be positive")
+ 
+         self.robot: Articulation = env.scene[cfg.asset_name]
++        if cfg.torso_body_name not in self.robot.body_names:
++            raise ValueError(
++                f"RacketTargetCommand: torso body {cfg.torso_body_name!r} was not "
++                f"found on asset {cfg.asset_name!r}"
++            )
++        self._torso_body_index = self.robot.find_bodies(
++            cfg.torso_body_name, preserve_order=True
++        )[0][0]
+ 
+         # Racket FK source: prefer a dedicated racket body, else (wrist pose) * (fixed mount offset).
+         if cfg.racket_body_name in self.robot.body_names:
+@@ -259,14 +275,22 @@ class RacketTargetCommand(CommandTerm):
+             "target_curriculum_progress",
+             "station_curriculum_progress",
+             "height_curriculum_progress",
++            "base_height_curriculum_progress",
++            "base_height_target",
+             "push_curriculum_progress",
+             "push_curriculum_scale",
++            "torso_push_curriculum_progress",
++            "torso_push_curriculum_scale",
+             "feet_contact_fraction",
+             "both_feet_contact",
+             "station_error",
+             "station_lateral_command",
+             "ready_stationary_command",
+             "base_tilt",
++            "base_pitch_deg",
++            "torso_pitch_deg",
++            "base_pitch_abs_deg",
++            "torso_pitch_abs_deg",
+             "base_height",
+         ):
+             self.metrics[key] = torch.zeros(self.num_envs, device=self.device)
+@@ -388,6 +412,22 @@ class RacketTargetCommand(CommandTerm):
+             self.cfg.height_curriculum_duration_steps,
+         )
+ 
++    def _base_height_curriculum_progress(self) -> float:
++        return linear_curriculum_progress(
++            getattr(self._env, "common_step_counter", 0),
++            self.cfg.base_height_curriculum_start_step,
++            self.cfg.base_height_curriculum_duration_steps,
++        )
++
++    @property
++    def base_height_target(self) -> float:
++        """Current pelvis-height target shared by the reward and diagnostics."""
++
++        progress = self._base_height_curriculum_progress()
++        start = float(self.cfg.base_height_curriculum_start_height)
++        target = float(self.cfg.base_height_curriculum_target_height)
++        return start + progress * (target - start)
++
+     def _sample_targets(self, env_ids: torch.Tensor):
+         motion = self._motion()
+         n = len(env_ids)
+@@ -790,12 +830,22 @@ class RacketTargetCommand(CommandTerm):
+         self.metrics["height_curriculum_progress"].fill_(
+             self._height_curriculum_progress()
+         )
++        self.metrics["base_height_curriculum_progress"].fill_(
++            self._base_height_curriculum_progress()
++        )
++        self.metrics["base_height_target"].fill_(self.base_height_target)
+         self.metrics["push_curriculum_progress"].fill_(
+             float(getattr(self._env, "_hope_push_curriculum_progress", 0.0))
+         )
+         self.metrics["push_curriculum_scale"].fill_(
+             float(getattr(self._env, "_hope_push_curriculum_scale", 0.0))
+         )
++        self.metrics["torso_push_curriculum_progress"].fill_(
++            float(getattr(self._env, "_hope_torso_push_curriculum_progress", 0.0))
++        )
++        self.metrics["torso_push_curriculum_scale"].fill_(
++            float(getattr(self._env, "_hope_torso_push_curriculum_scale", 0.0))
++        )
+         self.metrics["feet_contact_fraction"] = self.feet_contact_frac
+         self.metrics["both_feet_contact"] = (self.feet_contact_frac >= 1.0).float()
+         self.metrics["station_error"] = torch.linalg.vector_norm(
+@@ -809,6 +859,28 @@ class RacketTargetCommand(CommandTerm):
+             self.robot.data.projected_gravity_b[:, :2], dim=-1
+         ).clamp(0.0, 1.0)
+         self.metrics["base_tilt"] = torch.asin(tilt_sine)
++        local_forward = torch.zeros(
++            self.num_envs, 3, dtype=self.base_quat_w.dtype, device=self.device
++        )
++        local_forward[:, 0] = 1.0
++        base_forward_w = quat_apply(self.base_quat_w, local_forward)
++        torso_forward_w = quat_apply(
++            self.robot.data.body_link_quat_w[:, self._torso_body_index],
++            local_forward,
++        )
++        radians_to_degrees = 180.0 / math.pi
++        base_pitch_deg = (
++            torch.asin((-base_forward_w[:, 2]).clamp(-1.0, 1.0))
++            * radians_to_degrees
++        )
++        torso_pitch_deg = (
++            torch.asin((-torso_forward_w[:, 2]).clamp(-1.0, 1.0))
++            * radians_to_degrees
++        )
++        self.metrics["base_pitch_deg"] = base_pitch_deg
++        self.metrics["torso_pitch_deg"] = torso_pitch_deg
++        self.metrics["base_pitch_abs_deg"] = torch.abs(base_pitch_deg)
++        self.metrics["torso_pitch_abs_deg"] = torch.abs(torso_pitch_deg)
+         self.metrics["base_height"] = self.base_pos_w[:, 2]
+ 
+     def _update_command(self):
+@@ -860,6 +932,7 @@ class RacketTargetCommandCfg(CommandTermCfg):
+     class_type: type = RacketTargetCommand
+ 
+     asset_name: str = MISSING
++    torso_body_name: str = "torso_Link"
+     motion_command_name: str = "motion"
+     # Targets are re-sampled per swing (on wrap / reset), not on a timer.
+     resampling_time_range: tuple[float, float] = (1.0e9, 1.0e9)
+@@ -900,19 +973,27 @@ class RacketTargetCommandCfg(CommandTermCfg):
+     # near edge and aligned to the table centerline.
+     forehand_ready_station_offset_xy: tuple[float, float] = (0.0, 0.0)
+     # Exact actor-conditioning anchor shared with the MuJoCo/deploy READY state.
+-    # It deliberately resembles a forehand command while denoting no active ball.
++    # It matches the independent physical READY pose; zero velocity and side=0
++    # make the no-ball state unambiguous to the actor.
+     ready_target_rel_base_w: tuple[float, float, float] = (
+-        0.3201315701007843,
+-        -0.6952511668205261,
+-        -0.057795558124780655,
++        0.45,
++        -0.25,
++        0.08,
+     )
+     ready_target_vel_w: tuple[float, float, float] = (
+-        2.3803303241729736,
+-        0.6271703243255615,
+-        1.0374835729599,
++        0.0,
++        0.0,
++        0.0,
+     )
+     ready_time_to_strike: float = 1.0
+-    ready_swing_side: int = 1
++    ready_swing_side: int = 0
++    # Checkpoint-safe pelvis crouch curriculum. The reference clips already
++    # contain the final grounded crouch; this target moves the learned base
++    # height smoothly from the old standing policy to the new 2 cm lower pose.
++    base_height_curriculum_start_height: float = 1.0664
++    base_height_curriculum_target_height: float = 1.0664
++    base_height_curriculum_start_step: int = 0
++    base_height_curriculum_duration_steps: int = 0
+     # Floor/world table-y domain and side split. Forehand is below split-hysteresis;
+     # backhand is above split+hysteresis, matching the live planner convention.
+     table_y_range: tuple[float, float] = (-0.7625, 0.7625)
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_observations.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_observations.py
+index 56b78e2..ef02cf2 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_observations.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_observations.py
+@@ -52,7 +52,7 @@ def time_to_strike(env: ManagerBasedRLEnv, command_name: str) -> torch.Tensor:
+ 
+ 
+ def swing_side(env: ManagerBasedRLEnv, command_name: str) -> torch.Tensor:
+-    """Forehand (+1) / backhand (-1), locked per swing (1)."""
++    """Forehand (+1), backhand (-1), or explicit no-ball READY (0)."""
+     return _cmd(env, command_name).swing_sign.unsqueeze(-1)
+ 
+ 
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_rewards.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_rewards.py
+index cf32910..9bb02bb 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_rewards.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/tasks/tracking/mdp/hope_rewards.py
+@@ -58,7 +58,7 @@ def forehand_ready_upper_body_joint_tracking(
+     asset_cfg: SceneEntityCfg,
+     std: float = 0.20,
+ ) -> torch.Tensor:
+-    """Keep waist and arms in the forehand READY pose while legs return to centre."""
++    """Keep waist and arms in the configured no-ball READY pose while returning to centre."""
+ 
+     if std <= 0.0:
+         raise ValueError("forehand ready upper-body joint std must be positive")
+@@ -86,6 +86,47 @@ def forehand_ready_upper_body_joint_tracking(
+     return torch.exp(-error / float(std) ** 2) * motion.forehand_ready_pose.float()
+ 
+ 
++def forehand_ready_action_target_l2(
++    env: ManagerBasedRLEnv,
++    command_name: str,
++    action_name: str,
++    joint_names: list[str],
++) -> torch.Tensor:
++    """Penalize READY position targets that depart from the reference joints.
++
++    Pose tracking alone sees measured joint positions, so a position-controlled
++    policy can hide a large steady PD torque behind a near-correct measured pose.
++    This term compares decoded/clamped ``q_des`` against the dedicated READY
++    reference for selected joints. It is intentionally READY-gated and normally
++    used only for the waist, where extreme compensation targets are unsafe when
++    deployment gains differ from training.
++    """
++
++    if not joint_names:
++        raise ValueError("READY action-target joint_names must not be empty")
++    motion = env.command_manager.get_term(command_name)
++    action = env.action_manager.get_term(action_name)
++    action_order = list(getattr(action, "_joint_names", ()))
++    reference_order = list(getattr(motion.cfg, "joint_names", ()))
++    missing_action = [name for name in joint_names if name not in action_order]
++    missing_reference = [name for name in joint_names if name not in reference_order]
++    if missing_action or missing_reference:
++        raise ValueError(
++            "READY action-target joints must exist in both action and reference orders; "
++            f"missing_action={missing_action}, missing_reference={missing_reference}"
++        )
++    action_columns = [action_order.index(name) for name in joint_names]
++    reference_columns = [reference_order.index(name) for name in joint_names]
++    error = torch.mean(
++        torch.square(
++            action.processed_actions[:, action_columns]
++            - motion.joint_pos[:, reference_columns]
++        ),
++        dim=-1,
++    )
++    return error * motion.forehand_ready_pose.float()
++
++
+ def forehand_ready_full_body_tracking(
+     env: ManagerBasedRLEnv,
+     command_name: str,
+@@ -95,11 +136,11 @@ def forehand_ready_full_body_tracking(
+     std_joint: float = 0.20,
+     arrival_radius: float = 0.15,
+ ) -> torch.Tensor:
+-    """Track the complete first-frame pose after the READY cohort reaches centre.
++    """Track the complete no-ball READY pose after the cohort reaches centre.
+ 
+     The ordinary swing reward deliberately tracks only the upper body.  This
+     branch is different: every configured motion body plus all canonical joints
+-    (including waist and legs) track the frozen first frame.  The arrival gate
++    (including waist and legs) track the frozen READY reference.  The arrival gate
+     keeps the static leg reference from fighting the lateral return step.
+     """
+ 
+@@ -353,6 +394,22 @@ def base_height_tracking_exp(
+     return torch.exp(-torch.square(height_error / std))
+ 
+ 
++def base_height_command_tracking_exp(
++    env: ManagerBasedRLEnv,
++    command_name: str,
++    std: float,
++    asset_cfg: SceneEntityCfg,
++) -> torch.Tensor:
++    """Track the command's checkpoint-safe pelvis-height curriculum target."""
++
++    if std <= 0.0:
++        raise ValueError(f"std must be positive, got {std}")
++    asset = env.scene[asset_cfg.name]
++    target_height = _cmd(env, command_name).base_height_target
++    height_error = asset.data.root_pos_w[:, 2] - float(target_height)
++    return torch.exp(-torch.square(height_error / float(std)))
++
++
+ def base_planar_velocity_l2(
+     env: ManagerBasedRLEnv,
+     asset_cfg: SceneEntityCfg,
+@@ -427,6 +484,46 @@ def foot_flat_orientation(
+     return torch.mean(1.0 - normal_z, dim=-1)
+ 
+ 
++def forehand_ready_foot_flat_orientation(
++    env: ManagerBasedRLEnv,
++    command_name: str,
++    asset_cfg: SceneEntityCfg,
++    sole_normal_axis: int = 2,
++    sole_normal_sign: float = 1.0,
++) -> torch.Tensor:
++    """READY-gated copy of the physical foot-sole tilt debt."""
++
++    motion = env.command_manager.get_term(command_name)
++    return foot_flat_orientation(
++        env,
++        asset_cfg,
++        sole_normal_axis=sole_normal_axis,
++        sole_normal_sign=sole_normal_sign,
++    ) * motion.forehand_ready_pose.float()
++
++
++def body_pitch_l2(
++    env: ManagerBasedRLEnv,
++    asset_cfg: SceneEntityCfg,
++) -> torch.Tensor:
++    """Penalize forward/backward pitch of selected bodies in world coordinates.
++
++    The vertical component of each body's local ``+X`` (forward) axis is
++    ``-sin(pitch)`` under the usual yaw-pitch-roll convention. Squaring it gives
++    a smooth, sign-symmetric pitch debt that is invariant to world yaw and does
++    not charge pure body roll. Values are averaged so the scale does not depend
++    on how many bodies are selected.
++    """
++
++    asset = env.scene[asset_cfg.name]
++    quat = _selected_bodies(asset.data.body_link_quat_w, asset_cfg.body_ids)
++    _require_body_count(quat, None, "body_pitch_l2")
++    local_forward = torch.zeros_like(quat[..., :3])
++    local_forward[..., 0] = 1.0
++    forward_w = _quat_apply_wxyz(quat, local_forward)
++    return torch.mean(torch.square(forward_w[..., 2]), dim=-1)
++
++
+ def feet_stance_l2(
+     env: ManagerBasedRLEnv,
+     asset_cfg: SceneEntityCfg,
+diff --git a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/utils/action_adapter_config.py b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/utils/action_adapter_config.py
+index a7a46d8..264004e 100644
+--- a/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/utils/action_adapter_config.py
++++ b/hope_training/whole_body_tracking/source/whole_body_tracking/whole_body_tracking/utils/action_adapter_config.py
+@@ -198,6 +198,7 @@ class ActionAdapterConfig:
+     clamp_upper: np.ndarray   # (31,) rad
+     raw_action_transform: str = "identity"
+     action_clip: tuple[float, float] | None = None
++    locked_joint_names: tuple[str, ...] = ()
+ 
+     def clip_raw_action(self, raw_action: np.ndarray) -> np.ndarray:
+         """Clip actor output to the configured applied-action interval."""
+@@ -206,9 +207,15 @@ class ActionAdapterConfig:
+             raise ValueError(
+                 f"raw_action trailing dimension must be {len(self.joint_names)}, got {raw.shape}"
+             )
+-        if self.action_clip is None:
+-            return raw.copy()
+-        return np.clip(raw, self.action_clip[0], self.action_clip[1])
++        accepted = (
++            raw.copy()
++            if self.action_clip is None
++            else np.clip(raw, self.action_clip[0], self.action_clip[1])
++        )
++        if self.locked_joint_names:
++            columns = [self.joint_names.index(name) for name in self.locked_joint_names]
++            accepted[..., columns] = 0.0
++        return accepted
+ 
+     def transform_raw_action(self, raw_action: np.ndarray) -> np.ndarray:
+         """Apply the configured bounded-domain transform without changing its shape.
+@@ -287,6 +294,18 @@ def _resolve_action_clip(spec) -> tuple[float, float] | None:
+     return lower, upper
+ 
+ 
++def _resolve_locked_joint_names(spec, joint_names: tuple[str, ...]) -> tuple[str, ...]:
++    """Validate exact joint names whose policy actions are ignored and held at default q."""
++
++    names = tuple(str(name) for name in (spec or ()))
++    if len(set(names)) != len(names):
++        raise ValueError("locked_joint_names must not contain duplicates")
++    missing = [name for name in names if name not in joint_names]
++    if missing:
++        raise ValueError(f"locked_joint_names contains unknown joints: {missing}")
++    return names
++
++
+ def load_action_adapter_config(
+     path: str | None = None, joint_names: tuple[str, ...] | None = None
+ ) -> ActionAdapterConfig:
+@@ -299,6 +318,9 @@ def load_action_adapter_config(
+     default_q = _resolve_per_joint(doc["default_q"], joint_names, "default_q")
+     raw_action_transform = _resolve_raw_action_transform(doc.get("raw_action_transform"))
+     action_clip = _resolve_action_clip(doc.get("action_clip"))
++    locked_joint_names = _resolve_locked_joint_names(
++        doc.get("locked_joint_names"), joint_names
++    )
+ 
+     scale_spec = doc["action_scale"]
+     if isinstance(scale_spec, (int, float)):
+@@ -320,4 +342,5 @@ def load_action_adapter_config(
+         clamp_upper=clamp_upper,
+         raw_action_transform=raw_action_transform,
+         action_clip=action_clip,
++        locked_joint_names=locked_joint_names,
+     )
+diff --git a/hope_training/whole_body_tracking/tests/test_action_adapter_parity.py b/hope_training/whole_body_tracking/tests/test_action_adapter_parity.py
+index 7fd520b..cd490a3 100644
+--- a/hope_training/whole_body_tracking/tests/test_action_adapter_parity.py
++++ b/hope_training/whole_body_tracking/tests/test_action_adapter_parity.py
+@@ -87,6 +87,10 @@ def test_constants_identical():
+     deploy, training = _both()
+     assert training.raw_action_transform == deploy.raw_action_transform == "identity"
+     assert training.action_clip == deploy.action_clip == (-100.0, 100.0)
++    assert training.locked_joint_names == deploy.locked_joint_names == (
++        "waist_roll_joint",
++        "waist_pitch_joint",
++    )
+     np.testing.assert_array_equal(training.default_q, deploy.default_q)
+     np.testing.assert_array_equal(training.action_scale, deploy.action_scale)
+     np.testing.assert_array_equal(training.action_scale, np.full(NUM_JOINTS, 0.25))
+@@ -121,6 +125,8 @@ def test_linear_mapping_clips_actions_before_scale_and_mechanical_clamp():
+     deploy, training = _both()
+     raw = np.linspace(-200.0, 200.0, NUM_JOINTS)
+     expected_adapter_action = np.clip(raw, -100.0, 100.0)
++    for name in training.locked_joint_names:
++        expected_adapter_action[JOINT_NAMES.index(name)] = 0.0
+ 
+     np.testing.assert_array_equal(training.clip_raw_action(raw), expected_adapter_action)
+     np.testing.assert_array_equal(deploy.clip_raw_action(raw), expected_adapter_action)
+@@ -145,8 +151,8 @@ def test_uniform_scale_can_reconstruct_both_guarded_reference_motions():
+ 
+     motion_dir = os.path.join(_REPO, "hope_training", "motions", "preprocessed")
+     clips = (
+-        "ours_forehand_guarded_1p8s_wrist_x.npz",
+-        "ours_backhand_guarded_1p8s.npz",
++        "ours_forehand_guarded_1p8s_wrist_x_upright8deg_pelvis2deg_crouch2cm_flatfeet_waist_pitch_roll_locked0.npz",
++        "ours_backhand_guarded_1p8s_upright8deg_pelvis2deg_crouch2cm_flatfeet_armfix_waist_pitch_roll_locked0.npz",
+     )
+     for clip in clips:
+         joint_pos = np.load(os.path.join(motion_dir, clip))["joint_pos"]
+@@ -163,6 +169,7 @@ def test_legacy_yaml_without_transform_or_action_clip_remains_supported():
+         legacy = yaml.safe_load(fh)
+     legacy.pop("raw_action_transform", None)
+     legacy.pop("action_clip", None)
++    legacy.pop("locked_joint_names", None)
+     legacy["action_scale"] = 0.25
+ 
+     with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", encoding="utf-8") as fh:
+diff --git a/hope_training/whole_body_tracking/tests/test_balance_configuration.py b/hope_training/whole_body_tracking/tests/test_balance_configuration.py
+index 316a26c..c4ea534 100644
+--- a/hope_training/whole_body_tracking/tests/test_balance_configuration.py
++++ b/hope_training/whole_body_tracking/tests/test_balance_configuration.py
+@@ -83,7 +83,8 @@ def test_reset_and_target_curriculum_defaults_are_enabled():
+     assert isinstance(motion, ast.Call) and isinstance(target, ast.Call)
+ 
+     assert _call_keyword(motion, "stand_start_prob") == 0.80
+-    assert _call_keyword(motion, "forehand_ready_pose_prob") == 0.10
++    assert _call_keyword(motion, "forehand_ready_pose_prob") == 0.20
++    assert _call_keyword(motion, "ready_pose_ground_height_offset") == 0.0502601563
+     assert _call_keyword(motion, "forehand_ready_clip_id") == 0
+     assert _call_keyword(motion, "forehand_ready_start_y_range") == (-0.35, 0.6625)
+     assert _call_keyword(motion, "forehand_ready_curriculum_start_y_range") == (-0.35, 0.35)
+@@ -110,17 +111,19 @@ def test_reset_and_target_curriculum_defaults_are_enabled():
+     assert _call_keyword(target, "ready_stationary_prob") == 0.0
+     assert _call_keyword(target, "forehand_ready_station_offset_xy") == (0.0, 0.0)
+     assert _call_keyword(target, "ready_target_rel_base_w") == (
+-        0.3201315701007843,
+-        -0.6952511668205261,
+-        -0.057795558124780655,
++        0.45,
++        -0.25,
++        0.08,
+     )
+     assert _call_keyword(target, "ready_target_vel_w") == (
+-        2.3803303241729736,
+-        0.6271703243255615,
+-        1.0374835729599,
++        0.0,
++        0.0,
++        0.0,
+     )
+     assert _call_keyword(target, "ready_time_to_strike") == 1.0
+-    assert _call_keyword(target, "ready_swing_side") == 1
++    assert _call_keyword(target, "ready_swing_side") == 0
++    assert _call_keyword(target, "base_height_curriculum_start_step") == 0
++    assert _call_keyword(target, "base_height_curriculum_duration_steps") == 100_000
+     assert _call_keyword(target, "swing_side_split_y") == -0.41
+     assert _call_keyword(target, "swing_side_hysteresis_y") == 0.0
+ 
+@@ -139,24 +142,52 @@ def test_random_push_curriculum_is_checkpoint_safe_and_planar():
+         for key, value in zip(params_node.keys, params_node.values)
+     }
+     assert ast.literal_eval(params["velocity_range"]) == {
+-        "x": (-0.30, 0.30),
+-        "y": (-0.30, 0.30),
++        "x": (-1.00, 1.00),
++        "y": (-1.00, 1.00),
+         "z": (0.0, 0.0),
+-        "roll": (-0.15, 0.15),
+-        "pitch": (-0.15, 0.15),
+-        "yaw": (-0.30, 0.30),
++        "roll": (-0.30, 0.30),
++        "pitch": (-0.30, 0.30),
++        "yaw": (-0.60, 0.60),
+     }
+     assert ast.literal_eval(params["curriculum_start_step"]) == 10_000
+-    assert ast.literal_eval(params["curriculum_duration_steps"]) == 100_000
++    assert ast.literal_eval(params["curriculum_duration_steps"]) == 200_000
+     assert ast.literal_eval(params["curriculum_initial_fraction"]) == 0.0
+ 
+ 
++def test_torso_wrench_curriculum_is_a_large_sparse_impulse():
++    events = _class(_tree(), "EventCfg")
++    push = _assignment(events, "push_torso")
++    assert isinstance(push, ast.Call)
++    assert _mdp_function(push) == "apply_torso_wrench_impulse_curriculum"
++    assert _call_keyword(push, "mode") == "interval"
++    assert _call_keyword(push, "interval_range_s") == (6.0, 10.0)
++    params_node = _call_keyword_node(push, "params")
++    assert isinstance(params_node, ast.Dict)
++    params = {
++        ast.literal_eval(key): value
++        for key, value in zip(params_node.keys, params_node.values)
++    }
++    assert ast.literal_eval(params["force_range"]) == {
++        "x": (-2500.0, 2500.0),
++        "y": (-2500.0, 2500.0),
++        "z": (0.0, 0.0),
++    }
++    assert ast.literal_eval(params["torque_range"]) == {
++        "roll": (-300.0, 300.0),
++        "pitch": (-300.0, 300.0),
++        "yaw": (-180.0, 180.0),
++    }
++    assert ast.literal_eval(params["curriculum_duration_steps"]) == 240_000
++    assert ast.literal_eval(params["curriculum_initial_fraction"]) == 0.10
++
++
+ def test_moving_base_rewards_and_phase_gated_stability_are_wired():
+     tree = _tree()
+     rewards = _class(tree, "RewardsCfg")
+     expected = {
+         "termination_penalty": "is_terminated",
+-        "base_height": "base_height_tracking_exp",
++        "base_torso_pitch": "body_pitch_l2",
++        "base_height": "base_height_command_tracking_exp",
+         "foot_flat": "foot_flat_orientation",
+         "base_position": "base_position_tracking_exp",
+         "pre_strike_station_settle": "pre_strike_station_settle",
+@@ -167,7 +198,10 @@ def test_moving_base_rewards_and_phase_gated_stability_are_wired():
+         "settle_foot_slip": "settle_foot_slip_penalty",
+         "foot_orientation": "foot_orientation_discipline",
+         "forehand_ready_upper_body": "forehand_ready_upper_body_joint_tracking",
++        "forehand_ready_waist": "forehand_ready_upper_body_joint_tracking",
+         "forehand_ready_full_body": "forehand_ready_full_body_tracking",
++        "forehand_ready_waist_target": "forehand_ready_action_target_l2",
++        "forehand_ready_foot_flat": "forehand_ready_foot_flat_orientation",
+         "forehand_ready_base_position": "forehand_ready_base_position_tracking_exp",
+         "self_body_collision": "self_body_proximity_penalty",
+         "racket_self_collision": "racket_self_collision_proximity_penalty",
+@@ -185,6 +219,7 @@ def test_moving_base_rewards_and_phase_gated_stability_are_wired():
+         assert isinstance(value, ast.Constant) and value.value is None
+ 
+     expected_weights = {
++        "base_torso_pitch": -5.0,
+         "base_position": 2.0,
+         "pre_strike_station_settle": -0.35,
+         "windup_x_recovery": -0.40,
+@@ -193,8 +228,11 @@ def test_moving_base_rewards_and_phase_gated_stability_are_wired():
+         "post_swing_leg_quiet": -0.08,
+         "settle_foot_slip": -0.10,
+         "foot_orientation": -0.80,
+-        "forehand_ready_upper_body": 1.0,
+-        "forehand_ready_full_body": 2.0,
++        "forehand_ready_upper_body": 2.0,
++        "forehand_ready_waist": 4.0,
++        "forehand_ready_full_body": 6.0,
++        "forehand_ready_waist_target": -2.0,
++        "forehand_ready_foot_flat": -2.0,
+         "forehand_ready_base_position": 3.0,
+         "self_body_collision": -1.0,
+         "racket_self_collision": -2.0,
+diff --git a/hope_training/whole_body_tracking/tests/test_command_curriculum.py b/hope_training/whole_body_tracking/tests/test_command_curriculum.py
+index f6460fc..973cdb6 100644
+--- a/hope_training/whole_body_tracking/tests/test_command_curriculum.py
++++ b/hope_training/whole_body_tracking/tests/test_command_curriculum.py
+@@ -82,6 +82,16 @@ def test_push_velocity_envelope_scales_from_zero_to_full_strength():
+     assert helpers.curriculum_scaled_velocity_range(envelope, 1.0) == envelope
+ 
+ 
++def test_generic_disturbance_envelope_scales_force_and_torque_ranges():
++    envelope = {"x": (-2500.0, 2500.0), "pitch": (-300.0, 300.0), "z": (0.0, 0.0)}
++    assert helpers.curriculum_scaled_range(envelope, 0.1) == {
++        "x": (-250.0, 250.0),
++        "pitch": (-30.0, 30.0),
++        "z": (0.0, 0.0),
++    }
++    assert helpers.curriculum_scaled_range(envelope, 1.0) == envelope
++
++
+ def test_stable_rsi_filter_requires_dual_level_feet_and_low_motion():
+     # Bodies: root, left foot, right foot.  Frames exercise one failed criterion each.
+     body_pos = torch.zeros(6, 3, 3)
+@@ -161,14 +171,22 @@ def test_racket_command_logs_curriculum_and_two_foot_contact_diagnostics():
+     assert '"target_curriculum_progress"' in source
+     assert '"station_curriculum_progress"' in source
+     assert '"height_curriculum_progress"' in source
++    assert '"base_height_curriculum_progress"' in source
++    assert '"base_height_target"' in source
+     assert '"push_curriculum_progress"' in source
+     assert '"push_curriculum_scale"' in source
++    assert '"torso_push_curriculum_progress"' in source
++    assert '"torso_push_curriculum_scale"' in source
+     assert '"feet_contact_fraction"' in source
+     assert '"both_feet_contact"' in source
+     assert '"station_error"' in source
+     assert '"station_lateral_command"' in source
+     assert '"ready_stationary_command"' in source
+     assert '"base_tilt"' in source
++    assert '"base_pitch_deg"' in source
++    assert '"torso_pitch_deg"' in source
++    assert '"base_pitch_abs_deg"' in source
++    assert '"torso_pitch_abs_deg"' in source
+     assert '"base_height"' in source
+     assert "(self.feet_contact_frac >= 1.0).float()" in source
+ 
+@@ -176,8 +194,14 @@ def test_racket_command_logs_curriculum_and_two_foot_contact_diagnostics():
+ def test_shipped_clips_have_stable_rsi_candidates_under_training_thresholds():
+     motion_dir = ROOT.parent / "motions/preprocessed"
+     clips = (
+-        ("ours_forehand_guarded_1p8s_wrist_x.npz", 51),
+-        ("ours_backhand_guarded_1p8s.npz", 82),
++        (
++            "ours_forehand_guarded_1p8s_wrist_x_upright8deg_pelvis2deg_crouch2cm_flatfeet_waist_pitch_roll_locked0.npz",
++            51,
++        ),
++        (
++            "ours_backhand_guarded_1p8s_upright8deg_pelvis2deg_crouch2cm_flatfeet_armfix_waist_pitch_roll_locked0.npz",
++            82,
++        ),
+     )
+     for filename, expected_count in clips:
+         path = motion_dir / filename
+diff --git a/hope_training/whole_body_tracking/tests/test_deploy_runtime_alignment.py b/hope_training/whole_body_tracking/tests/test_deploy_runtime_alignment.py
+index 598422c..1db675f 100644
+--- a/hope_training/whole_body_tracking/tests/test_deploy_runtime_alignment.py
++++ b/hope_training/whole_body_tracking/tests/test_deploy_runtime_alignment.py
+@@ -132,22 +132,18 @@ def test_base_forward_normalization_matches_isaac_epsilon_semantics():
+     np.testing.assert_array_equal(forward, [1.0 / (1.0 + 1.0e-6), 0.0])
+ 
+ 
+-def test_shipped_runtime_ready_anchor_stays_fixed_and_returns_to_forehand():
++def test_shipped_runtime_ready_anchor_is_physical_and_explicit():
+     cfg = RuntimeConfig.load(_RUNTIME_YAML)
+     lifecycle = SwingLifecycle(cfg.lifecycle)
+     state = _standing_state()
+-    expected_rel = np.array(
+-        [0.3201315701007843, -0.6952511668205261, -0.057795558124780655]
+-    )
+-    expected_vel = np.array(
+-        [2.3803303241729736, 0.6271703243255615, 1.0374835729599]
+-    )
++    expected_rel = np.array([0.45, -0.25, 0.08])
++    expected_vel = np.zeros(3)
+ 
+     ready = lifecycle.update(None, state)
+     np.testing.assert_allclose(ready.pos_w - state.base_pos_w, expected_rel)
+     np.testing.assert_allclose(ready.vel_w, expected_vel)
+     assert ready.time_to_strike == 1.0
+-    assert ready.swing_side == FOREHAND
++    assert ready.swing_side == 0
+ 
+     moved_state = _standing_state()
+     moved_state.base_pos_w = np.array([0.7, -0.3, 1.02])
+@@ -155,8 +151,8 @@ def test_shipped_runtime_ready_anchor_stays_fixed_and_returns_to_forehand():
+     np.testing.assert_allclose(moved_ready.pos_w - moved_state.base_pos_w, expected_rel)
+     np.testing.assert_allclose(moved_ready.vel_w, expected_vel)
+ 
+-    # A completed backhand must return to the same canonical forehand READY input,
+-    # rather than mirroring the old example reach using the previous swing side.
++    # A completed backhand must return to the same canonical no-ball READY input,
++    # rather than retaining or mirroring the previous real swing side.
+     backhand = _command(tts=0.0)
+     backhand.swing_side = BACKHAND
+     lifecycle.update(backhand, state)
+@@ -169,7 +165,7 @@ def test_shipped_runtime_ready_anchor_stays_fixed_and_returns_to_forehand():
+     after_backhand = lifecycle.update(None, state)
+     np.testing.assert_allclose(after_backhand.pos_w - state.base_pos_w, expected_rel)
+     np.testing.assert_allclose(after_backhand.vel_w, expected_vel)
+-    assert after_backhand.swing_side == FOREHAND
++    assert after_backhand.swing_side == 0
+ 
+ 
+ def test_current_bundle_runtime_uses_the_validated_ready_anchor():
+@@ -246,8 +242,8 @@ def test_runtime_pd_gains_match_isaac_nominal_per_joint_values():
+     cfg = RuntimeConfig.load(_RUNTIME_YAML)
+     expected = {
+         "waist_yaw_joint": (85.0, 3.0),
+-        "waist_roll_joint": (50.0, 2.0),
+-        "waist_pitch_joint": (50.0, 2.0),
++        "waist_roll_joint": (500.0, 2.0),
++        "waist_pitch_joint": (500.0, 2.0),
+         "head_yaw_joint": (40.0, 2.0),
+         "head_pitch_joint": (40.0, 2.0),
+         "left_shoulder_pitch_joint": (40.0, 3.0),
+diff --git a/hope_training/whole_body_tracking/tests/test_domain_rand_overrides.py b/hope_training/whole_body_tracking/tests/test_domain_rand_overrides.py
+index 2e14c59..8290e32 100644
+--- a/hope_training/whole_body_tracking/tests/test_domain_rand_overrides.py
++++ b/hope_training/whole_body_tracking/tests/test_domain_rand_overrides.py
+@@ -155,9 +155,10 @@ def test_default_task_yaml_knobs_resolve_against_real_event_names():
+     env_cfg = SimpleNamespace(events=_events_cfg())
+     applied: list = []
+     train._apply_domain_rand(env_cfg, dr, applied)
+-    # link_mass_range [0.9, 1.1] applies; pd_gain_range null disables.
++    # Both shipped ranges preserve the environment's +/-10% randomization.
+     assert env_cfg.events.link_mass.params["mass_distribution_params"] == (0.9, 1.1)
+-    assert env_cfg.events.pd_gains is None
++    assert env_cfg.events.pd_gains.params["stiffness_distribution_params"] == (0.9, 1.1)
++    assert env_cfg.events.pd_gains.params["damping_distribution_params"] == (0.9, 1.1)
+     assert len(applied) == 2
+ 
+ 
+diff --git a/hope_training/whole_body_tracking/tests/test_passive_head_feedback.py b/hope_training/whole_body_tracking/tests/test_passive_head_feedback.py
+index 9394c07..e630ebf 100644
+--- a/hope_training/whole_body_tracking/tests/test_passive_head_feedback.py
++++ b/hope_training/whole_body_tracking/tests/test_passive_head_feedback.py
+@@ -1,15 +1,14 @@
+-"""Observation-contract test for the passive head joints (finding: last_action feedback).
++"""Observation contract for passive head and adapter-locked waist joints.
+ 
+-Training zeroes the passive head columns (idx 3, 4) in the applied action before it is
+-exposed as the ``last_action`` observation. The deploy runner and the MuJoCo evaluator
+-must first apply the same shared raw-action clip and then do the same head zeroing — the
+-actor must never see values that the target path did not accept.
++Training zeroes the passive head columns (idx 3, 4) and the adapter-locked waist
++roll/pitch columns in the applied action before exposing ``last_action``. The deploy
++runner and MuJoCo evaluator must apply the same shared raw-action clip and zeroing.
+ 
+ This drives the REAL ``PingPongReferenceRunner`` tick loop with a fake bridge and a fake
+ policy (no MuJoCo / onnxruntime needed) and asserts:
+ 
+-  * ``runner.last_action`` head columns are zero even though the policy emits ones;
+-  * the next tick's observation ``last_action`` slice ([65:96]) has zero head columns
++  * ``runner.last_action`` passive columns are zero even though the policy emits ones;
++  * the next tick's observation ``last_action`` slice ([65:96]) has zero passive columns
+     while every actuated column carries the applied value;
+   * the head joint targets written to the bridge equal the default head pose.
+ 
+@@ -33,7 +32,11 @@ _RUNTIME_YAML = os.path.join(
+ sys.path.insert(0, _REFERENCE_DIR)
+ 
+ from a3_deploy_onnx_ref_pingpong.config import RuntimeConfig  # noqa: E402
+-from a3_deploy_onnx_ref_pingpong.joint_order import HEAD_INDICES, NUM_JOINTS  # noqa: E402
++from a3_deploy_onnx_ref_pingpong.joint_order import (  # noqa: E402
++    HEAD_INDICES,
++    JOINT_NAMES,
++    NUM_JOINTS,
++)
+ from a3_deploy_onnx_ref_pingpong.observation import RobotState  # noqa: E402
+ from a3_deploy_onnx_ref_pingpong.racket_command import (  # noqa: E402
+     FOREHAND,
+@@ -45,7 +48,9 @@ from a3_deploy_onnx_ref_pingpong.sim_bridge import SimBridge  # noqa: E402
+ 
+ _LAST_ACTION_SLICE = slice(65, 96)  # 111-D contract: last_action columns
+ _HEAD = list(HEAD_INDICES)
+-_ACTUATED = [i for i in range(NUM_JOINTS) if i not in _HEAD]
++_LOCKED_WAIST = [JOINT_NAMES.index(name) for name in ("waist_roll_joint", "waist_pitch_joint")]
++_PASSIVE = sorted((*_HEAD, *_LOCKED_WAIST))
++_ACTUATED = [i for i in range(NUM_JOINTS) if i not in _PASSIVE]
+ 
+ 
+ class _FakeBridge(SimBridge):
+@@ -96,22 +101,22 @@ def _run_ticks(n: int = 3, raw_value: float = 1.0):
+     return cfg, bridge, policy, runner
+ 
+ 
+-def test_last_action_head_columns_zeroed():
++def test_last_action_passive_columns_zeroed():
+     _cfg, _bridge, policy, runner = _run_ticks(3)
+     assert runner.last_action.shape == (NUM_JOINTS,)
+-    assert np.all(runner.last_action[_HEAD] == 0.0)
++    assert np.all(runner.last_action[_PASSIVE] == 0.0)
+     assert np.all(runner.last_action[_ACTUATED] == 1.0)
+ 
+ 
+ def test_observation_last_action_slice_matches_training_contract():
+     _cfg, _bridge, policy, _runner = _run_ticks(3)
+     # Tick 0 sees the zero-initialized last_action; from tick 1 on it must be the
+-    # APPLIED action: ones in actuated columns, zeros in the passive head columns.
++    # APPLIED action: ones in actuated columns, zeros in all passive columns.
+     first = policy.seen_obs[0][_LAST_ACTION_SLICE]
+     assert np.all(first == 0.0)
+     for obs in policy.seen_obs[1:]:
+         la = obs[_LAST_ACTION_SLICE]
+-        assert np.all(la[_HEAD] == 0.0), "passive head columns must stay zero in last_action"
++        assert np.all(la[_PASSIVE] == 0.0), "passive columns must stay zero in last_action"
+         assert np.all(la[_ACTUATED] == 1.0)
+ 
+ 
+@@ -125,10 +130,10 @@ def test_action_clip_is_reflected_in_targets_and_last_action_feedback():
+     raw_value = 200.0
+     cfg, bridge, policy, runner = _run_ticks(2, raw_value=raw_value)
+     expected_applied = np.full(NUM_JOINTS, 100.0, dtype=np.float64)
+-    expected_applied[_HEAD] = 0.0
++    expected_applied[_PASSIVE] = 0.0
+ 
+     # Training and deploy both feed back the action that was actually accepted:
+-    # global [-100, 100] clipping followed by passive-head zeroing.
++    # global [-100, 100] clipping followed by passive-joint zeroing.
+     assert cfg.action_adapter.raw_action_transform == "identity"
+     assert cfg.action_adapter.action_clip == (-100.0, 100.0)
+     np.testing.assert_array_equal(runner.last_action, expected_applied)
+diff --git a/hope_training/whole_body_tracking/tests/test_stability_rewards.py b/hope_training/whole_body_tracking/tests/test_stability_rewards.py
+index dd7ca3a..cd80a23 100644
+--- a/hope_training/whole_body_tracking/tests/test_stability_rewards.py
++++ b/hope_training/whole_body_tracking/tests/test_stability_rewards.py
+@@ -85,6 +85,10 @@ class _CommandManager:
+         return self._commands[name]
+ 
+ 
++class _ActionManager(_CommandManager):
++    pass
++
++
+ def _make_env(num_envs: int = 3):
+     dtype = torch.float64
+     asset_data = SimpleNamespace(
+@@ -142,6 +146,20 @@ def test_base_height_and_planar_velocity_terms_have_expected_scale():
+     )
+ 
+ 
++def test_base_height_command_reward_uses_live_curriculum_target():
++    env, data, _ = _make_env()
++    data.root_pos_w[:, 2] = torch.tensor([1.0, 1.1, 1.2], dtype=torch.float64)
++    command = _attach_racket_command(env, data, time_to_strike=[1.0, 1.0, 1.0])
++    command.base_height_target = 1.1
++
++    torch.testing.assert_close(
++        rewards.base_height_command_tracking_exp(
++            env, "racket_target", 0.1, _cfg("robot")
++        ),
++        torch.exp(torch.tensor([-1.0, 0.0, -1.0], dtype=torch.float64)),
++    )
++
++
+ def test_both_feet_contact_never_awards_a_single_planted_foot():
+     env, _, sensor = _make_env()
+     # Sensor feet are deliberately non-contiguous to exercise resolved body ids.
+@@ -191,6 +209,35 @@ def test_foot_flat_orientation_distinguishes_flat_tilted_and_inverted():
+     torch.testing.assert_close(actual, torch.tensor([0.0, 0.5, 2.0], dtype=torch.float64))
+ 
+ 
++def test_body_pitch_penalizes_pelvis_and_torso_lean_but_not_yaw_or_roll():
++    env, data, _ = _make_env(num_envs=4)
++    half_pitch = torch.deg2rad(torch.tensor(15.0, dtype=torch.float64))
++    pitch_quat = torch.tensor(
++        [torch.cos(half_pitch), 0.0, torch.sin(half_pitch), 0.0],
++        dtype=torch.float64,
++    )
++    negative_pitch_quat = pitch_quat.clone()
++    negative_pitch_quat[2] *= -1.0
++    quarter_turn = 2.0**-0.5
++    roll_quat = torch.tensor([quarter_turn, quarter_turn, 0.0, 0.0])
++    yaw_quat = torch.tensor([quarter_turn, 0.0, 0.0, quarter_turn])
++
++    # Selected bodies [0, 2] represent pelvis and torso.
++    data.body_link_quat_w[1, 0] = pitch_quat
++    data.body_link_quat_w[2, 0] = pitch_quat
++    data.body_link_quat_w[2, 2] = negative_pitch_quat
++    data.body_link_quat_w[3, 0] = roll_quat
++    data.body_link_quat_w[3, 2] = yaw_quat
++
++    actual = rewards.body_pitch_l2(env, _cfg("robot", [0, 2]))
++    torch.testing.assert_close(
++        actual,
++        torch.tensor([0.0, 0.125, 0.25, 0.0], dtype=torch.float64),
++        atol=1.0e-12,
++        rtol=1.0e-12,
++    )
++
++
+ def test_feet_stance_tracks_width_and_yaw_rotated_support_midpoint():
+     env, data, _ = _make_env(num_envs=2)
+     data.body_link_pos_w[0, 1, :2] = torch.tensor([0.0, -0.1])
+@@ -217,6 +264,11 @@ def test_invalid_scales_and_misaligned_foot_selectors_fail_fast():
+     env, _, _ = _make_env()
+     with pytest.raises(ValueError, match="std must be positive"):
+         rewards.base_height_tracking_exp(env, 1.0, 0.0, _cfg("robot"))
++    _attach_racket_command(env, env.scene["robot"].data, time_to_strike=[1.0, 1.0, 1.0])
++    with pytest.raises(ValueError, match="std must be positive"):
++        rewards.base_height_command_tracking_exp(
++            env, "racket_target", 0.0, _cfg("robot")
++        )
+     with pytest.raises(ValueError, match="same number"):
+         rewards.foot_slip_l2(
+             env,
+@@ -278,6 +330,56 @@ def test_forehand_ready_upper_body_tracks_pose_while_legs_remain_unselected():
+     )
+ 
+ 
++def test_forehand_ready_action_target_penalizes_decoded_waist_targets_only():
++    env, _, _ = _make_env(num_envs=2)
++    joint_names = ["waist_yaw_joint", "waist_roll_joint", "waist_pitch_joint", "arm_joint"]
++    motion = SimpleNamespace(
++        forehand_ready_pose=torch.tensor([True, False]),
++        cfg=SimpleNamespace(joint_names=joint_names),
++        joint_pos=torch.tensor(
++            [[0.0, 0.0, 0.05, 1.0], [0.0, 0.0, 0.05, 1.0]],
++            dtype=torch.float64,
++        ),
++    )
++    action = SimpleNamespace(
++        _joint_names=joint_names,
++        processed_actions=torch.tensor(
++            [[0.1, -0.2, -0.25, 9.0], [2.0, 2.0, 2.0, 9.0]],
++            dtype=torch.float64,
++        ),
++    )
++    env.command_manager = _CommandManager({"motion": motion})
++    env.action_manager = _ActionManager({"joint_pos": action})
++    actual = rewards.forehand_ready_action_target_l2(
++        env,
++        "motion",
++        "joint_pos",
++        joint_names=joint_names[:3],
++    )
++    expected = (0.1**2 + 0.2**2 + 0.3**2) / 3.0
++    torch.testing.assert_close(
++        actual, torch.tensor([expected, 0.0], dtype=torch.float64)
++    )
++
++
++def test_forehand_ready_foot_flat_is_masked_to_ready_cohort():
++    env, data, _ = _make_env(num_envs=2)
++    half = torch.tensor(0.2, dtype=torch.float64) / 2.0
++    data.body_link_quat_w[:, 0] = torch.tensor(
++        [torch.cos(half), torch.sin(half), 0.0, 0.0], dtype=torch.float64
++    )
++    env.command_manager = _CommandManager(
++        {"motion": SimpleNamespace(forehand_ready_pose=torch.tensor([True, False]))}
++    )
++    actual = rewards.forehand_ready_foot_flat_orientation(
++        env, "motion", _cfg("robot", [0]), sole_normal_axis=2
++    )
++    expected = 1.0 - torch.cos(torch.tensor(0.2, dtype=torch.float64))
++    torch.testing.assert_close(
++        actual, torch.tensor([expected, 0.0], dtype=torch.float64)
++    )
++
++
+ def test_forehand_ready_full_body_starts_only_after_centre_arrival():
+     env, data, _ = _make_env(num_envs=3)
+     _attach_racket_command(
+diff --git a/hope_training/whole_body_tracking/tests/test_training_sim2sim_contract.py b/hope_training/whole_body_tracking/tests/test_training_sim2sim_contract.py
+index f3d8874..fe69e84 100644
+--- a/hope_training/whole_body_tracking/tests/test_training_sim2sim_contract.py
++++ b/hope_training/whole_body_tracking/tests/test_training_sim2sim_contract.py
+@@ -49,9 +49,30 @@ MJCF_PATHS = (
+ MOTION_PATHS = (
+     REPO
+     / "hope_training/motions/preprocessed/"
+-    "ours_forehand_guarded_1p8s_wrist_x.npz",
+-    REPO / "hope_training/motions/preprocessed/ours_backhand_guarded_1p8s.npz",
++    "ours_forehand_guarded_1p8s_wrist_x_upright8deg_pelvis2deg_crouch2cm_flatfeet_waist_pitch_roll_locked0.npz",
++    REPO
++    / "hope_training/motions/preprocessed/"
++    "ours_backhand_guarded_1p8s_upright8deg_pelvis2deg_crouch2cm_flatfeet_armfix_waist_pitch_roll_locked0.npz",
+ )
++READY_MOTION_PATH = (
++    REPO
++    / "hope_training/motions/preprocessed/"
++    "hope_neutral_ready_crouch2cm_flatfeet_compact_waist_pitch_roll_locked0.npz"
++)
++READY_MOTION_YAML = READY_MOTION_PATH.with_suffix(".yaml")
++
++
++def _quat_local_z_world(quat_wxyz: np.ndarray) -> np.ndarray:
++    """Return each quaternion's local +Z axis expressed in world coordinates."""
++    w, x, y, z = np.moveaxis(quat_wxyz, -1, 0)
++    return np.stack(
++        (
++            2.0 * (x * z + w * y),
++            2.0 * (y * z - w * x),
++            1.0 - 2.0 * (x * x + y * y),
++        ),
++        axis=-1,
++    )
+ 
+ 
+ def _load_file_module(name: str, path: pathlib.Path):
+@@ -185,6 +206,113 @@ def test_training_no_ball_ready_anchor_matches_runtime_exactly():
+     ) == int(runtime["ready_swing_side"])
+ 
+ 
++def test_no_ball_ready_is_independent_compact_and_flat_footed():
++    """READY must not silently regress to the asymmetric forehand first frame."""
++
++    env_source = ENV_CFG.read_text(encoding="utf-8")
++    assert '"hope_neutral_ready_crouch2cm_flatfeet_compact_waist_pitch_roll_locked0.npz"' in env_source
++    assert "ready_pose_file=READY_CLIP" in env_source
++
++    metadata = yaml.safe_load(READY_MOTION_YAML.read_text(encoding="utf-8"))
++    pose = metadata["neutral_ready_pose"]
++    assert pose["pelvis_rpy_deg"] == [0.0, 2.0, 0.0]
++    assert pose["waist_yaw_roll_pitch_deg"] == [0.0, 0.0, 0.0]
++    assert np.allclose(pose["torso_world_rpy_deg"], [0.0, 2.0, 0.0], atol=1.0e-6)
++    assert pose["racket_target_rel_base_m"] == [0.45, -0.25, 0.08]
++    assert pose["left_wrist_lift_m"] == 0.12
++    assert pose["target_base_height_m"] == 1.0464
++
++    with np.load(READY_MOTION_PATH) as motion:
++        assert motion["joint_pos"].shape == (1, 31)
++        assert np.allclose(motion["joint_vel"], 0.0)
++        assert np.allclose(motion["body_lin_vel_w"], 0.0)
++        assert np.allclose(motion["body_ang_vel_w"], 0.0)
++        tracked = metadata["tracked_bodies"]
++        ground_offset = float(pose["ground_height_offset_m"])
++        for wrist_name in ("left_wrist_yaw_Link", "right_wrist_yaw_Link"):
++            wrist_index = tracked.index(wrist_name)
++            assert motion["body_pos_w"][0, wrist_index, 2] + ground_offset > 1.05
++        for foot_name in ("left_ankle_roll_Link", "right_ankle_roll_Link"):
++            foot_index = tracked.index(foot_name)
++            local_z_w = _quat_local_z_world(motion["body_quat_w"][:, foot_index])
++            assert np.max(np.linalg.norm(local_z_w[:, :2], axis=-1)) < 2.0e-6
++            assert np.min(local_z_w[:, 2]) > 0.999999
++
++
++def test_all_active_references_hold_waist_roll_and_pitch_at_zero():
++    """Locked waist axes must have zero reference position and velocity."""
++
++    for motion_path in (*MOTION_PATHS, READY_MOTION_PATH):
++        metadata = yaml.safe_load(
++            motion_path.with_suffix(".yaml").read_text(encoding="utf-8")
++        )
++        order = metadata["joint_order"]
++        locked_columns = [
++            order.index("waist_roll_joint"),
++            order.index("waist_pitch_joint"),
++        ]
++        with np.load(motion_path) as motion:
++            assert np.allclose(motion["joint_pos"][:, locked_columns], 0.0, atol=1.0e-8)
++            assert np.allclose(motion["joint_vel"][:, locked_columns], 0.0, atol=1.0e-8)
++
++
++def test_backhand_arm_keeps_elbow_margin_and_has_smooth_yaw_recovery():
++    backhand_path = MOTION_PATHS[1]
++    metadata = yaml.safe_load(
++        backhand_path.with_suffix(".yaml").read_text(encoding="utf-8")
++    )
++    fix = metadata["backhand_arm_regularization"]
++    assert fix["elbow_max_deg"] == 78.0
++    assert fix["recovery_start_frame"] == 52
++    assert fix["strict_racket_position_error_mm"]["max"] < 1.0
++    assert fix["strict_racket_orientation_error_deg"]["max"] < 0.3
++
++    with np.load(backhand_path) as motion, np.load(READY_MOTION_PATH) as ready:
++        order = metadata["joint_order"]
++        elbow = np.rad2deg(motion["joint_pos"][:, order.index("right_elbow_joint")])
++        shoulder_yaw = np.rad2deg(
++            motion["joint_pos"][52:, order.index("right_shoulder_yaw_joint")]
++        )
++        wrist_yaw = np.rad2deg(
++            motion["joint_pos"][52:, order.index("right_wrist_yaw_joint")]
++        )
++        assert np.max(elbow) <= 78.001
++        assert np.min(shoulder_yaw) > 15.0
++        shoulder_total_variation = np.sum(np.abs(np.diff(shoulder_yaw)))
++        shoulder_net_change = abs(float(shoulder_yaw[-1] - shoulder_yaw[0]))
++        assert shoulder_total_variation < 1.05 * shoulder_net_change
++        assert np.all(np.diff(wrist_yaw) <= 1.0e-4)
++
++        right_arm_names = [
++            "right_shoulder_pitch_joint",
++            "right_shoulder_roll_joint",
++            "right_shoulder_yaw_joint",
++            "right_elbow_joint",
++            "right_wrist_roll_joint",
++            "right_wrist_pitch_joint",
++            "right_wrist_yaw_joint",
++        ]
++        right_arm_indices = [order.index(name) for name in right_arm_names]
++        assert np.allclose(
++            motion["joint_pos"][-1, right_arm_indices],
++            ready["joint_pos"][0, right_arm_indices],
++            atol=1.0e-6,
++        )
++
++
++def test_swing_reference_feet_are_level_in_every_frame():
++    for motion_path in MOTION_PATHS:
++        metadata = yaml.safe_load(
++            motion_path.with_suffix(".yaml").read_text(encoding="utf-8")
++        )
++        with np.load(motion_path) as motion:
++            for foot_name in ("left_ankle_roll_Link", "right_ankle_roll_Link"):
++                foot_index = metadata["tracked_bodies"].index(foot_name)
++                local_z_w = _quat_local_z_world(motion["body_quat_w"][:, foot_index])
++                assert np.max(np.linalg.norm(local_z_w[:, :2], axis=-1)) < 2.0e-6
++                assert np.min(local_z_w[:, 2]) > 0.999999
++
++
+ def test_motion_grounding_and_joint_limit_contract_match_training_and_preview():
+     offsets = _env_contract()["ground_offsets"]
+     assert offsets == (
+@@ -512,6 +640,10 @@ def test_default_pose_and_every_motion_frame_are_grounded():
+                 mujoco.mj_forward(model, data)
+                 minimum = min(minimum, _minimum_foot_mesh_z(model, data))
+ 
+-        assert minimum < -0.07
++        # The raw motion may sit below the imported mesh floor; the configured
++        # per-clip offset is the grounding contract.  Do not encode the old
++        # tilted-foot penetration depth here because level feet intentionally
++        # changed that raw minimum.
++        assert minimum < 0.0
+         clearance = minimum + float(offset)
+         assert 0.000999 <= clearance <= 0.01
+diff --git a/hope_ws/src/hope_planner/hope_planner/constants.py b/hope_ws/src/hope_planner/hope_planner/constants.py
+index 281f011..8999c4b 100644
+--- a/hope_ws/src/hope_planner/hope_planner/constants.py
++++ b/hope_ws/src/hope_planner/hope_planner/constants.py
+@@ -67,8 +67,8 @@ class BallPhysics:
+     """No-spin aerodynamic and restitution parameters."""
+ 
+     k: float = 0.1261             # 1/m, quadratic drag: a = -k |v| v
+-    C_h: float = 0.631            # tangential retention at a table bounce (= 1 - a_t)
+-    C_v: float = 0.9215           # normal restitution at a table bounce
++    C_h: float = 0.7921           # tangential retention at a table bounce (= 1 - 0.2079)
++    C_v: float = 0.9448           # normal restitution at a table bounce
+     g: np.ndarray = field(default_factory=lambda: np.array([0.0, 0.0, -9.81]))
+     radius: float = 0.02          # m, ball radius (40 mm diameter)
+     mass: float = 0.0027          # kg, ball mass (drag folds mass in; kept for reference)
+diff --git a/hope_ws/src/hope_planner/test/test_ball_trajectory_predictor.py b/hope_ws/src/hope_planner/test/test_ball_trajectory_predictor.py
+index f540e51..c3d67b6 100644
+--- a/hope_ws/src/hope_planner/test/test_ball_trajectory_predictor.py
++++ b/hope_ws/src/hope_planner/test/test_ball_trajectory_predictor.py
+@@ -108,4 +108,4 @@ def test_bounce_contact_plane_is_ball_radius():
+     # Sanity: the z = 0 convention lands ~8 ms away and must NOT fit.
+     t_bounce_wrong = np.sqrt(2.0 * z0 / g)
+     t_strike_wrong = t_bounce_wrong + (0.0 - (x0 + vx * t_bounce_wrong)) / vx_post
+-    assert abs(strike.t_strike - t_strike_wrong) > 4e-3
++    assert abs(strike.t_strike - t_strike_wrong) > 3e-3
+diff --git a/hope_ws/src/hope_planner/test/test_strike_selection.py b/hope_ws/src/hope_planner/test/test_strike_selection.py
+index 1dbd403..7182acb 100644
+--- a/hope_ws/src/hope_planner/test/test_strike_selection.py
++++ b/hope_ws/src/hope_planner/test/test_strike_selection.py
+@@ -268,11 +268,11 @@ def test_moving_station_domain_corners_fit_velocity_admission(side, incoming_box
+     [
+         (
+             FOREHAND,
+-            (2.15, -1.4025, 0.25, -3.2534613, 0.0, 2.6822721),
++            (2.15, -1.4025, 0.25, -2.9606498, 0.0, 2.6822721),
+         ),
+         (
+             BACKHAND,
+-            (2.15, -0.8625, 0.25, -2.8232580, 0.0, 2.3846943),
++            (2.15, -0.8625, 0.25, -2.5409322, 0.0, 2.3846943),
+         ),
+     ],
+ )

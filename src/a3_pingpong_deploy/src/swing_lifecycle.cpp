@@ -24,21 +24,14 @@ SwingLifecycleConfig Model50000SwingLifecycleConfig() {
   config.follow_through_s = 0.8;
   config.recovery_s = 0.0;
   config.ready_time_to_strike_s = 1.0;
-  config.ready_swing_side = 1;
+  config.ready_swing_side = 0;
   config.ready_target_tracks_live_base = true;
-  // Compatibility fallback only. model_50000 READY targets are rebuilt from
-  // the live pelvis each tick, exactly like the reference runner.
+  // Canonical table-centred deployment station. READY racket targets are still
+  // rebuilt from the live pelvis each tick so observation[103:106] remains the
+  // exact configured relative vector below.
   config.ready_reference_base_w = {-0.5, -0.7625, 0.3064};
-  config.ready_target_rel_base_w = {
-      0.3201315701007843,
-      -0.6952511668205261,
-      -0.057795558124780655,
-  };
-  config.ready_target_velocity_w = {
-      2.3803303241729736,
-      0.6271703243255615,
-      1.0374835729599,
-  };
+  config.ready_target_rel_base_w = {0.45, -0.25, 0.08};
+  config.ready_target_velocity_w = {0.0, 0.0, 0.0};
   return config;
 }
 
@@ -62,7 +55,7 @@ SwingLifecycle::SwingLifecycle(SwingLifecycleConfig config)
       !std::isfinite(config_.recovery_s) || config_.recovery_s < 0.0 ||
       !std::isfinite(config_.ready_time_to_strike_s) ||
       config_.ready_time_to_strike_s <= 0.0 ||
-      (config_.ready_swing_side != 1 && config_.ready_swing_side != -1) ||
+      (config_.ready_swing_side < -1 || config_.ready_swing_side > 1) ||
       !AllFinite(config_.ready_reference_base_w) ||
       !AllFinite(config_.ready_target_rel_base_w) ||
       !AllFinite(config_.ready_target_velocity_w)) {

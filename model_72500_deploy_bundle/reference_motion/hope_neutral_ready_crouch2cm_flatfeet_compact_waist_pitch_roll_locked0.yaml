@@ -1,0 +1,100 @@
+name: hope_neutral_ready_crouch2cm_flatfeet_compact_waist_pitch_roll_locked0
+pose_type: independent_no_ball_ready
+fps: 50.0
+frame_count: 1
+duration_s: 0.0
+joint_order:
+- waist_yaw_joint
+- waist_roll_joint
+- waist_pitch_joint
+- head_yaw_joint
+- head_pitch_joint
+- left_shoulder_pitch_joint
+- left_shoulder_roll_joint
+- left_shoulder_yaw_joint
+- left_elbow_joint
+- left_wrist_roll_joint
+- left_wrist_pitch_joint
+- left_wrist_yaw_joint
+- right_shoulder_pitch_joint
+- right_shoulder_roll_joint
+- right_shoulder_yaw_joint
+- right_elbow_joint
+- right_wrist_roll_joint
+- right_wrist_pitch_joint
+- right_wrist_yaw_joint
+- left_hip_pitch_joint
+- left_hip_roll_joint
+- left_hip_yaw_joint
+- left_knee_joint
+- left_ankle_pitch_joint
+- left_ankle_roll_joint
+- right_hip_pitch_joint
+- right_hip_roll_joint
+- right_hip_yaw_joint
+- right_knee_joint
+- right_ankle_pitch_joint
+- right_ankle_roll_joint
+tracked_bodies:
+- pelvis_link
+- left_hip_roll_Link
+- left_knee_Link
+- left_ankle_roll_Link
+- right_hip_roll_Link
+- right_knee_Link
+- right_ankle_roll_Link
+- torso_Link
+- left_shoulder_roll_Link
+- left_elbow_Link
+- left_wrist_yaw_Link
+- right_shoulder_roll_Link
+- right_elbow_Link
+- right_wrist_yaw_Link
+anchor_body: torso_Link
+root_body: pelvis_link
+racket_body: pingpang_red_Link
+neutral_ready_pose:
+  source_motion: /home/fsr/HOPE/hope_training/motions/preprocessed/ours_forehand_guarded_1p8s_wrist_x_upright8deg_pelvis2deg_crouch2cm_flatfeet.npz
+  model_xml: /home/fsr/HOPE/gjc_robot_model/agibot_a3/xml/agibot_a3.xml
+  ground_height_offset_m: 0.0502601563
+  target_base_height_m: 1.0464
+  pelvis_rpy_deg:
+  - 0.0
+  - 2.0
+  - 0.0
+  waist_yaw_roll_pitch_deg:
+  - 0.0
+  - 0.0
+  - 0.0
+  torso_world_rpy_deg:
+  - 0.0
+  - 1.9999998930976033
+  - 0.0
+  racket_target_rel_base_m:
+  - 0.45
+  - -0.25
+  - 0.08
+  racket_actual_rel_base_m:
+  - 0.45000003801437133
+  - -0.25000000869288325
+  - 0.07999995311721864
+  racket_position_error_mm: 6.098076615512214e-05
+  racket_orientation_error_deg: 6.741661295584238e-05
+  left_wrist_lift_m: 0.12
+  left_wrist_target_w_m:
+  - 0.16492806834159668
+  - 0.26401082179751434
+  - 1.0121611854604096
+  left_wrist_actual_w_m:
+  - 0.16492807237412982
+  - 0.2640108270488238
+  - 1.0121611545163682
+  left_wrist_position_error_mm: 3.164445082768035e-05
+  left_wrist_orientation_error_deg: 1.6300948003513777e-05
+  foot_pose_error:
+    left_ankle_roll_Link:
+      position_error_mm: 7.376195431821855e-05
+      orientation_error_deg: 4.998583100250584e-06
+    right_ankle_roll_Link:
+      position_error_mm: 8.100186637245088e-05
+      orientation_error_deg: 5.923980718410542e-06

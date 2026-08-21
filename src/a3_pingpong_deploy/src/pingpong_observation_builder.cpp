@@ -162,8 +162,7 @@ bool PingpongObservationBuilder::Build(
       !AllFinite(planner.command->position_w) ||
       !AllFinite(planner.command->velocity_w) ||
       !std::isfinite(planner.command->time_to_strike_s) ||
-      (planner.command->swing_side != 1 &&
-       planner.command->swing_side != -1)) {
+      planner.command->swing_side < -1 || planner.command->swing_side > 1) {
     SetReason(reason, "observation source contains an invalid value");
     return false;
   }

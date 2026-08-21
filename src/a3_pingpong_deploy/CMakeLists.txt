@@ -1,17 +1,19 @@
-# The deployed actor and runtime contract come from the frozen model_53000 bundle.
+# The deployed actor and runtime contract come from the frozen model_72500 bundle.
 # FORCE avoids a stale previous-model path surviving in an existing CMake cache.
+set(A3_POLICY_BUNDLE_DIR
+  "${CMAKE_SOURCE_DIR}/model_72500_deploy_bundle")
 set(A3_POLICY_ONNX_SOURCE
-  "${CMAKE_SOURCE_DIR}/model_53000_deploy_bundle/a3_deploy/model_53000_deploy_bundle/policy/hope_pingpong.onnx"
-  CACHE FILEPATH "Frozen model_53000 ONNX actor" FORCE)
+  "${A3_POLICY_BUNDLE_DIR}/policy/hope_pingpong.onnx"
+  CACHE FILEPATH "Frozen model_72500 ONNX actor" FORCE)
 set(A3_POLICY_ONNX_SHA256
-  "8f87d7d9fe6f47007b064cb65150e5fe82e98e944ddbfcb5653e6ed14e080057")
+  "6ab2e061062455a997afb7c630599d1eafd0a66f90dfcfb5c1da8177c8093ed0")
 if(NOT EXISTS "${A3_POLICY_ONNX_SOURCE}")
-  message(FATAL_ERROR "model_53000 ONNX not found: ${A3_POLICY_ONNX_SOURCE}")
+  message(FATAL_ERROR "model_72500 ONNX not found: ${A3_POLICY_ONNX_SOURCE}")
 endif()
 file(SHA256 "${A3_POLICY_ONNX_SOURCE}" _a3_policy_onnx_actual_sha256)
 if(NOT _a3_policy_onnx_actual_sha256 STREQUAL A3_POLICY_ONNX_SHA256)
   message(FATAL_ERROR
-    "model_53000 ONNX SHA256 mismatch: ${_a3_policy_onnx_actual_sha256}")
+    "model_72500 ONNX SHA256 mismatch: ${_a3_policy_onnx_actual_sha256}")
 endif()
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
@@ -130,30 +132,32 @@ add_custom_command(TARGET a3_mdu_planner_receiver POST_BUILD
     "${CMAKE_BINARY_DIR}/models/model_50000"
   COMMAND ${CMAKE_COMMAND} -E remove_directory
     "${CMAKE_BINARY_DIR}/models/model_53000"
+  COMMAND ${CMAKE_COMMAND} -E remove_directory
+    "${CMAKE_BINARY_DIR}/models/model_72500"
   COMMAND ${CMAKE_COMMAND} -E make_directory
-    "${CMAKE_BINARY_DIR}/models/model_53000/config"
+    "${CMAKE_BINARY_DIR}/models/model_72500/config"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/model_53000_deploy_bundle/a3_deploy/model_53000_deploy_bundle/policy/policy_manifest.json"
-    "${CMAKE_BINARY_DIR}/models/model_53000/policy_manifest.json"
+    "${A3_POLICY_BUNDLE_DIR}/policy/policy_manifest.json"
+    "${CMAKE_BINARY_DIR}/models/model_72500/policy_manifest.json"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/model_53000_deploy_bundle/a3_deploy/model_53000_deploy_bundle/bundle_manifest.json"
-    "${CMAKE_BINARY_DIR}/models/model_53000/bundle_manifest.json"
+    "${A3_POLICY_BUNDLE_DIR}/bundle_manifest.json"
+    "${CMAKE_BINARY_DIR}/models/model_72500/bundle_manifest.json"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/model_53000_deploy_bundle/a3_deploy/model_53000_deploy_bundle/config/action_adapter.yaml"
-    "${CMAKE_BINARY_DIR}/models/model_53000/config/action_adapter.yaml"
+    "${A3_POLICY_BUNDLE_DIR}/config/action_adapter.yaml"
+    "${CMAKE_BINARY_DIR}/models/model_72500/config/action_adapter.yaml"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/model_53000_deploy_bundle/a3_deploy/model_53000_deploy_bundle/config/runtime.yaml"
-    "${CMAKE_BINARY_DIR}/models/model_53000/config/runtime.yaml"
+    "${A3_POLICY_BUNDLE_DIR}/config/runtime.yaml"
+    "${CMAKE_BINARY_DIR}/models/model_72500/config/runtime.yaml"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/model_53000_deploy_bundle/a3_deploy/model_53000_deploy_bundle/config/strike_box.yaml"
-    "${CMAKE_BINARY_DIR}/models/model_53000/config/strike_box.yaml"
+    "${A3_POLICY_BUNDLE_DIR}/config/strike_box.yaml"
+    "${CMAKE_BINARY_DIR}/models/model_72500/config/strike_box.yaml"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/model_53000_deploy_bundle/a3_deploy/model_53000_deploy_bundle/config/ball_physics.yaml"
-    "${CMAKE_BINARY_DIR}/models/model_53000/config/ball_physics.yaml"
+    "${A3_POLICY_BUNDLE_DIR}/config/ball_physics.yaml"
+    "${CMAKE_BINARY_DIR}/models/model_72500/config/ball_physics.yaml"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "$<TARGET_FILE:a3_onnxruntime>"
     "$<TARGET_FILE_DIR:a3_mdu_planner_receiver>/$<TARGET_FILE_NAME:a3_onnxruntime>"
-  COMMENT "Copying model_53000 actor, runtime contract, and ONNX Runtime")
+  COMMENT "Copying model_72500 actor, runtime contract, and ONNX Runtime")
 
 # hope_msgs is not installed on the robot image. Keep its generated C/C++
 # libraries beside the receiver so Fast DDS can load the matching type support.

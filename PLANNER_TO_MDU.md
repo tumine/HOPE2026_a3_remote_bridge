@@ -130,6 +130,15 @@ READY/RECOVERY 回启动站位，x 始终不变，不额外生成 base 速度命
 `lead_time_s=1.0` 对齐，下限恢复为现场调试时使用的窗口。可通过
 `A3_NEW_TASK_TTS_MIN_S` 显式覆盖。
 
+model_72500 策略模式的腰部增益与其冻结合同对齐：yaw/roll/pitch 的
+`Kp=[85,500,500]`、`Kd=[3,2,2]`。roll/pitch 的 applied action 和
+`q_des` 均强制为 0；yaw 仍由策略控制。这里的 500 是策略训练/MuJoCo nominal
+值，不是厂商认证值，首次实机运行必须在支撑状态下检查跟踪误差、反馈力矩和振荡。
+PD_STAND 仍使用独立的生产增益。为避免干扰 checkpoint 对 roll/pitch 的冻结合同，
+独立的腰 pitch 正向虚拟墙默认关闭；如需旧版诊断行为，可显式设置
+`A3_WAIST_PITCH_GUARD_ENABLED=1`。机械位置 clamp、腿部限位保护和通信 watchdog
+不受此项修改影响。
+
 ## ONNX 只读推理探针
 
 当前仅将 actor checkpoint 切换为 `model_48000_mujoco_deploy`，观测、状态机、
@@ -241,55 +250,53 @@ RobotIO probe 的 `result` 可以按下面判断：
 
 ## 手动状态机与真实 RobotIO 接口
 
-### 上肢发球第一阶段（31 维 dry-run）
+### MuJoCo 对齐的 V→C→F 发球/接球闭环
 
-上肢发球已接入 MDU 手动状态机。它不使用
-`/motion/control/arm_joint_command`，而是直接构造和 RobotIO 真实发送完全相同的
-31 维 `RobotCommand`。第一阶段强制 dry-run，不注册 body-drive command
-publisher：
+发球直接修改 RobotIO 的同一个 31 维 `RobotCommand`，不存在第二个关节命令
+publisher。轨迹和上肢增益来自
+`Serve_A3_leg_model/config/a3_lower_body.yaml`；发球期间 model_72500 继续以
+READY 观测控制腰部和双腿，头部保持，双臂由发球轨迹覆盖。
+
+无执行器 dry-run：
 
 ```bash
-A3_ENABLE_UPPER_BODY_SERVE_DRY_RUN=1 \
+A3_ENABLE_SERVE_VCF=1 A3_ENABLE_ACTION_DRY_RUN=1 \
   ./scripts/run_mdu_planner_receiver.sh
 ```
 
 键盘顺序：
 
-1. `S`：进入 PD_STAND，等待 `pd_stand_ready=yes`；
-2. `V`：执行一次上肢发球；
-3. 轨迹完成后自动回到 PD_STAND 并重新进行姿态插值；
-4. `P`：回 passive，`Q` 只能在 passive 退出。
-
-上肢轨迹阶段为 `prepare -> windup -> swing -> settle -> return -> complete`。
-`swing` 首帧会产生一次 `release_requested`，当前只记入状态计数，
-尚未连接夹爪 HTTP 执行器。
+1. `S`：进入 PD_STAND，等待 `pd_stand_ready=yes`，再按 `M` 进入接球策略；
+2. `V`：若有击球任务则等待 lifecycle 回 READY，再用 5 秒进入发球 Home；
+3. READY 后按 `C` 关闭夹爪，真实模式须等待日志中的 `gripper=closed`；
+4. READY 稳定至少 1 秒后按 `F`，执行 `windup -> swing -> settle -> return`；
+5. 释放点异步打开夹爪，播放结束后用 0.6 秒把上肢融合回接球策略；
+6. `G` 可手动打开夹爪；等待/归位/READY 时按 `M` 可取消发球。
 
 31 维合成规则：
 
 ```text
-[0..2]    腰：保持最新实测 q，后续可由15维下肢策略覆盖
-[3..4]    颈：保持最新实测 q
+[0..2]    腰：model_72500 READY 推理
+[3..4]    颈：发球期间保持 V 时实测 q
 [5..11]   左臂：上肢发球轨迹
 [12..18]  右臂：上肢发球轨迹
-[19..30]  腿：保持最新实测 q，后续可由15维下肢策略覆盖
+[19..30]  腿：model_72500 READY 推理
 ```
-
-`LowerBodyServeTarget` 已固定为15维：腰 `[0..2]` + 双腿 `[3..14]`。
-`FullBodyServeComposer` 先生成完整31维保持命令，再覆盖上肢轨迹和可选的
-下肢策略目标，因此第二阶段不需要改 RobotIO 接口或关节顺序。
 
 日志应出现：
 
 ```text
-robot_io=(...,result=dry_run)
-manual=(enabled=yes,mode=upper_body_serve,...)
-serve=(enabled=yes,phase=...,tick=...,commands=...,rejected=0,releases=1,lower=hold,...)
-body_drive_publishers=disabled
+manual=(enabled=yes,mode=motion,...)
+serve=(enabled=yes,pending=no,phase=ready,gripper=closed,...,
+       lower=model_72500_ready,gains=Serve_A3_leg_model)
+observation=(...,tts=1.000) lifecycle=(phase=ready,active=no,...)
 ```
 
-`--upper-body-serve-dry-run` 与 `--publish-commands` 同时使用会直接拒绝启动。
-在完成下肢策略、夹爪释放执行器、限位/跟踪误差门禁及悬挂实测前，
-不允许用此模式发送真实命令。
+真实发布还要求 `A3_GRIPPER_ACTUATION_CONFIRM=ENABLE_A3_GRIPPER`。夹爪通过
+MDU 本机 `10.42.10.12:56422` 的 HalHandService 异步调用；C 未成功时 F 会拒绝。
+发送帧同时包含左右 `agi_claw_cmd`，并显式设置
+`cmd=0, vel=20, force=20, clamp_method=2, finger_pos=0`；左侧位置仍为
+打开 `4096`、关闭 `1200`，右侧固定为 `0`。
 
 
 先用 shadow 模式统一验证按键流程，不创建 body-drive publisher：

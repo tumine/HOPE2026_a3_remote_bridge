@@ -56,6 +56,18 @@ struct ReceiveControllerOptions {
 
     LegDampingSafety();
   } leg_damping_safety;
+
+  // Optional legacy positive-pitch virtual wall. It is disabled by default for
+  // model_72500 because training locks waist roll/pitch near zero. When enabled,
+  // it replaces only the actuator command with a stiff recovery PD target.
+  struct WaistPitchSafety {
+    bool enabled{false};
+    double enter_rad{0.35};
+    double release_rad{0.27};
+    double recovery_target_rad{0.0};
+    double recovery_kp{400.0};
+    double recovery_kd{8.0};
+  } waist_pitch_safety;
 };
 
 enum class ReceiveTickResult {
@@ -84,6 +96,17 @@ bool BuildDampingCommand(const robot_io::RobotState& state, double damping_kd,
 
 bool ValidateRobotCommand(const robot_io::RobotCommand& command,
                           int expected_dof);
+
+bool ValidateWaistPitchSafety(
+    const ReceiveControllerOptions::WaistPitchSafety& safety);
+
+// Apply the waist-pitch virtual wall to a complete 31-DOF actuator command.
+// Returns false for malformed state/command data. `active` carries the
+// hysteresis latch between control ticks.
+bool ApplyWaistPitchSafety(
+    const robot_io::RobotState& state,
+    const ReceiveControllerOptions::WaistPitchSafety& safety,
+    bool& active, robot_io::RobotCommand& command);
 
 class ReceiveController {
  public:
@@ -124,6 +147,15 @@ class ReceiveController {
   int leg_limit_joint_index() const noexcept {
     return leg_limit_joint_index_.load(std::memory_order_relaxed);
   }
+  bool waist_pitch_guard_active() const noexcept {
+    return waist_pitch_guard_active_.load(std::memory_order_acquire);
+  }
+  std::uint64_t waist_pitch_guard_trigger_count() const noexcept {
+    return waist_pitch_guard_trigger_count_.load(std::memory_order_relaxed);
+  }
+  double waist_pitch_guard_output_rad() const noexcept {
+    return waist_pitch_guard_output_rad_.load(std::memory_order_relaxed);
+  }
   ReceiveTickResult last_result() const noexcept {
     return last_result_.load(std::memory_order_relaxed);
   }
@@ -154,6 +186,9 @@ class ReceiveController {
   std::atomic<std::uint64_t> leg_limit_damping_count_{0};
   std::atomic<bool> leg_limit_damping_active_{false};
   std::atomic<int> leg_limit_joint_index_{-1};
+  std::atomic<bool> waist_pitch_guard_active_{false};
+  std::atomic<std::uint64_t> waist_pitch_guard_trigger_count_{0};
+  std::atomic<double> waist_pitch_guard_output_rad_{0.0};
   std::atomic<ReceiveTickResult> last_result_{ReceiveTickResult::kNoState};
 };
 

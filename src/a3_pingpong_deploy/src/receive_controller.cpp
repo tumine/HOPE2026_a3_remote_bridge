@@ -11,6 +11,12 @@
 namespace a3_pingpong {
 namespace {
 
+constexpr int kWaistPitchCommandIndex = 2;
+constexpr double kWaistPitchMechanicalLowerRad = -0.4886921905584123;
+constexpr double kWaistPitchMechanicalUpperRad = 0.4188790204786391;
+constexpr double kWaistPitchMaximumRecoveryKp = 500.0;
+constexpr double kWaistPitchMaximumRecoveryKd = 8.0;
+
 std::int64_t SystemNowNs() {
   return std::chrono::duration_cast<std::chrono::nanoseconds>(
              std::chrono::system_clock::now().time_since_epoch())
@@ -89,6 +95,67 @@ bool ValidateRobotCommand(const robot_io::RobotCommand& command,
          FiniteVector(command.kd, expected_dof);
 }
 
+bool ValidateWaistPitchSafety(
+    const ReceiveControllerOptions::WaistPitchSafety& safety) {
+  if (!safety.enabled) return true;
+  return std::isfinite(safety.enter_rad) &&
+         std::isfinite(safety.release_rad) &&
+         std::isfinite(safety.recovery_target_rad) &&
+         std::isfinite(safety.recovery_kp) &&
+         std::isfinite(safety.recovery_kd) &&
+         safety.recovery_target_rad >= kWaistPitchMechanicalLowerRad &&
+         safety.recovery_target_rad < safety.release_rad &&
+         safety.release_rad < safety.enter_rad &&
+         safety.enter_rad <= kWaistPitchMechanicalUpperRad &&
+         safety.recovery_kp > 0.0 &&
+         safety.recovery_kp <= kWaistPitchMaximumRecoveryKp &&
+         safety.recovery_kd > 0.0 &&
+         safety.recovery_kd <= kWaistPitchMaximumRecoveryKd;
+}
+
+bool ApplyWaistPitchSafety(
+    const robot_io::RobotState& state,
+    const ReceiveControllerOptions::WaistPitchSafety& safety,
+    bool& active, robot_io::RobotCommand& command) {
+  if (!safety.enabled) {
+    active = false;
+    return true;
+  }
+  if (!ValidateWaistPitchSafety(safety) ||
+      state.q.size() != robot_io::kA3Dof ||
+      command.q_des.size() != robot_io::kA3Dof ||
+      command.dq_des.size() != robot_io::kA3Dof ||
+      command.tau_ff.size() != robot_io::kA3Dof ||
+      command.kp.size() != robot_io::kA3Dof ||
+      command.kd.size() != robot_io::kA3Dof) {
+    return false;
+  }
+  const double measured = state.q[kWaistPitchCommandIndex];
+  const double requested = command.q_des[kWaistPitchCommandIndex];
+  if (!std::isfinite(measured) || !std::isfinite(requested)) return false;
+
+  if (active) {
+    // Do not hand control back while the policy still asks for an angle beyond
+    // the entry boundary; otherwise the guard can immediately re-trigger.
+    if (measured <= safety.release_rad && requested <= safety.enter_rad) {
+      active = false;
+    }
+  } else if (measured >= safety.enter_rad) {
+    active = true;
+  }
+
+  if (active) {
+    command.q_des[kWaistPitchCommandIndex] = safety.recovery_target_rad;
+    command.dq_des[kWaistPitchCommandIndex] = 0.0;
+    command.tau_ff[kWaistPitchCommandIndex] = 0.0;
+    command.kp[kWaistPitchCommandIndex] = std::max(
+        command.kp[kWaistPitchCommandIndex], safety.recovery_kp);
+    command.kd[kWaistPitchCommandIndex] = std::max(
+        command.kd[kWaistPitchCommandIndex], safety.recovery_kd);
+  }
+  return true;
+}
+
 ReceiveController::ReceiveController(robot_io::RobotIOBackend& backend,
                                      PlannerInputMailbox& planner_mailbox,
                                      ReceivePolicyFn policy,
@@ -117,6 +184,10 @@ bool ReceiveController::Start() {
     return false;
   }
   if (!ValidLegDampingSafety(options_.leg_damping_safety)) {
+    running_.store(false, std::memory_order_release);
+    return false;
+  }
+  if (!ValidateWaistPitchSafety(options_.waist_pitch_safety)) {
     running_.store(false, std::memory_order_release);
     return false;
   }
@@ -236,6 +307,22 @@ ReceiveTickResult ReceiveController::RunOneTick(std::int64_t now_ns) {
     LatchLegLimit(leg_limit_joint);
     MaybeSendLegDamping(*state);
     return ReceiveTickResult::kLegLimitDamping;
+  }
+  bool waist_pitch_guard_active =
+      waist_pitch_guard_active_.load(std::memory_order_acquire);
+  const bool waist_pitch_guard_was_active = waist_pitch_guard_active;
+  if (!ApplyWaistPitchSafety(*state, options_.waist_pitch_safety,
+                             waist_pitch_guard_active, command) ||
+      !ValidateRobotCommand(command, backend_.GetLayout().dof())) {
+    MaybeSendSafeHalt(*state);
+    return ReceiveTickResult::kCommandInvalid;
+  }
+  waist_pitch_guard_active_.store(waist_pitch_guard_active,
+                                  std::memory_order_release);
+  waist_pitch_guard_output_rad_.store(command.q_des[kWaistPitchCommandIndex],
+                                      std::memory_order_relaxed);
+  if (!waist_pitch_guard_was_active && waist_pitch_guard_active) {
+    waist_pitch_guard_trigger_count_.fetch_add(1, std::memory_order_relaxed);
   }
   if (!options_.publish_commands) return ReceiveTickResult::kDryRun;
   if (!backend_.SendCommand(command)) return ReceiveTickResult::kCommandInvalid;

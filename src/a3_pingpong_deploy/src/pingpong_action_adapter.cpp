@@ -13,6 +13,8 @@ namespace {
 
 constexpr std::size_t kHeadYawIndex = 3;
 constexpr std::size_t kHeadPitchIndex = 4;
+constexpr std::size_t kWaistRollIndex = 1;
+constexpr std::size_t kWaistPitchIndex = 2;
 
 void SetReason(std::string* output, std::string value) {
   if (output) *output = std::move(value);
@@ -46,6 +48,13 @@ PingpongActionAdapterConfig Model50000ActionAdapterConfig() {
   return config;
 }
 
+PingpongActionAdapterConfig Model72500ActionAdapterConfig() {
+  auto config = Model50000ActionAdapterConfig();
+  config.locked[kWaistRollIndex] = true;
+  config.locked[kWaistPitchIndex] = true;
+  return config;
+}
+
 PingpongActionAdapterConfig Model48000ActionAdapterConfig() {
   return Model50000ActionAdapterConfig();
 }
@@ -63,9 +72,9 @@ PingpongCommandGains Model50000PolicyGains() {
   // Real-robot deployment gains in canonical A3 SDK order:
   // waist, head, left arm, right arm, left leg, right leg.
   // model_53000 simulation gains with explicitly requested real-robot waist
-  // stiffness overrides (yaw 85 -> 120, pitch 50 -> 100). Other joints stay exact.
+  // stiffness overrides (yaw/roll/pitch = 150/50/100). Other joints stay exact.
   gains.kp = {
-      120.0, 50.0, 100.0, 40.0, 40.0,
+      150.0, 50.0, 100.0, 40.0, 40.0,
       40.0, 40.0, 30.0, 30.0, 30.0, 20.0, 20.0,
       40.0, 40.0, 30.0, 30.0, 30.0, 20.0, 20.0,
       80.0, 120.0, 80.0, 250.0, 50.0, 50.0,
@@ -78,6 +87,20 @@ PingpongCommandGains Model50000PolicyGains() {
       3.0, 4.0, 3.0, 8.0, 2.0, 2.0,
       3.0, 4.0, 3.0, 8.0, 2.0, 2.0,
   };
+  return gains;
+}
+
+PingpongCommandGains Model72500PolicyGains() {
+  // model_72500 freezes waist roll/pitch at q_des=0 and was trained with the
+  // nominal waist gains below. Keep every non-waist real-robot gain unchanged
+  // while aligning the three waist axes with the bundle contract.
+  auto gains = Model50000PolicyGains();
+  gains.kp[0] = 85.0;   // waist_yaw_joint
+  gains.kp[1] = 500.0;  // waist_roll_joint, locked q_des=0
+  gains.kp[2] = 500.0;  // waist_pitch_joint, locked q_des=0
+  gains.kd[0] = 3.0;
+  gains.kd[1] = 2.0;
+  gains.kd[2] = 2.0;
   return gains;
 }
 
@@ -201,6 +224,9 @@ bool PingpongActionAdapter::Decode(
 
   applied_action[kHeadYawIndex] = 0.0F;
   applied_action[kHeadPitchIndex] = 0.0F;
+  for (std::size_t index = 0; index < applied_action.size(); ++index) {
+    if (config_.locked[index]) applied_action[index] = 0.0F;
+  }
   for (std::size_t index = 0; index < raw_action.size(); ++index) {
     const double applied = applied_action[index];
     local.applied_max_abs =
@@ -215,6 +241,9 @@ bool PingpongActionAdapter::Decode(
   }
   q_des[kHeadYawIndex] = config_.default_q[kHeadYawIndex];
   q_des[kHeadPitchIndex] = config_.default_q[kHeadPitchIndex];
+  for (std::size_t index = 0; index < q_des.size(); ++index) {
+    if (config_.locked[index]) q_des[index] = config_.default_q[index];
+  }
 
   if (diagnostics) *diagnostics = local;
   SetReason(reason, "valid");
@@ -255,10 +284,10 @@ bool PingpongActionAdapter::BuildPolicyCommand(
   if (!Decode(raw_action, applied_action, q_des, diagnostics, reason)) {
     return false;
   }
-  if (!BuildPositionCommand(q_des, Model50000PolicyGains(), command, reason)) {
+  if (!BuildPositionCommand(q_des, Model72500PolicyGains(), command, reason)) {
     return false;
   }
-  SetReason(reason, "valid model_53000 policy command");
+  SetReason(reason, "valid model_72500 policy command");
   return true;
 }
 

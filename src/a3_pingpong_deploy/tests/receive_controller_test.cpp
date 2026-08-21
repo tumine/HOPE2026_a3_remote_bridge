@@ -75,6 +75,38 @@ int main() {
   CHECK(halt.kp.norm() == 0.0);
   CHECK(halt.kd.norm() == 0.0);
 
+  // model_72500 locks waist pitch to zero, so its legacy positive-pitch virtual
+  // wall is disabled by default and must leave the policy command untouched.
+  a3_pingpong::ReceiveControllerOptions::WaistPitchSafety pitch_safety;
+  CHECK(!pitch_safety.enabled);
+  CHECK(pitch_safety.recovery_target_rad == 0.0);
+  CHECK(a3_pingpong::ValidateWaistPitchSafety(pitch_safety));
+  robot_io::RobotState pitch_state;
+  pitch_state.q = Eigen::VectorXd::Zero(31);
+  pitch_state.dq = Eigen::VectorXd::Zero(31);
+  pitch_state.q[2] = 0.36;
+  robot_io::RobotCommand pitch_command;
+  a3_pingpong::BuildSafeHaltCommand(pitch_state, pitch_command);
+  pitch_command.q_des[2] = 0.0;
+  pitch_command.kp.setConstant(100.0);
+  pitch_command.kd.setConstant(2.0);
+  bool pitch_guard_active = false;
+  CHECK(a3_pingpong::ApplyWaistPitchSafety(
+      pitch_state, pitch_safety, pitch_guard_active, pitch_command));
+  CHECK(!pitch_guard_active);
+  CHECK(pitch_command.q_des[2] == 0.0);
+  CHECK(pitch_command.kp[2] == 100.0);
+  CHECK(pitch_command.kd[2] == 2.0);
+
+  // The explicit opt-in path remains available for legacy diagnostics.
+  pitch_safety.enabled = true;
+  CHECK(a3_pingpong::ApplyWaistPitchSafety(
+      pitch_state, pitch_safety, pitch_guard_active, pitch_command));
+  CHECK(pitch_guard_active);
+  CHECK(pitch_command.q_des[2] == 0.0);
+  CHECK(pitch_command.kp[2] == 400.0);
+  CHECK(pitch_command.kd[2] == 8.0);
+
   robot_io::RobotCommand invalid = halt;
   invalid.kp[0] = std::numeric_limits<double>::quiet_NaN();
   CHECK(!a3_pingpong::ValidateRobotCommand(invalid, 31));

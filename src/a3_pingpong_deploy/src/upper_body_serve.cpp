@@ -2,8 +2,21 @@
 
 #include <Eigen/Core>
 
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <netdb.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
 #include <algorithm>
+#include <cerrno>
+#include <chrono>
+#include <cctype>
 #include <cmath>
+#include <cstring>
+#include <iostream>
+#include <sstream>
 #include <utility>
 
 namespace a3_pingpong {
@@ -31,6 +44,7 @@ double PhaseDuration(const UpperBodyServeConfig& config,
                      UpperBodyServePhase phase) {
   switch (phase) {
     case UpperBodyServePhase::kPrepare: return config.prepare_duration_s;
+    case UpperBodyServePhase::kReady: return 0.0;
     case UpperBodyServePhase::kWindup: return config.windup_duration_s;
     case UpperBodyServePhase::kSwing: return config.swing_duration_s;
     case UpperBodyServePhase::kSettle: return config.settle_duration_s;
@@ -52,6 +66,7 @@ const char* UpperBodyServePhaseName(UpperBodyServePhase phase) noexcept {
   switch (phase) {
     case UpperBodyServePhase::kIdle: return "idle";
     case UpperBodyServePhase::kPrepare: return "prepare";
+    case UpperBodyServePhase::kReady: return "ready";
     case UpperBodyServePhase::kWindup: return "windup";
     case UpperBodyServePhase::kSwing: return "swing";
     case UpperBodyServePhase::kSettle: return "settle";
@@ -72,8 +87,8 @@ void UpperBodyServeTrajectory::Reset() noexcept {
   release_emitted_ = false;
 }
 
-bool UpperBodyServeTrajectory::Start(const robot_io::RobotState& state,
-                                     std::string* reason) {
+bool UpperBodyServeTrajectory::BeginHoming(
+    const robot_io::RobotState& state, std::string* reason) {
   if (state.q.size() != static_cast<Eigen::Index>(kPingpongActionDim) ||
       !state.q.array().isFinite().all()) {
     SetReason(reason, "serve start requires a finite 31-DOF RobotState");
@@ -88,14 +103,19 @@ bool UpperBodyServeTrajectory::Start(const robot_io::RobotState& state,
     SetReason(reason, "serve trajectory contains a non-finite target");
     return false;
   }
-  const std::array<double, 5> durations{
-      config_.prepare_duration_s, config_.windup_duration_s,
-      config_.swing_duration_s, config_.settle_duration_s,
-      config_.return_duration_s};
+  const std::array<double, 8> durations{
+      config_.prepare_duration_s, config_.ready_dwell_s,
+      config_.windup_duration_s, config_.swing_duration_s,
+      config_.release_time_s, config_.settle_duration_s,
+      config_.return_duration_s, config_.receive_transition_s};
   if (!std::all_of(durations.begin(), durations.end(), [](double value) {
         return std::isfinite(value) && value >= 0.0;
       })) {
     SetReason(reason, "serve trajectory durations must be finite and nonnegative");
+    return false;
+  }
+  if (config_.release_time_s > config_.swing_duration_s) {
+    SetReason(reason, "serve release time cannot exceed swing duration");
     return false;
   }
   for (std::size_t index = 0; index < start_upper_.size(); ++index) {
@@ -106,8 +126,26 @@ bool UpperBodyServeTrajectory::Start(const robot_io::RobotState& state,
   phase_elapsed_s_ = 0.0;
   tick_ = 0;
   release_emitted_ = false;
-  SetReason(reason, "upper-body serve started");
+  SetReason(reason, "serve homing started; waiting for C then F");
   return true;
+}
+
+bool UpperBodyServeTrajectory::Fire(std::string* reason) noexcept {
+  if (!ready_to_fire()) {
+    SetReason(reason, ready() ? "serve READY dwell is not complete"
+                              : "serve is not in READY");
+    return false;
+  }
+  phase_ = UpperBodyServePhase::kWindup;
+  phase_elapsed_s_ = 0.0;
+  release_emitted_ = false;
+  SetReason(reason, "serve fire accepted");
+  return true;
+}
+
+double UpperBodyServeTrajectory::ready_remaining_s() const noexcept {
+  if (!ready()) return 0.0;
+  return std::max(0.0, config_.ready_dwell_s - phase_elapsed_s_);
 }
 
 void UpperBodyServeTrajectory::AdvancePhase() noexcept {
@@ -116,7 +154,10 @@ void UpperBodyServeTrajectory::AdvancePhase() noexcept {
       phase_ = UpperBodyServePhase::kPrepare;
       break;
     case UpperBodyServePhase::kPrepare:
-      phase_ = UpperBodyServePhase::kWindup;
+      phase_ = UpperBodyServePhase::kReady;
+      break;
+    case UpperBodyServePhase::kReady:
+      // READY is an explicit latched phase; only Fire() may leave it.
       break;
     case UpperBodyServePhase::kWindup:
       phase_ = UpperBodyServePhase::kSwing;
@@ -143,20 +184,29 @@ bool UpperBodyServeTrajectory::Step(
     SetReason(reason, "serve dt must be finite and positive");
     return false;
   }
-  if (phase_ == UpperBodyServePhase::kIdle && !Start(state, reason)) {
+  if (phase_ == UpperBodyServePhase::kIdle) {
+    SetReason(reason, "serve has not been armed with V");
     return false;
   }
 
+  bool boundary_release = false;
   // Move to the next phase before generating this tick. Adjacent phases share
   // their boundary target, so this produces every endpoint without a jump.
-  while (phase_ != UpperBodyServePhase::kComplete &&
+  while (phase_ != UpperBodyServePhase::kReady &&
+         phase_ != UpperBodyServePhase::kComplete &&
          phase_elapsed_s_ + 1.0e-12 >= PhaseDuration(config_, phase_)) {
+    if (phase_ == UpperBodyServePhase::kSwing && !release_emitted_ &&
+        phase_elapsed_s_ + 1.0e-12 >= config_.release_time_s) {
+      boundary_release = true;
+      release_emitted_ = true;
+    }
     AdvancePhase();
   }
 
   const UpperBodyServePhase output_phase = phase_;
+  const double output_elapsed_s = phase_elapsed_s_;
   output = config_.home_upper;
-  bool release_requested = false;
+  bool release_requested = boundary_release;
   double duration_s = 0.0;
 
   if (phase_ == UpperBodyServePhase::kPrepare) {
@@ -183,7 +233,8 @@ bool UpperBodyServeTrajectory::Step(
           alpha * (config_.hit_through_right[index] -
                    config_.windup_right[index]);
     }
-    if (!release_emitted_) {
+    if (!release_emitted_ &&
+        phase_elapsed_s_ + 1.0e-12 >= config_.release_time_s) {
       release_requested = true;
       release_emitted_ = true;
     }
@@ -214,11 +265,235 @@ bool UpperBodyServeTrajectory::Step(
   if (diagnostics) {
     diagnostics->phase = output_phase;
     diagnostics->tick = tick_;
+    diagnostics->phase_elapsed_s = output_elapsed_s;
     diagnostics->release_requested = release_requested;
     diagnostics->complete = output_phase == UpperBodyServePhase::kComplete;
   }
   SetReason(reason, "valid upper-body serve target");
   return true;
+}
+
+const char* GripperActionName(GripperAction action) noexcept {
+  switch (action) {
+    case GripperAction::kNone: return "none";
+    case GripperAction::kOpen: return "open";
+    case GripperAction::kClose: return "close";
+  }
+  return "unknown";
+}
+
+std::string BuildGripperCommandJson(
+    GripperAction action, const GripperHttpConfig& config) {
+  const int left_position = action == GripperAction::kOpen
+                                ? config.open_position
+                                : config.close_position;
+  auto append_claw = [&config](std::ostringstream& body, int position) {
+    body << "{\"agi_claw_cmd\":{\"cmd\":" << config.command
+         << ",\"pos\":" << position
+         << ",\"vel\":" << config.velocity
+         << ",\"force\":" << config.force
+         << ",\"clamp_method\":" << config.clamp_method
+         << ",\"finger_pos\":" << config.finger_position << "}}";
+  };
+  std::ostringstream body;
+  body << "{\"data\":{\"left\":";
+  append_claw(body, left_position);
+  body << ",\"right\":";
+  append_claw(body, config.right_position);
+  body << "}}";
+  return body.str();
+}
+
+GripperHttpClient::GripperHttpClient(GripperHttpConfig config)
+    : config_(std::move(config)) {}
+
+GripperHttpClient::~GripperHttpClient() { Stop(); }
+
+bool GripperHttpClient::Start(std::string* reason) {
+  if (worker_.joinable()) {
+    SetReason(reason, "gripper worker already started");
+    return true;
+  }
+  if (config_.host.empty() || config_.path.empty() || config_.port == 0 ||
+      config_.connect_timeout_ms <= 0 || config_.response_timeout_ms <= 0) {
+    SetReason(reason, "invalid gripper HTTP configuration");
+    return false;
+  }
+  stop_.store(false, std::memory_order_release);
+  worker_ = std::thread(&GripperHttpClient::Worker, this);
+  SetReason(reason, "gripper HTTP worker started");
+  return true;
+}
+
+void GripperHttpClient::Stop() noexcept {
+  stop_.store(true, std::memory_order_release);
+  const int socket_fd = active_socket_.exchange(-1, std::memory_order_acq_rel);
+  if (socket_fd >= 0) ::shutdown(socket_fd, SHUT_RDWR);
+  wake_cv_.notify_all();
+  if (worker_.joinable()) worker_.join();
+  busy_.store(false, std::memory_order_release);
+}
+
+std::optional<std::uint64_t> GripperHttpClient::Enqueue(
+    GripperAction action) noexcept {
+  if (action == GripperAction::kNone || !worker_.joinable() ||
+      stop_.load(std::memory_order_acquire)) return std::nullopt;
+  bool expected = false;
+  if (!busy_.compare_exchange_strong(expected, true,
+                                     std::memory_order_acq_rel)) {
+    return std::nullopt;
+  }
+  const auto request_id = next_request_id_.fetch_add(1);
+  pending_request_id_.store(request_id, std::memory_order_relaxed);
+  pending_.store(action, std::memory_order_release);
+  wake_cv_.notify_one();
+  return request_id;
+}
+
+GripperResult GripperHttpClient::result() const noexcept {
+  return GripperResult{
+      completed_request_id_.load(std::memory_order_acquire),
+      completed_action_.load(std::memory_order_relaxed),
+      completed_success_.load(std::memory_order_relaxed)};
+}
+
+void GripperHttpClient::Worker() {
+  while (!stop_.load(std::memory_order_acquire)) {
+    std::unique_lock<std::mutex> lock(wake_mutex_);
+    wake_cv_.wait(lock, [this] {
+      return stop_.load(std::memory_order_acquire) ||
+             pending_.load(std::memory_order_acquire) != GripperAction::kNone;
+    });
+    lock.unlock();
+    if (stop_.load(std::memory_order_acquire)) break;
+    const auto action = pending_.exchange(GripperAction::kNone,
+                                          std::memory_order_acq_rel);
+    const auto request_id = pending_request_id_.load(std::memory_order_relaxed);
+    std::string detail;
+    const bool success = Send(action, detail);
+    completed_action_.store(action, std::memory_order_relaxed);
+    completed_success_.store(success, std::memory_order_relaxed);
+    completed_request_id_.store(request_id, std::memory_order_release);
+    busy_.store(false, std::memory_order_release);
+    std::clog << "[gripper_http] id=" << request_id
+              << " action=" << GripperActionName(action)
+              << " success=" << (success ? "yes" : "no")
+              << " detail=" << detail << '\n';
+  }
+}
+
+bool GripperHttpClient::Send(GripperAction action,
+                             std::string& detail) noexcept {
+  addrinfo hints{};
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_STREAM;
+  addrinfo* addresses = nullptr;
+  const std::string port = std::to_string(config_.port);
+  const int gai = ::getaddrinfo(config_.host.c_str(), port.c_str(), &hints,
+                                &addresses);
+  if (gai != 0) {
+    detail = std::string("getaddrinfo: ") + ::gai_strerror(gai);
+    return false;
+  }
+
+  int fd = -1;
+  for (addrinfo* address = addresses; address; address = address->ai_next) {
+    fd = ::socket(address->ai_family, address->ai_socktype,
+                  address->ai_protocol);
+    if (fd < 0) continue;
+    const int original_flags = ::fcntl(fd, F_GETFL, 0);
+    if (original_flags < 0 || ::fcntl(fd, F_SETFL, original_flags | O_NONBLOCK) < 0) {
+      ::close(fd);
+      fd = -1;
+      continue;
+    }
+    int rc = ::connect(fd, address->ai_addr, address->ai_addrlen);
+    if (rc < 0 && errno == EINPROGRESS) {
+      fd_set write_set;
+      FD_ZERO(&write_set);
+      FD_SET(fd, &write_set);
+      timeval timeout{config_.connect_timeout_ms / 1000,
+                      (config_.connect_timeout_ms % 1000) * 1000};
+      rc = ::select(fd + 1, nullptr, &write_set, nullptr, &timeout);
+      if (rc > 0) {
+        int socket_error = 0;
+        socklen_t length = sizeof(socket_error);
+        if (::getsockopt(fd, SOL_SOCKET, SO_ERROR, &socket_error, &length) < 0 ||
+            socket_error != 0) {
+          rc = -1;
+        } else {
+          rc = 0;
+        }
+      } else {
+        // select() returns zero on timeout. Keep it distinct from connect()'s
+        // zero success result so a timed-out socket is never used.
+        rc = -1;
+      }
+    }
+    if (rc == 0 && ::fcntl(fd, F_SETFL, original_flags) == 0) break;
+    ::close(fd);
+    fd = -1;
+  }
+  ::freeaddrinfo(addresses);
+  if (fd < 0) {
+    detail = "connect failed or timed out";
+    return false;
+  }
+  active_socket_.store(fd, std::memory_order_release);
+  timeval io_timeout{config_.response_timeout_ms / 1000,
+                     (config_.response_timeout_ms % 1000) * 1000};
+  ::setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &io_timeout, sizeof(io_timeout));
+  ::setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &io_timeout, sizeof(io_timeout));
+
+  const std::string payload = BuildGripperCommandJson(action, config_);
+  std::ostringstream request_stream;
+  request_stream << "POST " << config_.path << " HTTP/1.1\r\n"
+                 << "Host: " << config_.host << ':' << config_.port << "\r\n"
+                 << "Content-Type: application/json\r\n"
+                 << "Timeout: 60000\r\n"
+                 << "Content-Length: " << payload.size() << "\r\n"
+                 << "Connection: close\r\n\r\n" << payload;
+  const std::string request = request_stream.str();
+  std::size_t sent = 0;
+  while (sent < request.size()) {
+    const ssize_t count = ::send(fd, request.data() + sent,
+                                 request.size() - sent, MSG_NOSIGNAL);
+    if (count <= 0) {
+      detail = std::string("send: ") + std::strerror(errno);
+      active_socket_.store(-1, std::memory_order_release);
+      ::close(fd);
+      return false;
+    }
+    sent += static_cast<std::size_t>(count);
+  }
+  std::string response;
+  std::array<char, 2048> buffer{};
+  while (response.size() < 64 * 1024) {
+    const ssize_t count = ::recv(fd, buffer.data(), buffer.size(), 0);
+    if (count == 0) break;
+    if (count < 0) {
+      detail = std::string("recv: ") + std::strerror(errno);
+      active_socket_.store(-1, std::memory_order_release);
+      ::close(fd);
+      return false;
+    }
+    response.append(buffer.data(), static_cast<std::size_t>(count));
+  }
+  active_socket_.store(-1, std::memory_order_release);
+  ::close(fd);
+  const auto line_end = response.find("\r\n");
+  const std::string status = response.substr(0, line_end);
+  const bool http_ok = status.find(" 2") != std::string::npos;
+  std::string compact = response;
+  compact.erase(std::remove_if(compact.begin(), compact.end(),
+                               [](unsigned char value) {
+                                 return std::isspace(value) != 0;
+                               }),
+                compact.end());
+  const bool code_ok = compact.find("\"code\":0") != std::string::npos ||
+                       compact.find("\"code\":\"0\"") != std::string::npos;
+  detail = status.empty() ? "empty HTTP response" : status;
+  return http_ok && code_ok;
 }
 
 FullBodyServeComposer::FullBodyServeComposer(PingpongCommandGains gains)

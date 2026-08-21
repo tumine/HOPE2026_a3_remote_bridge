@@ -17,6 +17,9 @@ enum class ManualKey {
   kPdStand,
   kMotion,
   kUpperBodyServe,
+  kServeClose,
+  kServeFire,
+  kGripperOpen,
   kHalt,
   kStatus,
   kHelp,
@@ -28,6 +31,14 @@ enum class ManualActionResult {
   kAccepted,
   kRejectedNeedPdStand,
   kRejectedServeDisabled,
+  kRejectedNeedMotion,
+  kRejectedServeState,
+  kRejectedGripperBusy,
+  kRejectedGripperNotClosed,
+  kServePending,
+  kGripperRequested,
+  kServeFireRequested,
+  kReceiveRequested,
   kRejectedQuitWhileActive,
   kStatusRequested,
   kHelpRequested,
@@ -38,9 +49,9 @@ enum class ManualActionResult {
 ManualKey ParseManualKey(char key) noexcept;
 const char* ManualModeName(ManualMode mode) noexcept;
 
-// On-robot control sequence: P=passive, S=pd_stand, then M=motion or
-// V=upper-body serve. Active modes are deliberately unreachable until the
-// official 150-tick PD_STAND interpolation has completed.
+// On-robot control sequence: P=passive, S=pd_stand, M=motion. V/C/F/G are
+// consumed by ObservationProbe while mode remains kMotion so the receive
+// policy continues to own waist and legs during the upper-body serve.
 class ManualControl {
  public:
   ManualActionResult Apply(ManualKey key) noexcept;

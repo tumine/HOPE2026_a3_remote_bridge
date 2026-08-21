@@ -82,8 +82,11 @@ class LifecycleConfig:
 
         if self.ready_swing_side is not None:
             side = int(self.ready_swing_side)
-            if side not in (FOREHAND, BACKHAND):
-                raise ValueError("ready_swing_side must be +1 (forehand) or -1 (backhand)")
+            if side not in (BACKHAND, 0, FOREHAND):
+                raise ValueError(
+                    "ready_swing_side must be -1 (backhand), 0 (neutral), "
+                    "or +1 (forehand)"
+                )
             self.ready_swing_side = side
 
 

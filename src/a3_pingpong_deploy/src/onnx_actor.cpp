@@ -61,7 +61,7 @@ struct OnnxActor::Impl {
         session(env, model_path.c_str(), session_options) {
     if (session.GetInputCount() != 1 || session.GetOutputCount() != 1) {
       throw std::runtime_error(
-          "model_53000 actor must have exactly one input and one output");
+          "ping-pong actor must have exactly one input and one output");
     }
 
     auto allocated_input = session.GetInputNameAllocated(0, allocator);
@@ -111,8 +111,8 @@ struct OnnxActor::Impl {
     // The bundle also stores checkpoint identity in its manifest/provenance.
     // Accept the exporter omission while validating these fields if present.
     require_metadata_if_present(
-        "policy_generation", "moving_base_model_53000_v1");
-    require_metadata_if_present("checkpoint_iteration", "53000");
+        "policy_generation", "moving_base_model_72500_v1");
+    require_metadata_if_present("checkpoint_iteration", "72500");
     require_metadata("joint_order", ExpectedJointOrderCsv());
   }
 

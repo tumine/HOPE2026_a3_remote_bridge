@@ -20,7 +20,9 @@ struct SwingLifecycleConfig {
   double follow_through_s{0.8};
   double recovery_s{0.0};
   double ready_time_to_strike_s{1.0};
-  std::int8_t ready_swing_side{1};
+  // READY uses 0 as an explicit no-ball/neutral-side observation. Live planner
+  // commands remain restricted to +1 (forehand) or -1 (backhand).
+  std::int8_t ready_swing_side{0};
   bool ready_target_tracks_live_base{true};
   std::array<double, 3> ready_reference_base_w{};
   std::array<double, 3> ready_target_rel_base_w{};
@@ -43,7 +45,7 @@ SwingLifecycleConfig Model21500SwingLifecycleConfig();
 // command is accepted only once per new task_id. Once engaged, its TTS is
 // advanced locally at the policy rate, followed by the configured follow-
 // through and recovery phases. With no eligible command, the lifecycle emits
-// the model_50000 READY target relative to the current live pelvis.
+// the neutral READY target relative to the current live pelvis.
 class SwingLifecycle {
  public:
   explicit SwingLifecycle(SwingLifecycleConfig config);

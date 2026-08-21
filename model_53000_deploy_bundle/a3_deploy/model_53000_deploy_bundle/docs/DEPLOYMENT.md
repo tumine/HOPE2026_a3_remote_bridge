@@ -49,7 +49,7 @@ READY --新 task_id--> SWING --TTS 到 0 后--> FOLLOW_THROUGH
 FOLLOW_THROUGH --0.8 s--> RECOVERY --0 s--> READY
 ```
 
-同一球只触发一次挥拍；接触前允许 revision 更新击球点和 TTS。球间不重置机器人、关节状态或 policy history。无有效球命令时仍以 50 Hz 推理，使用 `runtime.yaml` 中的固定 READY 正手条件观测，同时 base 目标回中央。
+同一球只触发一次挥拍；接触前允许 revision 更新击球点和 TTS。球间不重置机器人、关节状态或 policy history。无有效球命令时仍以 50 Hz 推理，使用 `runtime.yaml` 中的静止中性 READY 条件观测（相对目标 `[0.45,-0.25,0.08]`、速度零、TTS 1、side 0），同时 base 目标回中央。
 
 TTS 应使用 planner 消息的目标时间减当前时间，并扣除消息传输/处理年龄。该模型按 `+1.0 s` 的动作片段起点训练；若首次可用命令已经小于 `0.5 s`，即使 planner 数学预测正确，腿部也通常没有足够时间完成横移。目前 `0.25 s` 首命令不在本模型已验证训练分布内。
 
