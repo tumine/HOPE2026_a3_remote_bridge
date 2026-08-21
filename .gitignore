@@ -1,10 +1,59 @@
+# CMake build and packaged output
 /build/
 /dist/
+/CMakeCache.txt
+/CMakeFiles/
+/cmake_install.cmake
+/compile_commands.json
+
+# ROS 2 / colcon workspace products (the source lives in thirdparty/)
+/.hope_ros2/
+
+# Python environments, caches, and test output
 /.venv_rl/
-/thirdparty/rockchip_sysroot/*.tar.gz
-/thirdparty/rockchip_sysroot/*.tar.gz.sha256
+/.pytest_cache/
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*.pyd
+*.so
+*.egg-info/
+
+# Runtime logs and recordings
+/log/
+*.log
+*.bag
+*.db3
+
+# Local IDE and editor state
 .idea/
 .vscode/
+*.code-workspace
+*.swp
+*.swo
+*~
+
+# Local backups and generated repository inventories
+/.update_backup_*/
+/README.md.orig
+/project_structure.txt
+
+# Deployment/training snapshots and duplicated model bundles. Publish these
+# through a release, package registry, or Git LFS if they must be shared.
+/26.7.25发球部署/
+/model_*_deploy/
+/model_*_deploy_bundle/
+/model_*_mujoco_sim2sim_bundle/
+/yfr_hope_pingpong_deploy_20500/
+*.pt
+*.pth
+*.ckpt
+
+# Binary archives are release artifacts, not source files.
+/*.zip
+/*.tar
+/*.tar.gz
+/*.tgz
+
+# Downloaded Rockchip sysroots are platform-specific build inputs.
+/thirdparty/rockchip_sysroot/*.tar.gz
+/thirdparty/rockchip_sysroot/*.tar.gz.sha256
