@@ -62,4 +62,5 @@ fi
 export LD_LIBRARY_PATH="${A3_DEPLOY_PACKAGE_DIR}:${A3_DEPLOY_PACKAGE_DIR}/lib:${SCRIPT_DIR}:${LD_LIBRARY_PATH:-}"
 exec "${A3_DEPLOY_PACKAGE_DIR}/hope_locomotion_deploy" \
   --config "${SCRIPT_DIR}/config/a3_locomotion.yaml" \
+  --ik-serve-config "${SCRIPT_DIR}/config/a3_locomotion_serve_ik.yaml" \
   "$@"

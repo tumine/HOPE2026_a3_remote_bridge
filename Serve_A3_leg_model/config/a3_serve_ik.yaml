@@ -1,0 +1,70 @@
+# A3 right-arm serve using an offline IK recording.
+#
+# Selected by the V key while keeping the unchanged lower-body policy and
+# legacy interpolation configuration:
+#   hope_lower_body_deploy \
+#     --config config/a3_lower_body.yaml \
+#     --ik-serve-config config/a3_serve_ik.yaml
+#
+# Runtime only replays timestamped q(t); it does not run MuJoCo or IK.
+
+serve:
+  enabled: true
+  home: [
+      -1.40, 0.00, -0.00, 1.20, 1.57, -1.57, -0.00,   # left arm
+      -0.57, -0.59, 0.65, 0.0, 0.01, 0.04, 0.70,      # right arm
+  ]
+  windup_right: [
+      -0.33,   # right_shoulder_pitch
+      -0.55,   # right_shoulder_roll
+      0.71,    # right_shoulder_yaw
+      -0.07,   # right_elbow
+      -0.20,   # right_wrist_roll
+      -0.22,   # right_wrist_pitch
+      0.73,    # right_wrist_yaw
+  ]
+  # Retained as the taught contact keyframe and documentation. With trajectory
+  # enabled, the swing target comes from the recorded CSV instead.
+  hit_through_right: [
+      -0.55,   # right_shoulder_pitch
+      -0.59,   # right_shoulder_roll
+      0.56,    # right_shoulder_yaw
+      0.03,    # right_elbow
+      0.01,    # right_wrist_roll
+      0.05,    # right_wrist_pitch
+      0.73,    # right_wrist_yaw
+  ]
+  trajectory:
+    enabled: true
+    path: ../motions/a3_serve_ik_endpoint_0p10s/right_arm_ik_trajectory.csv
+    # External IK independently solves the contact pose from the windup state.
+    # The taught contact joints and F-key intermediate path are not supplied to
+    # the solve. The intermediate trajectory is a 0.10 s speed-bounded joint
+    # move, so it neither copies F nor forces a straight Cartesian line. It
+    # stops at the requested racket contact pose with no follow-through.
+    # Actual V-key swing time. Edit this while the arm is ready/home, then
+    # press Y to reload. Use 0.02 s multiples for the 50 Hz command loop.
+    # The loader rejects durations that would push any joint above 4 rad/s.
+    duration_s: 0.10
+    # Official position-command interface ceiling. The offline planner uses
+    # 3.6 rad/s (90%) and this runtime loader independently rejects >4.0.
+    max_joint_speed_rad_s: 4.0
+  timing:
+    home_s: 5.0
+    windup_s: 0.50
+    # Used only by the old two-point fallback. The recorded CSV independently
+    # has the same 0.10 s swing duration.
+    swing_s: 0.10
+    release_s: 0.0
+    settle_s: 1.0
+    return_s: 1.0
+    open_wait_s: 0.5
+  gripper:
+    host: 10.42.10.12
+    port: 56422
+    path: /rpc/aimdk.protocol.HalHandService/SetHandCommand
+    open_position: 4096
+    close_position: 1200
+    right_position: 0
+    connect_timeout_ms: 3000
+    response_timeout_ms: 65000

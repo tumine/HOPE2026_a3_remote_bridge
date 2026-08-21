@@ -1,0 +1,45 @@
+# IK serve profile selected by the V key in hope_locomotion_deploy.
+# Runtime replays the offline-solved right-arm q(t); no IK runs on the robot.
+
+serve:
+  enabled: true
+  home: [
+      -1.30, 0.00, -0.00, 1.30, 1.57, -1.57, -0.00,   # left arm
+      -0.57, -0.59, 0.65, 0.0, 0.01, 0.04, 0.70,      # right arm
+  ]
+  windup_right: [
+      -0.33, -0.55, 0.71, -0.07, -0.20, -0.22, 0.73,
+  ]
+  # Original taught contact keyframe. The CSV reaches the same racket pose via
+  # sequential Cartesian DLS IK and then continues through follow-through.
+  hit_through_right: [
+      -0.55, -0.59, 0.56, 0.03, 0.01, 0.05, 0.73,
+  ]
+  trajectory:
+    enabled: true
+    path: ../motions/a3_locomotion_serve_ik_0p24s/right_arm_ik_trajectory.csv
+    starts_at_home: true
+    # Source-recording time: HOME->windup ends and ball release occurs here.
+    release_time_s: 0.50
+    # The original 0.03 s interpolation requires about 46.97 rad/s under this
+    # Cartesian IK path and is rejected. This recording uses 0.50 s HOME to
+    # windup, 0.24 s to contact, and 0.12 s follow-through.
+    speed_scale: 1.0
+  timing:
+    home_s: 5.0
+    windup_s: 0.50
+    # Legacy fallback only; CSV timestamps own the IK swing duration.
+    swing_s: 0.03
+    release_s: 0.0
+    settle_s: 1.0
+    return_s: 1.0
+    open_wait_s: 0.5
+  gripper:
+    host: 10.42.10.12
+    port: 56422
+    path: /rpc/aimdk.protocol.HalHandService/SetHandCommand
+    open_position: 4096
+    close_position: 1200
+    right_position: 0
+    connect_timeout_ms: 3000
+    response_timeout_ms: 65000

@@ -62,4 +62,5 @@ fi
 export LD_LIBRARY_PATH="${A3_DEPLOY_PACKAGE_DIR}:${A3_DEPLOY_PACKAGE_DIR}/lib:${SCRIPT_DIR}:${LD_LIBRARY_PATH:-}"
 exec "${A3_DEPLOY_PACKAGE_DIR}/hope_lower_body_deploy" \
   --config "${SCRIPT_DIR}/config/a3_lower_body.yaml" \
+  --ik-serve-config "${SCRIPT_DIR}/config/a3_serve_ik.yaml" \
   "$@"

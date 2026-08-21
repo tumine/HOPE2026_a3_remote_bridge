@@ -72,10 +72,14 @@ serve:
     home_s: 5.0
     windup_s: 0.50
     swing_s: 0.1
-    release_s: 0.1
+    # Relative to swing start; valid range is [-windup_s, swing_s].
+    release_s: 0.0
     settle_s: 1.0
     return_s: 1.0
-    close_wait_s: 0.5
+    # Once the arm reaches home, enqueue gripper open immediately and keep the
+    # arm at home for this duration before reporting ready. This does not wait
+    # for confirmation that the asynchronous HTTP/mechanical action completed.
+    open_wait_s: 0.5
   gripper:
     host: 10.42.10.12
     port: 56422
