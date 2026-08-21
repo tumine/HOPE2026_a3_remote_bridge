@@ -20,6 +20,7 @@ __pycache__/
 
 # Runtime logs and recordings
 /log/
+/Serve_A3_leg_model/artifacts/
 *.log
 *.bag
 *.db3
