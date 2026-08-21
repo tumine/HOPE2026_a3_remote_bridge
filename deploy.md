@@ -83,12 +83,15 @@ A3_ROBOT_SAFETY_READY=1 \
 
 #hhh
 P：立即切换到阻尼模式
-S：进入 PD 初始
+S：进入 PD 站立位，同时将双臂/夹爪平滑略微抬起
 M：启动下肢策略
-V：进入发球 Ready
+R：进入发球 Home/Ready
 C：关闭夹爪
-F：播放发球动作
+F：播放旧版插值发球动作
+V：播放离线 IK 发球动作
 G：打开夹爪
+Y：在 Idle 或 Home/Ready 状态动态重载当前发球 YAML；修改
+   `config/a3_serve_ik.yaml` 后按 Y 即可，无需重启程序
 H：打印帮助
 Q：退出程序
 
@@ -108,4 +111,3 @@ cd /home/bth/workspace/a3_remote_bridge
 
 cd /home/bth/workspace/a3_remote_bridge
 ./scripts/run_lower_body_serve_mujoco.sh
-
