@@ -37,23 +37,36 @@ const char* UpperBodyServePhaseName(UpperBodyServePhase phase) noexcept;
 struct UpperBodyServeConfig {
   // Canonical A3 arm order: left arm [0..6], right arm [7..13].
   UpperBodyServeTarget home_upper{
-      -1.10, 0.00, 0.00, 0.90, 1.57, -1.57, 0.00,
+      -1.191947170859, 0.160059961944, -0.413680271815,
+      0.362461292346, 0.176261448817, -0.944081736121,
+      -0.988417746825,
       -0.57, -0.59, 0.65, 0.00, 0.01, 0.04, 0.70};
   std::array<double, kServeRightArmDim> windup_right{
-      -0.33, -0.55, 0.71, -0.07, -0.20, -0.22, 0.73};
+      0.002435028829, -0.471091091169, 0.593553488245,
+      -0.132633432142, 0.354979439390, 0.004177040662,
+      0.700382116774};
   std::array<double, kServeRightArmDim> hit_through_right{
-      -0.55, -0.59, 0.56, 0.03, 0.01, 0.05, 0.73};
-  // Frozen from Serve_A3_leg_model/config/a3_lower_body.yaml and shared with
-  // the MuJoCo V->C->F visualization.
-  double prepare_duration_s{5.0};
-  double ready_dwell_s{1.0};
+      -0.932245543163, -0.513271234914, 0.793750783000,
+      0.501023846375, 0.405425286567, 0.357815376051,
+      1.208649592179};
+  // Track 1 is the only implicit V default. Tracks 1-4 are copied exactly
+  // from Serve_A3_leg_model/tracks; only post-impact recovery is shortened
+  // for the combined serve-receive loop.
+  double prepare_duration_s{5.40};
+  double ready_dwell_s{0.50};
   double windup_duration_s{0.50};
-  double swing_duration_s{0.10};
-  double release_time_s{0.10};
-  double settle_duration_s{1.0};
-  double return_duration_s{1.0};
-  double receive_transition_s{0.60};
+  double swing_duration_s{0.12};
+  double release_time_s{-0.15};
+  double settle_duration_s{0.05};
+  double return_duration_s{0.0};
+  double receive_transition_s{0.20};
 };
+
+// Returns one of the four robot-tuned serve tracks. Track 1 is the fixed V
+// default. The YAML remains the human-readable source of truth; these values
+// are compiled into the MDU binary so runtime does not depend on yaml-cpp.
+std::optional<UpperBodyServeConfig> NumberedUpperBodyServeConfig(
+    int track) noexcept;
 
 struct UpperBodyServeDiagnostics {
   UpperBodyServePhase phase{UpperBodyServePhase::kIdle};

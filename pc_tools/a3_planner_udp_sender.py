@@ -84,6 +84,10 @@ class PlannerUdpSender(Node):
         self.invalid_poses = 0
         self.invalid_commands = 0
         self.send_errors = 0
+        self.last_pose_received_at: float | None = None
+        self.max_pose_gap_s = 0.0
+        self.last_send_at: float | None = None
+        self.max_send_gap_s = 0.0
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 64 * 1024)
@@ -144,9 +148,15 @@ class PlannerUdpSender(Node):
         if not _finite(position + quaternion) or sum(x * x for x in quaternion) < 1e-12:
             self.invalid_poses += 1
             return
+        received_at = time.monotonic()
+        if self.last_pose_received_at is not None:
+            self.max_pose_gap_s = max(
+                self.max_pose_gap_s, received_at - self.last_pose_received_at
+            )
+        self.last_pose_received_at = received_at
         self.pose_sequence = (self.pose_sequence + 1) & 0xFFFFFFFF
         self.pose = PoseSample(
-            self.pose_sequence, time.monotonic(), position, quaternion
+            self.pose_sequence, received_at, position, quaternion
         )
 
     def _on_command(self, message: RacketCommand) -> None:
@@ -186,6 +196,9 @@ class PlannerUdpSender(Node):
 
     def _send(self) -> None:
         now = time.monotonic()
+        if self.last_send_at is not None:
+            self.max_send_gap_s = max(self.max_send_gap_s, now - self.last_send_at)
+        self.last_send_at = now
         flags = 0
         pose_sequence = self.pose_sequence
         pose_position = (0.0, 0.0, 0.0)
@@ -244,14 +257,29 @@ class PlannerUdpSender(Node):
                 self.get_logger().error(f"UDP send failed: {error}")
 
     def _log_status(self) -> None:
+        now = time.monotonic()
+        pose_age_ms = (
+            (now - self.pose.received_at) * 1000.0 if self.pose else -1.0
+        )
+        pose_valid = (
+            self.pose is not None
+            and pose_age_ms <= self.pose_timeout_s * 1000.0
+        )
         self.get_logger().info(
-            "udp packets=%d payload_bytes=%d pose_seq=%d command=%s "
-            "invalid=(pose:%d,command:%d) send_errors=%d"
+            "udp packets=%d payload_bytes=%d pose_seq=%d pose_valid=%s "
+            "pose_age_ms=%.1f max_pose_gap_ms=%.1f max_send_gap_ms=%.1f "
+            "command=%s invalid=(pose:%d,command:%d) send_errors=%d"
             % (
                 self.sent_packets,
                 self.sent_bytes,
                 self.pose_sequence,
-                "valid" if self.command and self.command.deadline > time.monotonic() else "none",
+                "yes" if pose_valid else "no",
+                pose_age_ms,
+                self.max_pose_gap_s * 1000.0,
+                self.max_send_gap_s * 1000.0,
+                "valid"
+                if self.command and self.command.deadline > now
+                else "none",
                 self.invalid_poses,
                 self.invalid_commands,
                 self.send_errors,

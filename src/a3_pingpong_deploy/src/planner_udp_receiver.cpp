@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include <array>
+#include <chrono>
 #include <cerrno>
 #include <cstring>
 #include <span>
@@ -18,6 +19,22 @@ namespace {
 
 void SetReason(std::string* output, std::string value) {
   if (output) *output = std::move(value);
+}
+
+std::uint64_t SteadyNowNs() {
+  return static_cast<std::uint64_t>(
+      std::chrono::duration_cast<std::chrono::nanoseconds>(
+          SteadyClock::now().time_since_epoch())
+          .count());
+}
+
+void UpdateMaximum(std::atomic<std::uint64_t>& maximum,
+                   std::uint64_t candidate) {
+  auto current = maximum.load(std::memory_order_relaxed);
+  while (candidate > current &&
+         !maximum.compare_exchange_weak(current, candidate,
+                                        std::memory_order_relaxed)) {
+  }
 }
 
 }  // namespace
@@ -82,11 +99,17 @@ void PlannerUdpReceiver::Stop() {
 }
 
 ReceiverStats PlannerUdpReceiver::stats() const {
+  const auto last_packet_ns = last_packet_at_ns_.load();
+  const auto now_ns = SteadyNowNs();
   return ReceiverStats{
       datagrams_.load(),          accepted_packets_.load(),
       rejected_packets_.load(),  out_of_order_packets_.load(),
       accepted_commands_.load(), rejected_commands_.load(),
-      accepted_poses_.load(),    rejected_poses_.load()};
+      accepted_poses_.load(),    rejected_poses_.load(),
+      last_packet_ns == 0 || now_ns < last_packet_ns
+          ? 0
+          : now_ns - last_packet_ns,
+      max_packet_gap_ns_.load()};
 }
 
 std::string PlannerUdpReceiver::last_error() const {
@@ -162,6 +185,12 @@ void PlannerUdpReceiver::Run() {
     packet_sequence = packet.packet_sequence;
     have_packet_sequence = true;
     accepted_packets_.fetch_add(1);
+    const auto packet_at_ns = SteadyNowNs();
+    const auto previous_packet_at_ns =
+        last_packet_at_ns_.exchange(packet_at_ns);
+    if (previous_packet_at_ns != 0 && packet_at_ns >= previous_packet_at_ns) {
+      UpdateMaximum(max_packet_gap_ns_, packet_at_ns - previous_packet_at_ns);
+    }
     const auto now = SteadyClock::now();
 
     if ((packet.flags & kPoseValid) != 0U &&

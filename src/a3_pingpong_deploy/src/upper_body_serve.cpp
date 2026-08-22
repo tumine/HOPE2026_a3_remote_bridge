@@ -76,6 +76,72 @@ const char* UpperBodyServePhaseName(UpperBodyServePhase phase) noexcept {
   return "unknown";
 }
 
+std::optional<UpperBodyServeConfig> NumberedUpperBodyServeConfig(
+    int track) noexcept {
+  UpperBodyServeConfig config;
+  switch (track) {
+    case 1:
+      // UpperBodyServeConfig defaults are the exact numbered track 1.
+      return config;
+    case 2:
+      config.home_upper = {
+          -1.273641478967, 0.163693671459, -0.419944012499,
+          0.384910344245, 0.115719728466, -0.895945374305,
+          -1.021938992525,
+          -0.57, -0.59, 0.65, 0.0, 0.01, 0.04, 0.70};
+      config.windup_right = {
+          -0.008261136630, -0.508973522035, 0.576516751668,
+          -0.282309917701, 0.398359035293, 0.136361784391,
+          0.662183771585};
+      config.hit_through_right = {
+          -0.706465858083, -0.541027532092, 0.530585720180,
+          0.238550245950, 0.470531787375, 0.460047591154,
+          1.029143336004};
+      config.prepare_duration_s = 5.40;
+      config.swing_duration_s = 0.06;
+      config.release_time_s = -0.18;
+      return config;
+    case 3:
+      config.home_upper = {
+          -1.273641478967, 0.163693671459, -0.419944012499,
+          0.384910344245, 0.115719728466, -0.895945374305,
+          -1.021938992525,
+          -0.57, -0.59, 0.65, 0.0, 0.01, 0.04, 0.70};
+      config.windup_right = {
+          -0.008261136630, -0.508973522035, 0.576516751668,
+          -0.282309917701, 0.398359035293, 0.136361784391,
+          0.662183771585};
+      config.hit_through_right = {
+          -0.706465858083, -0.541027532092, 0.530585720180,
+          0.238550245950, 0.470531787375, 0.460047591154,
+          1.029143336004};
+      config.prepare_duration_s = 5.40;
+      config.swing_duration_s = 0.10;
+      config.release_time_s = -0.17;
+      return config;
+    case 4:
+      config.home_upper = {
+          -1.227535374051, 0.021952965340, -0.362970269047,
+          0.417042234922, 0.287261482443, -0.914976259720,
+          -1.005917653318,
+          -0.57, -0.59, 0.65, 0.0, 0.01, 0.04, 0.70};
+      config.windup_right = {
+          -0.424269722288, -0.278503596243, 0.809542912603,
+          -0.163748191625, -0.341913864255, 0.126565193141,
+          0.771753460264};
+      config.hit_through_right = {
+          -0.634716002155, -0.744613944223, 0.451040981275,
+          0.321645848425, 0.377963868020, 0.009638231988,
+          1.112887970476};
+      config.prepare_duration_s = 5.0;
+      config.swing_duration_s = 0.13;
+      config.release_time_s = -0.15;
+      return config;
+    default:
+      return std::nullopt;
+  }
+}
+
 UpperBodyServeTrajectory::UpperBodyServeTrajectory(UpperBodyServeConfig config)
     : config_(std::move(config)) {}
 
@@ -103,10 +169,10 @@ bool UpperBodyServeTrajectory::BeginHoming(
     SetReason(reason, "serve trajectory contains a non-finite target");
     return false;
   }
-  const std::array<double, 8> durations{
+  const std::array<double, 7> durations{
       config_.prepare_duration_s, config_.ready_dwell_s,
       config_.windup_duration_s, config_.swing_duration_s,
-      config_.release_time_s, config_.settle_duration_s,
+      config_.settle_duration_s,
       config_.return_duration_s, config_.receive_transition_s};
   if (!std::all_of(durations.begin(), durations.end(), [](double value) {
         return std::isfinite(value) && value >= 0.0;
@@ -114,8 +180,11 @@ bool UpperBodyServeTrajectory::BeginHoming(
     SetReason(reason, "serve trajectory durations must be finite and nonnegative");
     return false;
   }
-  if (config_.release_time_s > config_.swing_duration_s) {
-    SetReason(reason, "serve release time cannot exceed swing duration");
+  if (!std::isfinite(config_.release_time_s) ||
+      config_.release_time_s < -config_.windup_duration_s ||
+      config_.release_time_s > config_.swing_duration_s) {
+    SetReason(reason,
+              "serve release time must lie within windup/swing interval");
     return false;
   }
   for (std::size_t index = 0; index < start_upper_.size(); ++index) {
@@ -166,7 +235,9 @@ void UpperBodyServeTrajectory::AdvancePhase() noexcept {
       phase_ = UpperBodyServePhase::kSettle;
       break;
     case UpperBodyServePhase::kSettle:
-      phase_ = UpperBodyServePhase::kReturn;
+      phase_ = config_.return_duration_s > 0.0
+                   ? UpperBodyServePhase::kReturn
+                   : UpperBodyServePhase::kComplete;
       break;
     case UpperBodyServePhase::kReturn:
     case UpperBodyServePhase::kComplete:
@@ -255,6 +326,12 @@ bool UpperBodyServeTrajectory::Step(
     }
   } else if (phase_ == UpperBodyServePhase::kComplete) {
     duration_s = 0.0;
+    if (config_.return_duration_s <= 0.0) {
+      for (std::size_t index = 0; index < kServeRightArmDim; ++index) {
+        output[kRightArmUpperStart + index] =
+            config_.hit_through_right[index];
+      }
+    }
   }
 
   ++tick_;

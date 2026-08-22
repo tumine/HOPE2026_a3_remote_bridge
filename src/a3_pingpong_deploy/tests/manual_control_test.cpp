@@ -11,6 +11,13 @@ int main() {
   CHECK(ParseManualKey('s') == ManualKey::kPdStand);
   CHECK(ParseManualKey('M') == ManualKey::kMotion);
   CHECK(ParseManualKey('v') == ManualKey::kUpperBodyServe);
+  CHECK(ParseManualKey('1') == ManualKey::kServeTrack1);
+  CHECK(ParseManualKey('4') == ManualKey::kServeTrack4);
+  CHECK(ManualServeTrackNumber(ParseManualKey('1')) == 1);
+  CHECK(ManualServeTrackNumber(ParseManualKey('2')) == 2);
+  CHECK(ManualServeTrackNumber(ParseManualKey('3')) == 3);
+  CHECK(ManualServeTrackNumber(ParseManualKey('4')) == 4);
+  CHECK(ManualServeTrackNumber(ParseManualKey('V')) == 0);
   CHECK(ParseManualKey('C') == ManualKey::kServeClose);
   CHECK(ParseManualKey('f') == ManualKey::kServeFire);
   CHECK(ParseManualKey('G') == ManualKey::kGripperOpen);

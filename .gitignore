@@ -37,6 +37,7 @@ __pycache__/
 /.update_backup_*/
 /README.md.orig
 /project_structure.txt
+/prompts/
 
 # Deployment/training snapshots and duplicated model bundles. Publish these
 # through a release, package registry, or Git LFS if they must be shared.

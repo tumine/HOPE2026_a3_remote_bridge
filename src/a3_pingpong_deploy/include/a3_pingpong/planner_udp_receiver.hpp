@@ -26,6 +26,8 @@ struct ReceiverStats {
   std::uint64_t rejected_commands{0};
   std::uint64_t accepted_poses{0};
   std::uint64_t rejected_poses{0};
+  std::uint64_t current_packet_age_ns{0};
+  std::uint64_t max_packet_gap_ns{0};
 };
 
 class PlannerUdpReceiver {
@@ -58,6 +60,8 @@ class PlannerUdpReceiver {
   std::atomic<std::uint64_t> rejected_commands_{0};
   std::atomic<std::uint64_t> accepted_poses_{0};
   std::atomic<std::uint64_t> rejected_poses_{0};
+  std::atomic<std::uint64_t> last_packet_at_ns_{0};
+  std::atomic<std::uint64_t> max_packet_gap_ns_{0};
   mutable std::mutex error_mutex_;
   std::string last_error_;
 };

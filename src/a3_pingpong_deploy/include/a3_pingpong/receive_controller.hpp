@@ -166,6 +166,27 @@ class ReceiveController {
   ReceiveTickResult last_result() const noexcept {
     return last_result_.load(std::memory_order_relaxed);
   }
+  std::uint64_t result_count(ReceiveTickResult result) const noexcept {
+    const auto index = static_cast<std::size_t>(result);
+    return index < result_counts_.size()
+               ? result_counts_[index].load(std::memory_order_relaxed)
+               : 0;
+  }
+  std::int64_t last_state_age_ns() const noexcept {
+    return last_state_age_ns_.load(std::memory_order_relaxed);
+  }
+  bool last_sync_complete() const noexcept {
+    return last_sync_complete_.load(std::memory_order_relaxed);
+  }
+  bool last_sync_aligned() const noexcept {
+    return last_sync_aligned_.load(std::memory_order_relaxed);
+  }
+  std::uint64_t send_failure_count() const noexcept {
+    return send_failure_count_.load(std::memory_order_relaxed);
+  }
+  std::uint64_t safe_halt_send_failure_count() const noexcept {
+    return safe_halt_send_failure_count_.load(std::memory_order_relaxed);
+  }
 
  private:
   void OnState(const robot_io::RobotState& state) noexcept;
@@ -197,6 +218,15 @@ class ReceiveController {
   std::atomic<std::uint64_t> waist_pitch_guard_trigger_count_{0};
   std::atomic<double> waist_pitch_guard_output_rad_{0.0};
   std::atomic<ReceiveTickResult> last_result_{ReceiveTickResult::kNoState};
+  static constexpr std::size_t kReceiveTickResultCount =
+      static_cast<std::size_t>(ReceiveTickResult::kDryRun) + 1;
+  std::array<std::atomic<std::uint64_t>, kReceiveTickResultCount>
+      result_counts_{};
+  std::atomic<std::int64_t> last_state_age_ns_{-1};
+  std::atomic<bool> last_sync_complete_{false};
+  std::atomic<bool> last_sync_aligned_{false};
+  std::atomic<std::uint64_t> send_failure_count_{0};
+  std::atomic<std::uint64_t> safe_halt_send_failure_count_{0};
 };
 
 }  // namespace a3_pingpong

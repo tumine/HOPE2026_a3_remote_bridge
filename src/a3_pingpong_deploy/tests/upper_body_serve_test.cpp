@@ -94,6 +94,21 @@ bool GripperHttpRoundTrip() {
 int main() {
   using namespace a3_pingpong;
 
+  const auto track1 = NumberedUpperBodyServeConfig(1);
+  const auto track2 = NumberedUpperBodyServeConfig(2);
+  const auto track3 = NumberedUpperBodyServeConfig(3);
+  const auto track4 = NumberedUpperBodyServeConfig(4);
+  CHECK(track1 && track2 && track3 && track4);
+  CHECK(!NumberedUpperBodyServeConfig(0));
+  CHECK(!NumberedUpperBodyServeConfig(5));
+  CHECK(Near(track1->home_upper[0], -1.191947170859));
+  CHECK(Near(track2->swing_duration_s, 0.06));
+  CHECK(Near(track3->release_time_s, -0.17));
+  CHECK(Near(track4->hit_through_right[6], 1.112887970476));
+  CHECK(Near(track1->settle_duration_s, 0.05));
+  CHECK(Near(track1->return_duration_s, 0.0));
+  CHECK(Near(track1->receive_transition_s, 0.20));
+
   GripperHttpConfig gripper_config;
   CHECK(BuildGripperCommandJson(GripperAction::kClose, gripper_config) ==
         "{\"data\":{\"left\":{\"agi_claw_cmd\":{\"cmd\":0,\"pos\":1200,"
@@ -151,6 +166,28 @@ int main() {
   CHECK(release_count == 1);
   for (std::size_t index = 0; index < upper.size(); ++index) {
     CHECK(Near(upper[index], config.home_upper[index]));
+  }
+
+  // The combined loop uses the numbered configuration without a Return
+  // phase: after 50 ms at hit-through it completes there, ready for the
+  // receiver's direct 200 ms interpolation to the live policy target.
+  UpperBodyServeTrajectory direct(*track1);
+  CHECK(direct.BeginHoming(state, &reason));
+  while (!direct.ready()) {
+    CHECK(direct.Step(state, 0.02, upper, &diagnostics, &reason));
+  }
+  CHECK(direct.Step(state, 0.50, upper, &diagnostics, &reason));
+  CHECK(direct.ready_to_fire());
+  CHECK(direct.Fire(&reason));
+  bool direct_saw_return = false;
+  for (int tick = 0; tick < 100 && !diagnostics.complete; ++tick) {
+    CHECK(direct.Step(state, 0.02, upper, &diagnostics, &reason));
+    direct_saw_return |= diagnostics.phase == UpperBodyServePhase::kReturn;
+  }
+  CHECK(diagnostics.complete);
+  CHECK(!direct_saw_return);
+  for (std::size_t index = 0; index < kServeRightArmDim; ++index) {
+    CHECK(Near(upper[7 + index], track1->hit_through_right[index]));
   }
 
   FullBodyServeComposer composer;

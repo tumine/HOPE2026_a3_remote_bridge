@@ -43,6 +43,7 @@ set_target_properties(a3_onnxruntime PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_a3_onnxruntime_include}")
 
 add_library(a3_pingpong_planner_input STATIC
+  src/external_observation_guard.cpp
   src/lateral_station.cpp
   src/manual_control.cpp
   src/planner_input.cpp
@@ -208,6 +209,13 @@ if(A3_BUILD_TESTS)
   target_link_libraries(a3_manual_control_test PRIVATE
     a3_pingpong_planner_input)
   add_test(NAME a3_manual_control_test COMMAND a3_manual_control_test)
+
+  add_executable(a3_external_observation_guard_test
+    tests/external_observation_guard_test.cpp)
+  target_link_libraries(a3_external_observation_guard_test PRIVATE
+    a3_pingpong_planner_input)
+  add_test(NAME a3_external_observation_guard_test
+    COMMAND a3_external_observation_guard_test)
 
   add_executable(a3_receive_controller_test
     tests/receive_controller_test.cpp)

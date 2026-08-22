@@ -32,6 +32,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 # the model_72500 candidate bundle.  The serve state machine stays in this file.
 RECEIVE_BUNDLE = REPO_ROOT / "model_72500_deploy_bundle"
 SERVE_CONFIG = REPO_ROOT / "Serve_A3_leg_model/config/a3_lower_body.yaml"
+SERVE_TRACKS_DIR = REPO_ROOT / "Serve_A3_leg_model/tracks"
 RECEIVE_CONFIG = RECEIVE_BUNDLE / "config/runtime.yaml"
 BALL_PHYSICS_CONFIG = RECEIVE_BUNDLE / "config/ball_physics.yaml"
 # This local scene copy contains MuJoCo 3.11 API compatibility fixes. Geometry,
@@ -173,6 +174,53 @@ def _load_yaml(path: Path) -> dict:
     if not isinstance(document, dict):
         raise ValueError(f"YAML root must be a mapping: {path}")
     return document
+
+
+def _load_serve_tracks(base_document: dict, tracks_dir: Path) -> dict[str, dict]:
+    """Load the four real-robot tuned numbered tracks into the full loop."""
+    tracks: dict[str, dict] = {}
+    for number in ("1", "2", "3", "4"):
+        path = tracks_dir / f"{number}.yaml"
+        document = _load_yaml(path)
+        serve = document.get("serve")
+        if not isinstance(serve, dict):
+            raise ValueError(f"编号轨迹缺少 serve 映射: {path}")
+        home = np.asarray(serve.get("home"), dtype=np.float64)
+        windup = np.asarray(serve.get("windup_right"), dtype=np.float64)
+        hit = np.asarray(serve.get("hit_through_right"), dtype=np.float64)
+        if home.shape != (14,) or windup.shape != (7,) or hit.shape != (7,):
+            raise ValueError(
+                f"编号轨迹关节维度错误: {path}; "
+                f"home={home.shape} windup={windup.shape} hit={hit.shape}"
+            )
+        if not all(np.all(np.isfinite(values)) for values in (home, windup, hit)):
+            raise ValueError(f"编号轨迹包含 NaN/Inf: {path}")
+        timing = serve.get("timing")
+        if not isinstance(timing, dict):
+            raise ValueError(f"编号轨迹缺少 timing: {path}")
+        durations = {
+            name: float(timing[name])
+            for name in ("home_s", "windup_s", "swing_s", "settle_s", "return_s")
+        }
+        if any(not np.isfinite(value) or value <= 0.0 for value in durations.values()):
+            raise ValueError(f"编号轨迹持续时间必须为正数: {path}")
+        release_s = float(timing["release_s"])
+        if (
+            not np.isfinite(release_s)
+            or release_s < -durations["windup_s"]
+            or release_s > durations["swing_s"]
+        ):
+            raise ValueError(f"编号轨迹 release_s 超出挥拍区间: {path}")
+        # Numbered YAML owns the complete serve block. Simulation, gains and
+        # the model contract continue to come from the full-loop base config.
+        tracks[number] = {**base_document, "serve": serve}
+        print(
+            f"[轨迹] 已加载 {number}: {path} "
+            f"home={durations['home_s']:.2f}s "
+            f"swing={durations['swing_s']:.2f}s release={release_s:+.2f}s",
+            flush=True,
+        )
+    return tracks
 
 
 def _sha256(path: Path) -> str:
@@ -441,8 +489,11 @@ class ClosedLoopRunner:
         bridge: PhysicsBridge,
         receive: ReceiveController,
         serve_doc: dict,
+        serve_tracks: dict[str, dict],
         *,
+        initial_serve_track: str,
         receive_transition_s: float,
+        post_serve_settle_s: float,
         serve_time_scale: float,
         auto_cycle: bool,
         cycles: int,
@@ -454,31 +505,29 @@ class ClosedLoopRunner:
         self.receive = receive
         self.dt = receive.config.control_dt
         self.receive_transition_s = receive_transition_s
+        self.post_serve_settle_s = post_serve_settle_s
         self.auto_cycle = auto_cycle
         self.requested_cycles = cycles
         self.auto_delay_s = auto_delay_s
         self.ready_dwell_s = ready_dwell_s
         self.hold_after_s = hold_after_s
+        self.serve_time_scale = serve_time_scale
+        self.serve_tracks = serve_tracks
+        self.auto_serve_track = initial_serve_track
 
-        serve = serve_doc["serve"]
-        timing = serve["timing"]
-        self.serve_home = np.asarray(serve["home"], dtype=np.float64)
-        self.windup = self.serve_home.copy()
-        self.windup[7:] = np.asarray(serve["windup_right"], dtype=np.float64)
-        self.hit = self.serve_home.copy()
-        self.hit[7:] = np.asarray(serve["hit_through_right"], dtype=np.float64)
-        self.home_s = float(timing["home_s"]) * serve_time_scale
-        self.windup_s = float(timing["windup_s"]) * serve_time_scale
-        self.swing_s = float(timing["swing_s"]) * serve_time_scale
-        self.release_s = float(timing["release_s"]) * serve_time_scale
-        self.settle_s = float(timing["settle_s"]) * serve_time_scale
-        self.return_s = float(timing["return_s"]) * serve_time_scale
         all_kp = np.asarray(serve_doc["kps"], dtype=np.float64)
         all_kd = np.asarray(serve_doc["kds"], dtype=np.float64)
         if all_kp.shape != (NUM_JOINTS,) or all_kd.shape != (NUM_JOINTS,):
             raise ValueError("serve kps/kds must contain 31 joints")
         self.serve_arm_kp = all_kp[ARM].copy()
         self.serve_arm_kd = all_kd[ARM].copy()
+        if initial_serve_track not in serve_tracks:
+            raise ValueError(
+                f"--serve-track 必须是 1/2/3/4，实际为 {initial_serve_track}"
+            )
+        self.active_serve_track = initial_serve_track
+        initial_document = serve_tracks[initial_serve_track]
+        self._apply_serve_document(initial_document)
 
         self.mode = Mode.RECEIVE
         self.phase_elapsed = 0.0
@@ -506,11 +555,42 @@ class ClosedLoopRunner:
         self._log_mode(
             (
                 "无动捕测试：固定出生站位、忽略来球，model_72500 始终使用 READY 观测；"
-                "按 V 后仅覆盖双臂"
+                "按 V 固定使用 1 号、按 1–4 显式选轨迹；发球时仅覆盖双臂"
                 if self.receive.no_mocap_serve_test
-                else "model_72500 控制全身；按 V 后仅覆盖双臂，腰部和双腿持续使用 READY 推理"
+                else (
+                    "model_72500 控制全身；按 V 固定使用 1 号、"
+                    "按 1–4 显式选轨迹；发球时仅覆盖双臂，"
+                    "腰部和双腿持续使用 READY 推理"
+                )
             )
         )
+        self._log(
+            "发球后快速恢复："
+            f"settle={self.post_serve_settle_s * self.serve_time_scale:.2f}s，"
+            "跳过发球Home，"
+            f"direct_to_receive={self.receive_transition_s:.2f}s"
+        )
+
+    def _apply_serve_document(self, document: dict) -> None:
+        serve = document["serve"]
+        timing = serve["timing"]
+        self.serve_home = np.asarray(serve["home"], dtype=np.float64)
+        self.windup = self.serve_home.copy()
+        self.windup[7:] = np.asarray(serve["windup_right"], dtype=np.float64)
+        self.hit = self.serve_home.copy()
+        self.hit[7:] = np.asarray(serve["hit_through_right"], dtype=np.float64)
+        self.home_s = float(timing["home_s"]) * self.serve_time_scale
+        self.windup_s = float(timing["windup_s"]) * self.serve_time_scale
+        self.swing_s = float(timing["swing_s"]) * self.serve_time_scale
+        self.release_s = float(timing["release_s"]) * self.serve_time_scale
+        # The four robot-tuned YAML files own Home/windup/swing/release. The
+        # combined serve-receive loop deliberately shortens only the motion
+        # after impact so model_72500 can regain the upper body promptly.
+        self.settle_s = self.post_serve_settle_s * self.serve_time_scale
+        # Retain the YAML value for compatibility with legacy callers. The
+        # combined loop now transitions directly from hit-through to receive
+        # and therefore does not enter SERVE_RETURN.
+        self.return_s = float(timing["return_s"]) * self.serve_time_scale
 
     def _log(self, text: str) -> None:
         message = f"[闭环 t={self.bridge.data.time:6.2f}s] {text}"
@@ -545,7 +625,9 @@ class ClosedLoopRunner:
 
     def handle_key(self, keycode: int) -> None:
         key = chr(keycode).lower() if 0 <= keycode < 256 else ""
-        if key == "v":
+        if key in self.serve_tracks:
+            self.request_serve_track(key)
+        elif key == "v":
             self.request_serve_mode()
         elif key == "c":
             self.request_gripper_close()
@@ -560,6 +642,7 @@ class ClosedLoopRunner:
         elif key == "i":
             self._log(
                 f"状态={self.mode.value}，夹爪={self.gripper.value}，"
+                f"当前发球轨迹={self.active_serve_track}，"
                 f"接球phase={self.receive.lifecycle.phase.value}，"
                 f"等待发球切换={'是' if self.pending_serve_mode else '否'}"
             )
@@ -575,14 +658,42 @@ class ClosedLoopRunner:
                 )
             self._log_receive_observation("model_72500观测")
 
+    def request_serve_track(self, number: str) -> bool:
+        if number not in self.serve_tracks:
+            self._log(f"编号轨迹 {number} 不存在；保持轨迹 {self.active_serve_track}")
+            return False
+        if self.mode is Mode.RECEIVE:
+            if self.receive.lifecycle.phase is not ReceivePhase.READY:
+                self._log(
+                    f"按键 {number} 被拒绝：接球生命周期尚未回到 READY"
+                )
+                return False
+        elif self.mode is not Mode.SERVE_READY:
+            self._log(f"按键 {number} 被拒绝：当前状态是{self.mode.value}")
+            return False
+        self._apply_serve_document(self.serve_tracks[number])
+        self.active_serve_track = number
+        self._log(
+            f"已选择实机编号轨迹 {number}：自动进入该 YAML 的双臂 Home；"
+            "到达后按 C/F"
+        )
+        self._begin_serve_homing(from_target=self.last_target)
+        return True
+
     def request_serve_mode(self) -> bool:
         if self.mode is not Mode.RECEIVE:
             self._log(f"按键 V 被拒绝：当前状态是{self.mode.value}")
             return False
+        # V is the fixed default entry and must never inherit the previously
+        # selected numbered track.  Keys 1-4 remain the explicit way to enter
+        # another tuned trajectory.
+        self._apply_serve_document(self.serve_tracks["1"])
+        self.active_serve_track = "1"
         if self.receive.lifecycle.phase is not ReceivePhase.READY:
             self.pending_serve_mode = True
             self._log(
-                "已接受 V：当前接球尚未结束，将在生命周期回到 READY 后进入发球"
+                "已接受 V：已固定选择 1 号轨迹；当前接球尚未结束，"
+                "将在生命周期回到 READY 后进入发球"
             )
             return True
         self._begin_serve_homing()
@@ -597,7 +708,8 @@ class ClosedLoopRunner:
         self.release_sent = False
         self._set_mode(
             Mode.SERVE_HOMING,
-            "锁定任务观测为 READY；腰部/双腿=model_72500，双臂=发球轨迹",
+            f"轨迹={self.active_serve_track}；锁定任务观测为 READY；"
+            "腰部/双腿=model_72500，双臂=发球轨迹",
         )
 
     def request_gripper_close(self) -> bool:
@@ -631,7 +743,8 @@ class ClosedLoopRunner:
         self.release_sent = False
         self._set_mode(
             Mode.SERVE_WINDUP,
-            "已接受 F，开始发球策略播放（发球阶段不生成球）",
+            f"已接受 F，播放编号轨迹 {self.active_serve_track}"
+            "（发球阶段不生成球）",
         )
         return True
 
@@ -683,7 +796,10 @@ class ClosedLoopRunner:
         if not self.auto_cycle or self.done_since is not None:
             return
         if self.auto_stage == "enter_serve":
-            if self.auto_stage_elapsed >= self.auto_delay_s and self.request_serve_mode():
+            if (
+                self.auto_stage_elapsed >= self.auto_delay_s
+                and self.request_serve_track(self.auto_serve_track)
+            ):
                 self._set_auto_stage("close_and_fire")
         elif self.auto_stage == "close_and_fire":
             if self.mode is Mode.SERVE_READY and self.mode_elapsed >= self.ready_dwell_s:
@@ -750,9 +866,11 @@ class ClosedLoopRunner:
             )
             if self.phase_elapsed >= self.home_s:
                 target[ARM] = self.serve_home
+                self.gripper = GripperState.OPEN
                 self._set_mode(
                     Mode.SERVE_READY,
-                    f"发球初始姿态完成；按 C 夹球，稳定 {self.ready_dwell_s:.2f}s 后按 F",
+                    f"编号轨迹 {self.active_serve_track} Home 完成，夹爪 OPEN；"
+                    f"按 C 夹球，稳定 {self.ready_dwell_s:.2f}s 后按 F",
                 )
             return target, kp, kd
 
@@ -790,7 +908,10 @@ class ClosedLoopRunner:
             kp[ARM] = self.serve_arm_kp
             kd[ARM] = self.serve_arm_kd
             if self.phase_elapsed >= self.settle_s:
-                self._set_mode(Mode.SERVE_RETURN, "随挥完成，双臂回发球 Home")
+                self.completed_serves += 1
+                self._begin_receive_transition(
+                    "短随挥完成，跳过发球 Home，直接恢复接球上肢控制"
+                )
             return target, kp, kd
 
         if self.mode is Mode.SERVE_RETURN:
@@ -800,7 +921,6 @@ class ClosedLoopRunner:
             kd[ARM] = self.serve_arm_kd
             if self.phase_elapsed >= self.return_s:
                 target[ARM] = self.serve_home
-                self.completed_serves += 1
                 self._begin_receive_transition(
                     "发球策略播放结束，开始平滑恢复接球上肢控制"
                 )
@@ -827,7 +947,8 @@ class ClosedLoopRunner:
                     (
                         "model_72500 恢复全身 READY 控制；来球保持禁用，按 V 再次发球"
                         if self.receive.no_mocap_serve_test
-                        else "model_72500 恢复全身控制；按 N 注入来球，按 V 再次发球"
+                        else "model_72500 恢复全身控制；按 N 注入来球，"
+                             "按 1–4 选择下一发球位置"
                     ),
                 )
             return target, kp, kd
@@ -947,6 +1068,10 @@ class ClosedLoopRunner:
             ),
             "completed_cycles": self.completed_cycles,
             "completed_serves": self.completed_serves,
+            "active_serve_track": self.active_serve_track,
+            "post_serve_recovery_s": (
+                self.settle_s + self.receive_transition_s
+            ),
             "ticks": self.metrics.ticks,
             "simulation_time_s": float(self.bridge.data.time),
             "visited_states": self.visited,
@@ -999,6 +1124,14 @@ class ClosedLoopRunner:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--serve-config", type=Path, default=SERVE_CONFIG)
+    parser.add_argument(
+        "--serve-tracks-dir", type=Path, default=SERVE_TRACKS_DIR,
+        help="实机调试后的编号发球 YAML 目录（必须包含 1–4.yaml）",
+    )
+    parser.add_argument(
+        "--serve-track", choices=("1", "2", "3", "4"), default="1",
+        help="启动时预选编号轨迹（默认 1）；按 V 始终选择 1，按 1–4 可显式切换",
+    )
     parser.add_argument("--receive-config", type=Path, default=RECEIVE_CONFIG)
     parser.add_argument(
         "--ball-physics-config", type=Path, default=BALL_PHYSICS_CONFIG
@@ -1023,7 +1156,14 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--cycles", type=int, default=1, help="自动闭环次数")
     parser.add_argument("--duration", type=float, default=None, help="最多运行的仿真秒数")
-    parser.add_argument("--receive-transition-s", type=float, default=0.60)
+    parser.add_argument(
+        "--receive-transition-s", type=float, default=0.20,
+        help="短随挥结束后直接切回接球上肢控制的时间",
+    )
+    parser.add_argument(
+        "--post-serve-settle-s", type=float, default=0.05,
+        help="挥拍完成后的短暂随挥保持时间；不改变 YAML 的击球段",
+    )
     parser.add_argument(
         "--serve-time-scale",
         type=float,
@@ -1046,6 +1186,7 @@ def main() -> int:
         raise ValueError("--cycles must be >= 1")
     for name in (
         "receive_transition_s",
+        "post_serve_settle_s",
         "serve_time_scale",
         "auto_delay_s",
         "ready_dwell_s",
@@ -1107,6 +1248,7 @@ def main() -> int:
         flush=True,
     )
     serve_doc = _load_yaml(args.serve_config)
+    serve_tracks = _load_serve_tracks(serve_doc, args.serve_tracks_dir)
     serve_xml_path = Path(serve_doc["simulation"]["xml_path"])
     if not serve_xml_path.is_absolute():
         serve_xml_path = (args.serve_config.parent / serve_xml_path).resolve()
@@ -1174,7 +1316,10 @@ def main() -> int:
         bridge,
         receive,
         serve_doc,
+        serve_tracks,
+        initial_serve_track=args.serve_track,
         receive_transition_s=args.receive_transition_s,
+        post_serve_settle_s=args.post_serve_settle_s,
         serve_time_scale=args.serve_time_scale,
         auto_cycle=args.auto_cycle,
         cycles=args.cycles,
@@ -1200,7 +1345,9 @@ def main() -> int:
             viewer.cam.azimuth = 145.0
             viewer.cam.elevation = -18.0
             print(
-                "[按键] V=进入发球；C=关闭夹爪；F=播放发球；G=打开夹爪；"
+                "[按键] 1/2/3/4=选择实机发球位置并自动回Home；"
+                "V=固定使用1号轨迹进入发球；C=关闭夹爪；F=播放当前轨迹；"
+                "G=打开夹爪；"
                 "M=返回READY；"
                 + (
                     "N=禁用（无动捕测试）；"

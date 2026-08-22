@@ -1,4 +1,5 @@
 #include "a3_pingpong/a3_leg_limits.hpp"
+#include "a3_pingpong/external_observation_guard.hpp"
 #include "a3_pingpong/lateral_station.hpp"
 #include "a3_pingpong/onnx_actor.hpp"
 #include "a3_pingpong/manual_control.hpp"
@@ -49,6 +50,7 @@ struct Options {
   std::string aimrt_cfg;
   double command_timeout_ms{150.0};
   double base_pose_timeout_ms{100.0};
+  double external_fallback_ms{500.0};
   double state_timeout_ms{50.0};
   double control_hz{50.0};
   double status_period_s{5.0};
@@ -95,6 +97,7 @@ void Usage(const char* program) {
       << "  --publish-commands          enable official RobotIO SendCommand path\n"
       << "  --command-timeout-ms MS     (default: 150)\n"
       << "  --base-pose-timeout-ms MS   (default: 100)\n"
+      << "  --external-fallback-ms MS   long pose outage -> default-pose PD (default: 500)\n"
       << "  --state-timeout-ms MS       (default: 50)\n"
       << "  --control-hz HZ             (default: 50)\n"
       << "  --leg-soft-scale SCALE     URDF endpoint scale (default: 0.90)\n"
@@ -202,6 +205,10 @@ Options ParseOptions(int argc, char** argv) {
     }
     if (take_value("--base-pose-timeout-ms", numeric)) {
       options.base_pose_timeout_ms = std::stod(numeric);
+      continue;
+    }
+    if (take_value("--external-fallback-ms", numeric)) {
+      options.external_fallback_ms = std::stod(numeric);
       continue;
     }
     if (take_value("--state-timeout-ms", numeric)) {
@@ -324,6 +331,8 @@ Options ParseOptions(int argc, char** argv) {
       options.command_timeout_ms <= 0.0 ||
       !std::isfinite(options.base_pose_timeout_ms) ||
       options.base_pose_timeout_ms <= 0.0 ||
+      !std::isfinite(options.external_fallback_ms) ||
+      options.external_fallback_ms <= options.base_pose_timeout_ms ||
       !std::isfinite(options.state_timeout_ms) ||
       options.state_timeout_ms <= 0.0 ||
       !std::isfinite(options.control_hz) || options.control_hz <= 0.0 ||
@@ -502,7 +511,7 @@ class ObservationProbe {
                    bool gripper_http,
                    const a3_pingpong::GripperHttpConfig& gripper_config,
                    double control_hz, double command_timeout_s,
-                   double base_pose_timeout_s)
+                   double base_pose_timeout_s, double external_fallback_s)
       : builder_(a3_pingpong::Model50000ObservationConfig()),
         action_adapter_(a3_pingpong::Model72500ActionAdapterConfig()),
         command_output_enabled_(command_output_enabled),
@@ -513,7 +522,9 @@ class ObservationProbe {
         base_pose_timeout_s_(base_pose_timeout_s),
         lifecycle_config_(a3_pingpong::Model50000SwingLifecycleConfig()),
         station_config_(a3_pingpong::Model50000LateralStationConfig()),
-        lifecycle_(lifecycle_config_) {
+        lifecycle_(lifecycle_config_),
+        external_guard_({base_pose_timeout_s, external_fallback_s,
+                         kExternalRecoveryFrames}) {
     if (!onnx_model.empty()) {
       actor_ = std::make_unique<a3_pingpong::OnnxActor>(onnx_model);
     }
@@ -543,6 +554,13 @@ class ObservationProbe {
           phase_report_initialized_ = false;
           pd_stand_initialized_ = false;
           pd_stand_elapsed_ticks_ = 0;
+          {
+            std::lock_guard<std::mutex> external_lock(external_mutex_);
+            external_guard_.Reset();
+          }
+          external_fallback_pd_initialized_ = false;
+          external_fallback_pd_elapsed_ticks_ = 0;
+          external_fallback_pd_ready_.store(false);
           {
             std::lock_guard<std::mutex> serve_lock(serve_mutex_);
             ResetServeLocked();
@@ -599,13 +617,131 @@ class ObservationProbe {
       }
     }
 
-    if (!planner.base_pose ||
-        planner.base_pose_age_s > base_pose_timeout_s_) {
+    if (external_resume_requested_.exchange(false)) {
+      lifecycle_.Reset();
+      last_action_.fill(0.0F);
+      nominal_station_initialized_ = false;
+      phase_report_initialized_ = false;
+      external_fallback_pd_initialized_ = false;
+      external_fallback_pd_elapsed_ticks_ = 0;
+      external_fallback_pd_ready_.store(false);
+      std::lock_guard<std::mutex> serve_lock(serve_mutex_);
+      ResetServeLocked();
+      std::clog << "[external_observation] M accepted: lifecycle reset; "
+                   "receive restarts from READY\n";
+    }
+
+    a3_pingpong::ExternalObservationStatus external_status;
+    {
+      std::lock_guard<std::mutex> external_lock(external_mutex_);
+      external_status = external_guard_.Update(
+          planner, a3_pingpong::SteadyClock::now());
+    }
+    external_mode_.store(external_status.mode, std::memory_order_relaxed);
+    external_stale_s_.store(external_status.stale_duration_s,
+                            std::memory_order_relaxed);
+    external_recovery_streak_.store(external_status.recovery_streak,
+                                    std::memory_order_relaxed);
+    if (external_status.mode != last_external_mode_) {
+      std::clog << "[external_observation] mode="
+                << a3_pingpong::ExternalObservationModeName(
+                       external_status.mode)
+                << " stale_ms=" << external_status.stale_duration_s * 1000.0
+                << " recovery_streak=" << external_status.recovery_streak
+                << '\n';
+      last_external_mode_ = external_status.mode;
+    }
+
+    if (external_status.fallback_latched) {
+      if (state.q.size() !=
+              static_cast<Eigen::Index>(pd_stand_start_q_.size()) ||
+          !state.q.array().isFinite().all()) {
+        rejected_count_.fetch_add(1, std::memory_order_relaxed);
+        return false;
+      }
+      if (!external_fallback_pd_initialized_) {
+        for (std::size_t index = 0; index < external_fallback_pd_start_q_.size();
+             ++index) {
+          external_fallback_pd_start_q_[index] =
+              state.q[static_cast<Eigen::Index>(index)];
+        }
+        external_fallback_pd_initialized_ = true;
+        external_fallback_pd_elapsed_ticks_ = 0;
+        lifecycle_.Reset();
+        last_action_.fill(0.0F);
+        nominal_station_initialized_ = false;
+        phase_report_initialized_ = false;
+        latest_tts_.store(
+            static_cast<float>(lifecycle_config_.ready_time_to_strike_s),
+            std::memory_order_relaxed);
+        {
+          std::lock_guard<std::mutex> diagnostics_lock(diagnostics_mutex_);
+          diagnostics_.phase = a3_pingpong::SwingPhase::kReady;
+          diagnostics_.active_task_id.reset();
+          diagnostics_.active_revision = 0;
+          diagnostics_.swing_side = lifecycle_config_.ready_swing_side;
+          diagnostics_.target_position_w = {};
+          diagnostics_.target_velocity_w = {};
+          diagnostics_.observed_tts =
+              lifecycle_config_.ready_time_to_strike_s;
+          diagnostics_.waist_policy_valid = false;
+        }
+        {
+          std::lock_guard<std::mutex> serve_lock(serve_mutex_);
+          ResetServeLocked();
+        }
+        std::clog << "[external_observation] long outage: old task and VCF "
+                     "cleared; entering receive-default full-body PD\n";
+      }
+      bool ready =
+          external_fallback_pd_elapsed_ticks_ >= kPdStandRampTicks;
+      if (command_output_enabled_) {
+        std::string reason;
+        if (!a3_pingpong::BuildPdStandCommand(
+                external_fallback_pd_start_q_, builder_.config().default_q,
+                external_fallback_pd_elapsed_ticks_, kPdStandRampTicks,
+                latest_command_, &ready, &reason)) {
+          rejected_count_.fetch_add(1, std::memory_order_relaxed);
+          return false;
+        }
+        latest_command_ready_ = true;
+        if (state.dq.size() >= 3 && state.tau_est.size() >= 3 &&
+            state.dq.head(3).array().isFinite().all() &&
+            state.tau_est.head(3).array().isFinite().all()) {
+          const auto gains = a3_pingpong::A3PdStandGains();
+          std::lock_guard<std::mutex> diagnostics_lock(diagnostics_mutex_);
+          diagnostics_.waist_policy_raw = {};
+          for (std::size_t index = 0; index < 3; ++index) {
+            const auto state_index = static_cast<Eigen::Index>(index);
+            diagnostics_.waist_q_command[index] =
+                latest_command_.q_des[state_index];
+            diagnostics_.waist_q_feedback[index] = state.q[state_index];
+            diagnostics_.waist_tau_theoretical[index] =
+                gains.kp[index] *
+                    (latest_command_.q_des[state_index] -
+                     state.q[state_index]) -
+                gains.kd[index] * state.dq[state_index];
+            diagnostics_.waist_tau_feedback[index] =
+                state.tau_est[state_index];
+          }
+        }
+      }
+      external_fallback_pd_ready_.store(ready, std::memory_order_relaxed);
+      if (external_fallback_pd_elapsed_ticks_ < kPdStandRampTicks) {
+        ++external_fallback_pd_elapsed_ticks_;
+      }
+      return true;
+    }
+
+    if (!external_status.base_pose) {
       rejected_count_.fetch_add(1, std::memory_order_relaxed);
       return false;
     }
 
-    const auto live_base_w = planner.base_pose->position_w;
+    auto held_planner = planner;
+    held_planner.base_pose = external_status.base_pose;
+    held_planner.base_pose_age_s = 0.0;
+    const auto live_base_w = held_planner.base_pose->position_w;
     if (!nominal_station_initialized_) {
       // The policy's READY target is the calibrated table-centred deployment
       // station, not the pelvis location on the first inference tick. This also
@@ -631,7 +767,8 @@ class ObservationProbe {
             serve_head_hold_[i] = state.q[static_cast<Eigen::Index>(3 + i)];
           }
           std::clog << "[serve_vcf] V accepted: homing; observation=READY, "
-                       "waist/legs=model_72500\n";
+                       "track=" << active_serve_track_
+                    << " waist/legs=model_72500\n";
         } else {
           serve_pending_ = false;
           upper_body_serve_rejected_count_.fetch_add(1);
@@ -650,7 +787,7 @@ class ObservationProbe {
         planner.command_age_s <= command_timeout_s_) {
       fresh_command = planner.command;
     }
-    auto policy_input = planner;
+    auto policy_input = held_planner;
     policy_input.command = lifecycle_.Update(fresh_command, live_base_w);
     policy_input.command_age_s = 0.0;
     if (lifecycle_.phase() == a3_pingpong::SwingPhase::kReady ||
@@ -823,8 +960,32 @@ class ObservationProbe {
       return a3_pingpong::ManualActionResult::kIgnored;
     }
     const auto parsed = a3_pingpong::ParseManualKey(key);
+    const int requested_track = a3_pingpong::ManualServeTrackNumber(parsed);
+    const bool is_track_key = requested_track != 0;
     std::lock_guard<std::mutex> manual_lock(manual_mutex_);
+    if (manual_control_.mode() == a3_pingpong::ManualMode::kMotion) {
+      std::lock_guard<std::mutex> external_lock(external_mutex_);
+      if (external_guard_.status().fallback_latched) {
+        if (parsed == a3_pingpong::ManualKey::kMotion) {
+          if (!external_guard_.RequestResume()) {
+            return a3_pingpong::ManualActionResult::
+                kRejectedExternalNotReady;
+          }
+          external_resume_requested_.store(true, std::memory_order_release);
+          return a3_pingpong::ManualActionResult::kReceiveRequested;
+        }
+        if (parsed == a3_pingpong::ManualKey::kUpperBodyServe ||
+            is_track_key ||
+            parsed == a3_pingpong::ManualKey::kServeClose ||
+            parsed == a3_pingpong::ManualKey::kServeFire ||
+            parsed == a3_pingpong::ManualKey::kGripperOpen) {
+          return a3_pingpong::ManualActionResult::
+              kRejectedExternalNotReady;
+        }
+      }
+    }
     if (parsed == a3_pingpong::ManualKey::kUpperBodyServe ||
+        is_track_key ||
         parsed == a3_pingpong::ManualKey::kServeClose ||
         parsed == a3_pingpong::ManualKey::kServeFire ||
         parsed == a3_pingpong::ManualKey::kGripperOpen ||
@@ -840,12 +1001,22 @@ class ObservationProbe {
                    : a3_pingpong::ManualActionResult::kRejectedNeedMotion;
       }
       std::lock_guard<std::mutex> serve_lock(serve_mutex_);
-      if (parsed == a3_pingpong::ManualKey::kUpperBodyServe) {
+      if (parsed == a3_pingpong::ManualKey::kUpperBodyServe || is_track_key) {
         if (serve_pending_ || serve_transition_active_ ||
             upper_body_serve_.phase() !=
                 a3_pingpong::UpperBodyServePhase::kIdle) {
           return a3_pingpong::ManualActionResult::kRejectedServeState;
         }
+        // V is deliberately stateless: it always returns to track 1 instead
+        // of inheriting the last explicit 2/3/4 selection.
+        const int track = is_track_key ? requested_track : 1;
+        const auto config = a3_pingpong::NumberedUpperBodyServeConfig(track);
+        if (!config) {
+          return a3_pingpong::ManualActionResult::kRejectedServeState;
+        }
+        upper_body_serve_ = a3_pingpong::UpperBodyServeTrajectory(*config);
+        active_serve_track_ = track;
+        active_serve_track_public_.store(track, std::memory_order_relaxed);
         serve_pending_ = true;
         return a3_pingpong::ManualActionResult::kServePending;
       }
@@ -909,6 +1080,19 @@ class ObservationProbe {
   bool pd_stand_ready() const {
     std::lock_guard<std::mutex> lock(manual_mutex_);
     return manual_control_.pd_stand_ready();
+  }
+
+  a3_pingpong::ExternalObservationMode external_mode() const noexcept {
+    return external_mode_.load(std::memory_order_relaxed);
+  }
+  double external_stale_s() const noexcept {
+    return external_stale_s_.load(std::memory_order_relaxed);
+  }
+  std::uint64_t external_recovery_streak() const noexcept {
+    return external_recovery_streak_.load(std::memory_order_relaxed);
+  }
+  bool external_fallback_pd_ready() const noexcept {
+    return external_fallback_pd_ready_.load(std::memory_order_relaxed);
   }
 
   bool TakeCommand(robot_io::RobotCommand& command) {
@@ -986,6 +1170,9 @@ class ObservationProbe {
   }
   a3_pingpong::UpperBodyServePhase upper_body_serve_phase() const noexcept {
     return upper_body_serve_phase_.load(std::memory_order_relaxed);
+  }
+  int upper_body_serve_track() const noexcept {
+    return active_serve_track_public_.load(std::memory_order_relaxed);
   }
   std::uint64_t upper_body_serve_tick() const noexcept {
     return upper_body_serve_tick_.load(std::memory_order_relaxed);
@@ -1177,6 +1364,7 @@ class ObservationProbe {
 
   static constexpr double kPassiveDampingKd = 2.0;
   static constexpr std::uint64_t kPdStandRampTicks = 150;
+  static constexpr std::uint64_t kExternalRecoveryFrames = 10;
 
   a3_pingpong::PingpongObservationBuilder builder_;
   a3_pingpong::PingpongActionAdapter action_adapter_;
@@ -1189,6 +1377,20 @@ class ObservationProbe {
   const a3_pingpong::SwingLifecycleConfig lifecycle_config_;
   const a3_pingpong::LateralStationConfig station_config_;
   a3_pingpong::SwingLifecycle lifecycle_;
+  mutable std::mutex external_mutex_;
+  a3_pingpong::ExternalObservationGuard external_guard_;
+  a3_pingpong::ExternalObservationMode last_external_mode_{
+      a3_pingpong::ExternalObservationMode::kWaiting};
+  std::atomic<a3_pingpong::ExternalObservationMode> external_mode_{
+      a3_pingpong::ExternalObservationMode::kWaiting};
+  std::atomic<double> external_stale_s_{0.0};
+  std::atomic<std::uint64_t> external_recovery_streak_{0};
+  std::atomic<bool> external_resume_requested_{false};
+  bool external_fallback_pd_initialized_{false};
+  std::uint64_t external_fallback_pd_elapsed_ticks_{0};
+  std::array<double, a3_pingpong::kPingpongActionDim>
+      external_fallback_pd_start_q_{};
+  std::atomic<bool> external_fallback_pd_ready_{false};
   bool nominal_station_initialized_{false};
   std::array<double, 2> nominal_station_xy_{};
   std::array<double, 2> base_target_xy_{};
@@ -1206,6 +1408,8 @@ class ObservationProbe {
   std::uint64_t pd_stand_elapsed_ticks_{0};
   std::array<double, a3_pingpong::kPingpongActionDim> pd_stand_start_q_{};
   a3_pingpong::UpperBodyServeTrajectory upper_body_serve_;
+  int active_serve_track_{1};
+  std::atomic<int> active_serve_track_public_{1};
   std::unique_ptr<a3_pingpong::GripperHttpClient> gripper_client_;
   bool serve_pending_{false};
   bool serve_cancel_requested_{false};
@@ -1290,7 +1494,10 @@ class PlannerReceiverNode : public rclcpp::Node {
     }
     status_timer_ = create_wall_timer(
         std::chrono::duration<double>(options_.status_period_s),
-        [this]() { LogWaistStatus(); });
+        [this]() {
+          LogStatus();
+          LogWaistStatus();
+        });
 
     if (options_.input_transport == "udp") {
       RCLCPP_WARN(get_logger(),
@@ -1331,8 +1538,14 @@ class PlannerReceiverNode : public rclcpp::Node {
     const auto tick_result =
         controller_ ? controller_->last_result()
                     : a3_pingpong::ReceiveTickResult::kNoState;
+    const auto external_mode = observation_probe_
+                                   ? observation_probe_->external_mode()
+                                   : a3_pingpong::ExternalObservationMode::
+                                         kWaiting;
     const bool policy_active =
         diagnostics.waist_policy_valid &&
+        (external_mode == a3_pingpong::ExternalObservationMode::kLive ||
+         external_mode == a3_pingpong::ExternalObservationMode::kHold) &&
         (!options_.manual_control ||
          manual_mode == a3_pingpong::ManualMode::kMotion) &&
         (tick_result == a3_pingpong::ReceiveTickResult::kCommandSent ||
@@ -1352,7 +1565,8 @@ class PlannerReceiverNode : public rclcpp::Node {
         "q_feedback_rad=[%.3f,%.3f,%.3f] "
         "tau_theoretical_nm=[%.3f,%.3f,%.3f] "
         "tau_feedback_nm=[%.3f,%.3f,%.3f] "
-        "pitch_guard=[active=%s,triggers=%llu,q_out=%.3f]",
+        "pitch_guard=[active=%s,triggers=%llu,q_out=%.3f] "
+        "external=[mode=%s,stale_ms=%.1f,recovery=%llu/10,pd_ready=%s]",
         observation_probe_ ? a3_pingpong::ManualModeName(manual_mode)
                            : "disabled",
         TickResultName(tick_result), policy_active ? "yes" : "no",
@@ -1369,7 +1583,20 @@ class PlannerReceiverNode : public rclcpp::Node {
         diagnostics.waist_tau_feedback[2],
         waist_guard_active ? "yes" : "no",
         static_cast<unsigned long long>(waist_guard_triggers),
-        waist_guard_output);
+        waist_guard_output,
+        observation_probe_
+            ? a3_pingpong::ExternalObservationModeName(
+                  observation_probe_->external_mode())
+            : "disabled",
+        observation_probe_ ? observation_probe_->external_stale_s() * 1000.0
+                           : 0.0,
+        static_cast<unsigned long long>(
+            observation_probe_
+                ? observation_probe_->external_recovery_streak()
+                : 0),
+        observation_probe_ && observation_probe_->external_fallback_pd_ready()
+            ? "yes"
+            : "no");
   }
 
   void OnCommand(const hope_msgs::msg::RacketCommand::SharedPtr& message) {
@@ -1445,6 +1672,26 @@ class PlannerReceiverNode : public rclcpp::Node {
     const double tts =
         snapshot.command ? snapshot.command->time_to_strike_s : -1.0;
     const auto controller_ticks = controller_ ? controller_->tick_count() : 0;
+    const auto safe_halt_count =
+        controller_ ? controller_->safe_halt_count() : 0;
+    const auto state_stale_count =
+        controller_ ? controller_->result_count(
+                          a3_pingpong::ReceiveTickResult::kStateStale)
+                    : 0;
+    const auto safe_halt_delta = safe_halt_count - last_logged_safe_halts_;
+    const auto state_stale_delta =
+        state_stale_count - last_logged_state_stale_;
+    const double robot_state_age_ms =
+        controller_ && controller_->last_state_age_ns() >= 0
+            ? static_cast<double>(controller_->last_state_age_ns()) * 1.0e-6
+            : -1.0;
+    const auto result_count = [this](a3_pingpong::ReceiveTickResult result) {
+      return controller_ ? controller_->result_count(result) : 0;
+    };
+    const auto command_send_failures =
+        controller_ ? controller_->send_failure_count() : 0;
+    const auto halt_send_failures =
+        controller_ ? controller_->safe_halt_send_failure_count() : 0;
     const char* controller_result =
         controller_ ? TickResultName(controller_->last_result()) : "disabled";
     const bool leg_damping_active =
@@ -1495,8 +1742,15 @@ class PlannerReceiverNode : public rclcpp::Node {
     const auto current_tick_result =
         controller_ ? controller_->last_result()
                     : a3_pingpong::ReceiveTickResult::kNoState;
+    const auto current_external_mode =
+        observation_probe_ ? observation_probe_->external_mode()
+                           : a3_pingpong::ExternalObservationMode::kWaiting;
     const bool waist_policy_active =
         lifecycle_diagnostics.waist_policy_valid &&
+        (current_external_mode ==
+             a3_pingpong::ExternalObservationMode::kLive ||
+         current_external_mode ==
+             a3_pingpong::ExternalObservationMode::kHold) &&
         (!options_.manual_control ||
          current_manual_mode == a3_pingpong::ManualMode::kMotion) &&
         (current_tick_result ==
@@ -1539,11 +1793,19 @@ class PlannerReceiverNode : public rclcpp::Node {
                 "planner_input transport=%s ready=%s command_fresh=%s task=%llu "
                 "revision=%u tts=%.3fs "
                 "command_age=%.1fms pose_age=%.1fms accepted=(%llu,%llu) "
-                "rejected=(%llu,%llu) robot_io=(ticks=%llu,result=%s) "
+                "rejected=(%llu,%llu) robot_io=(ticks=%llu,result=%s,"
+                "safe_halts=%llu,delta=%llu,state_age_ms=%.1f,"
+                "sync_complete=%s,sync_aligned=%s,"
+                "send_failures=%llu,halt_send_failures=%llu,"
+                "results=[no_state:%llu,planner:%llu,state_stale:%llu/+%llu,"
+                "observation:%llu,policy_missing:%llu,policy_rejected:%llu,"
+                "invalid:%llu,leg_damping:%llu,sent:%llu,dry:%llu]) "
                 "leg_damping=(active=%s,joint=%s,commands=%llu) "
                 "pitch_guard=(active=%s,triggers=%llu,q_out=%.3f) "
                 "manual=(enabled=%s,mode=%s,pd_stand_ready=%s) "
-                "serve=(enabled=%s,pending=%s,phase=%s,gripper=%s,tick=%llu,"
+                "external=(mode=%s,stale_ms=%.1f,recovery=%llu/10,"
+                "pd_ready=%s) "
+                "serve=(enabled=%s,pending=%s,track=%d,phase=%s,gripper=%s,tick=%llu,"
                 "commands=%llu,rejected=%llu,releases=%llu,"
                 "lower=model_72500_ready,gains=Serve_A3_leg_model) "
                 "observation=(enabled=%s,built=%llu,rejected=%llu,"
@@ -1560,7 +1822,8 @@ class PlannerReceiverNode : public rclcpp::Node {
                 "q_fb_rad=[%.3f,%.3f,%.3f],"
                 "tau_pd_nm=[%.3f,%.3f,%.3f],"
                 "tau_fb_nm=[%.3f,%.3f,%.3f]) "
-                "udp=(accepted=%llu,rejected=%llu,reordered=%llu) "
+                "udp=(accepted=%llu,rejected=%llu,reordered=%llu,"
+                "age_ms=%.1f,max_gap_ms=%.1f) "
                 "body_drive_publishers=%s",
                 options_.input_transport.c_str(),
                 pose_ready ? "yes" : "no",
@@ -1573,6 +1836,35 @@ class PlannerReceiverNode : public rclcpp::Node {
                 static_cast<unsigned long long>(rejected_poses),
                 static_cast<unsigned long long>(controller_ticks),
                 controller_result,
+                static_cast<unsigned long long>(safe_halt_count),
+                static_cast<unsigned long long>(safe_halt_delta),
+                robot_state_age_ms,
+                controller_ && controller_->last_sync_complete() ? "yes"
+                                                                  : "no",
+                controller_ && controller_->last_sync_aligned() ? "yes"
+                                                                 : "no",
+                static_cast<unsigned long long>(command_send_failures),
+                static_cast<unsigned long long>(halt_send_failures),
+                static_cast<unsigned long long>(result_count(
+                    a3_pingpong::ReceiveTickResult::kNoState)),
+                static_cast<unsigned long long>(result_count(
+                    a3_pingpong::ReceiveTickResult::kPlannerInputNotReady)),
+                static_cast<unsigned long long>(state_stale_count),
+                static_cast<unsigned long long>(state_stale_delta),
+                static_cast<unsigned long long>(result_count(
+                    a3_pingpong::ReceiveTickResult::kObservationRejected)),
+                static_cast<unsigned long long>(result_count(
+                    a3_pingpong::ReceiveTickResult::kPolicyUnavailable)),
+                static_cast<unsigned long long>(result_count(
+                    a3_pingpong::ReceiveTickResult::kPolicyRejected)),
+                static_cast<unsigned long long>(result_count(
+                    a3_pingpong::ReceiveTickResult::kCommandInvalid)),
+                static_cast<unsigned long long>(result_count(
+                    a3_pingpong::ReceiveTickResult::kLegLimitDamping)),
+                static_cast<unsigned long long>(result_count(
+                    a3_pingpong::ReceiveTickResult::kCommandSent)),
+                static_cast<unsigned long long>(result_count(
+                    a3_pingpong::ReceiveTickResult::kDryRun)),
                 leg_damping_active ? "yes" : "no",
                 LegJointName(leg_damping_joint),
                 static_cast<unsigned long long>(leg_damping_count),
@@ -1586,9 +1878,27 @@ class PlannerReceiverNode : public rclcpp::Node {
                     : "disabled",
                 observation_probe_ && observation_probe_->pd_stand_ready()
                     ? "yes" : "no",
+                observation_probe_
+                    ? a3_pingpong::ExternalObservationModeName(
+                          observation_probe_->external_mode())
+                    : "disabled",
+                observation_probe_
+                    ? observation_probe_->external_stale_s() * 1000.0
+                    : 0.0,
+                static_cast<unsigned long long>(
+                    observation_probe_
+                        ? observation_probe_->external_recovery_streak()
+                        : 0),
+                observation_probe_ &&
+                        observation_probe_->external_fallback_pd_ready()
+                    ? "yes"
+                    : "no",
                 options_.serve_vcf ? "yes" : "no",
                 observation_probe_ && observation_probe_->serve_pending()
                     ? "yes" : "no",
+                observation_probe_
+                    ? observation_probe_->upper_body_serve_track()
+                    : 1,
                 a3_pingpong::UpperBodyServePhaseName(serve_phase),
                 observation_probe_
                     ? ServeGripperStateName(
@@ -1645,7 +1955,11 @@ class PlannerReceiverNode : public rclcpp::Node {
                 static_cast<unsigned long long>(udp_stats.rejected_packets),
                 static_cast<unsigned long long>(
                     udp_stats.out_of_order_packets),
+                static_cast<double>(udp_stats.current_packet_age_ns) * 1.0e-6,
+                static_cast<double>(udp_stats.max_packet_gap_ns) * 1.0e-6,
                 options_.publish_commands ? "enabled" : "disabled");
+    last_logged_safe_halts_ = safe_halt_count;
+    last_logged_state_stale_ = state_stale_count;
   }
 
   Options options_;
@@ -1657,6 +1971,8 @@ class PlannerReceiverNode : public rclcpp::Node {
   std::atomic<std::uint64_t> rejected_commands_{0};
   std::atomic<std::uint64_t> accepted_poses_{0};
   std::atomic<std::uint64_t> rejected_poses_{0};
+  std::uint64_t last_logged_safe_halts_{0};
+  std::uint64_t last_logged_state_stale_{0};
   rclcpp::Subscription<hope_msgs::msg::RacketCommand>::SharedPtr
       command_subscription_;
   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr
@@ -1705,7 +2021,8 @@ int main(int argc, char** argv) {
             options.gripper_config,
             options.control_hz,
             options.command_timeout_ms * 1.0e-3,
-            options.base_pose_timeout_ms * 1.0e-3);
+            options.base_pose_timeout_ms * 1.0e-3,
+            options.external_fallback_ms * 1.0e-3);
         node->SetObservationProbe(observation_probe.get());
       }
 
@@ -1718,7 +2035,10 @@ int main(int argc, char** argv) {
       controller_options.max_state_age_ns = static_cast<std::int64_t>(
           options.state_timeout_ms * 1.0e6);
       controller_options.require_fresh_command = false;
-      controller_options.require_fresh_base_pose = !options.manual_control;
+      // ObservationProbe owns short hold and long-outage fallback. Keeping a
+      // second freshness gate here would bypass that state machine and emit a
+      // zero-gain safe halt before the probe can react.
+      controller_options.require_fresh_base_pose = !options.observation_probe;
       controller_options.publish_commands = options.publish_commands;
       controller_options.leg_damping_safety.damping_kd =
           options.leg_damping_kd;
@@ -1756,6 +2076,8 @@ int main(int argc, char** argv) {
                   "RobotIO controller enabled; observation=%s "
                   "inference=%s command_output=%s manual=%s upper_serve=%s "
                   "gains=model_72500/pd_stand_production "
+                  "external_observation=(hold_after=%.0fms,"
+                  "default_pd_after=%.0fms,recovery_frames=10) "
                   "waist_pitch_guard=(enabled=%s,enter=%.3f,release=%.3f,"
                   "target=%.3f,kp=%.1f,kd=%.1f) "
                   "publish_enabled=%s",
@@ -1771,6 +2093,8 @@ int main(int argc, char** argv) {
                   options.serve_vcf
                       ? "Serve_A3_leg_model+model_72500_ready"
                       : "disabled",
+                  options.base_pose_timeout_ms,
+                  options.external_fallback_ms,
                   options.waist_pitch_safety.enabled ? "yes" : "no",
                   options.waist_pitch_safety.enter_rad,
                   options.waist_pitch_safety.release_rad,
@@ -1795,7 +2119,8 @@ int main(int argc, char** argv) {
         }
         RCLCPP_WARN(node->get_logger(),
                     "manual keys: P=passive S=pd_stand M=receive "
-                    "V=serve_ready C=close_gripper F=fire G=open_gripper "
+                    "V=serve_track1 1/2/3/4=select_serve_track "
+                    "C=close_gripper F=fire G=open_gripper "
                     "I=status X=halt H=help Q=quit(passive only)");
         while (rclcpp::ok()) {
           pollfd descriptor{STDIN_FILENO, POLLIN, 0};
@@ -1824,6 +2149,11 @@ int main(int argc, char** argv) {
                                    kRejectedGripperNotClosed) {
             RCLCPP_ERROR(node->get_logger(),
                          "F 被拒绝：必须先按 C，并等待夹爪状态变为 closed");
+          } else if (result == a3_pingpong::ManualActionResult::
+                                   kRejectedExternalNotReady) {
+            RCLCPP_ERROR(
+                node->get_logger(),
+                "按键被拒绝：外部位姿尚未连续恢复 10 帧；I 查看 external 状态");
           } else if (result ==
                      a3_pingpong::ManualActionResult::kRejectedServeDisabled) {
             RCLCPP_ERROR(node->get_logger(),
@@ -1835,25 +2165,39 @@ int main(int argc, char** argv) {
           } else if (result ==
                      a3_pingpong::ManualActionResult::kHelpRequested) {
             RCLCPP_INFO(node->get_logger(),
-                        "P=passive S=pd_stand M=receive V=serve_ready "
+                        "P=passive S=pd_stand M=receive V=serve_track1 "
+                        "1/2/3/4=select_serve_track "
                         "C=close_gripper F=fire G=open_gripper I=status X=halt "
                         "H=help Q=quit(passive only)");
           } else if (result ==
                      a3_pingpong::ManualActionResult::kStatusRequested) {
             RCLCPP_INFO(node->get_logger(),
-                        "manual mode=%s pd_stand_ready=%s serve_phase=%s "
-                        "gripper=%s pending=%s",
+                        "manual mode=%s pd_stand_ready=%s serve_track=%d "
+                        "serve_phase=%s "
+                        "gripper=%s pending=%s external=%s stale_ms=%.1f "
+                        "recovery=%llu/10 fallback_pd_ready=%s",
                         a3_pingpong::ManualModeName(mode),
                         observation_probe->pd_stand_ready() ? "yes" : "no",
+                        observation_probe->upper_body_serve_track(),
                         a3_pingpong::UpperBodyServePhaseName(
                             observation_probe->upper_body_serve_phase()),
                         ServeGripperStateName(
                             observation_probe->serve_gripper_state()),
-                        observation_probe->serve_pending() ? "yes" : "no");
+                        observation_probe->serve_pending() ? "yes" : "no",
+                        a3_pingpong::ExternalObservationModeName(
+                            observation_probe->external_mode()),
+                        observation_probe->external_stale_s() * 1000.0,
+                        static_cast<unsigned long long>(
+                            observation_probe->external_recovery_streak()),
+                        observation_probe->external_fallback_pd_ready()
+                            ? "yes"
+                            : "no");
           } else if (result ==
                      a3_pingpong::ManualActionResult::kServePending) {
             RCLCPP_WARN(node->get_logger(),
-                        "V 已接受：等待接球 lifecycle 回到 READY 后，双臂用 5 秒归位");
+                        "发球轨迹 %d 已选择：等待接球 lifecycle 回到 READY 后，"
+                        "双臂进入对应 Home；V 始终选择 1 号",
+                        observation_probe->upper_body_serve_track());
           } else if (result ==
                      a3_pingpong::ManualActionResult::kGripperRequested) {
             RCLCPP_WARN(node->get_logger(),

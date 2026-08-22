@@ -251,6 +251,8 @@ void ReceiveController::Run() {
         period);
     const auto result = RunOneTick(SystemNowNs());
     last_result_.store(result, std::memory_order_relaxed);
+    result_counts_[static_cast<std::size_t>(result)].fetch_add(
+        1, std::memory_order_relaxed);
     tick_count_.fetch_add(1, std::memory_order_relaxed);
     std::this_thread::sleep_until(next);
   }
@@ -260,6 +262,10 @@ ReceiveTickResult ReceiveController::RunOneTick(std::int64_t now_ns) {
   const auto state = std::atomic_load_explicit(
       &latest_state_, std::memory_order_acquire);
   if (!state) return ReceiveTickResult::kNoState;
+  last_state_age_ns_.store(now_ns - state->timestamp_ns,
+                           std::memory_order_relaxed);
+  last_sync_complete_.store(state->sync_complete, std::memory_order_relaxed);
+  last_sync_aligned_.store(state->sync_aligned, std::memory_order_relaxed);
   if (state->timestamp_ns <= 0 ||
       now_ns - state->timestamp_ns > options_.max_state_age_ns ||
       now_ns + options_.max_state_age_ns < state->timestamp_ns ||
@@ -345,7 +351,10 @@ ReceiveTickResult ReceiveController::RunOneTick(std::int64_t now_ns) {
     waist_pitch_guard_trigger_count_.fetch_add(1, std::memory_order_relaxed);
   }
   if (!options_.publish_commands) return ReceiveTickResult::kDryRun;
-  if (!backend_.SendCommand(command)) return ReceiveTickResult::kCommandInvalid;
+  if (!backend_.SendCommand(command)) {
+    send_failure_count_.fetch_add(1, std::memory_order_relaxed);
+    return ReceiveTickResult::kCommandInvalid;
+  }
   command_sent_count_.fetch_add(1, std::memory_order_relaxed);
   return ReceiveTickResult::kCommandSent;
 }
@@ -358,9 +367,13 @@ void ReceiveController::MaybeSendSafeHalt(
   }
   robot_io::RobotCommand halt;
   BuildSafeHaltCommand(state, halt);
-  if (ValidateRobotCommand(halt, robot_io::kA3Dof) &&
-      backend_.SendCommand(halt)) {
-    safe_halt_count_.fetch_add(1, std::memory_order_relaxed);
+  if (ValidateRobotCommand(halt, robot_io::kA3Dof)) {
+    if (backend_.SendCommand(halt)) {
+      safe_halt_count_.fetch_add(1, std::memory_order_relaxed);
+    } else {
+      safe_halt_send_failure_count_.fetch_add(1,
+                                              std::memory_order_relaxed);
+    }
   }
 }
 

@@ -12,6 +12,10 @@ ManualKey ParseManualKey(char key) noexcept {
     case 'M': return ManualKey::kMotion;
     case 'v':
     case 'V': return ManualKey::kUpperBodyServe;
+    case '1': return ManualKey::kServeTrack1;
+    case '2': return ManualKey::kServeTrack2;
+    case '3': return ManualKey::kServeTrack3;
+    case '4': return ManualKey::kServeTrack4;
     case 'c':
     case 'C': return ManualKey::kServeClose;
     case 'f':
@@ -27,6 +31,16 @@ ManualKey ParseManualKey(char key) noexcept {
     case 'q':
     case 'Q': return ManualKey::kQuit;
     default: return ManualKey::kUnknown;
+  }
+}
+
+int ManualServeTrackNumber(ManualKey key) noexcept {
+  switch (key) {
+    case ManualKey::kServeTrack1: return 1;
+    case ManualKey::kServeTrack2: return 2;
+    case ManualKey::kServeTrack3: return 3;
+    case ManualKey::kServeTrack4: return 4;
+    default: return 0;
   }
 }
 
@@ -79,6 +93,10 @@ ManualActionResult ManualControl::Apply(ManualKey key) noexcept {
     case ManualKey::kServeClose:
     case ManualKey::kServeFire:
     case ManualKey::kGripperOpen:
+    case ManualKey::kServeTrack1:
+    case ManualKey::kServeTrack2:
+    case ManualKey::kServeTrack3:
+    case ManualKey::kServeTrack4:
       return ManualActionResult::kIgnored;
     case ManualKey::kHalt:
       pd_stand_ready_ = false;

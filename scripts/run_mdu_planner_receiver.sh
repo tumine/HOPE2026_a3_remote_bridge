@@ -219,6 +219,7 @@ exec "${ROOT_DIR}/dist/a3_mdu_planner_receiver" \
   --udp-port "${A3_PLANNER_UDP_PORT:-15001}" \
   --command-timeout-ms "${A3_PLANNER_COMMAND_TIMEOUT_MS:-150}" \
   --base-pose-timeout-ms "${A3_BASE_POSE_TIMEOUT_MS:-100}" \
+  --external-fallback-ms "${A3_EXTERNAL_FALLBACK_MS:-500}" \
   --status-period-s "${A3_STATUS_PERIOD_S:-5}" \
   "${WAIST_PITCH_GUARD_ARGS[@]}" \
   "${ROBOT_IO_ARGS[@]}" \

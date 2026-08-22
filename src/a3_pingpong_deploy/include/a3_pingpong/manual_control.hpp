@@ -17,6 +17,10 @@ enum class ManualKey {
   kPdStand,
   kMotion,
   kUpperBodyServe,
+  kServeTrack1,
+  kServeTrack2,
+  kServeTrack3,
+  kServeTrack4,
   kServeClose,
   kServeFire,
   kGripperOpen,
@@ -35,6 +39,7 @@ enum class ManualActionResult {
   kRejectedServeState,
   kRejectedGripperBusy,
   kRejectedGripperNotClosed,
+  kRejectedExternalNotReady,
   kServePending,
   kGripperRequested,
   kServeFireRequested,
@@ -47,6 +52,7 @@ enum class ManualActionResult {
 };
 
 ManualKey ParseManualKey(char key) noexcept;
+int ManualServeTrackNumber(ManualKey key) noexcept;
 const char* ManualModeName(ManualMode mode) noexcept;
 
 // On-robot control sequence: P=passive, S=pd_stand, M=motion. V/C/F/G are
