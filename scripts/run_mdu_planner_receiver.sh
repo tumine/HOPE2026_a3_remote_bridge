@@ -121,7 +121,7 @@ if [[ "${A3_ENABLE_ROBOT_IO_PROBE:-0}" == "1" ||
       "${A3_ENABLE_COMMAND_PUBLISH:-0}" == "1" ]]; then
   ROBOT_IO_ARGS+=(
     --aimrt-cfg "${A3_AIMRT_CONFIG:-${ROOT_DIR}/config/a3_mdu_iceoryx.yaml}"
-    --state-timeout-ms "${A3_ROBOT_STATE_TIMEOUT_MS:-50}"
+    --state-timeout-ms "${A3_ROBOT_STATE_TIMEOUT_MS:-100}"
     --control-hz "${A3_POLICY_HZ:-50}"
   )
 fi

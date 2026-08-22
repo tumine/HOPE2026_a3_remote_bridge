@@ -51,7 +51,7 @@ struct Options {
   double command_timeout_ms{150.0};
   double base_pose_timeout_ms{100.0};
   double external_fallback_ms{500.0};
-  double state_timeout_ms{50.0};
+  double state_timeout_ms{100.0};
   double control_hz{50.0};
   double status_period_s{5.0};
   double leg_soft_scale{0.90};
@@ -98,7 +98,7 @@ void Usage(const char* program) {
       << "  --command-timeout-ms MS     (default: 150)\n"
       << "  --base-pose-timeout-ms MS   (default: 100)\n"
       << "  --external-fallback-ms MS   long pose outage -> default-pose PD (default: 500)\n"
-      << "  --state-timeout-ms MS       (default: 50)\n"
+      << "  --state-timeout-ms MS       (default: 100)\n"
       << "  --control-hz HZ             (default: 50)\n"
       << "  --leg-soft-scale SCALE     URDF endpoint scale (default: 0.90)\n"
       << "  --leg-soft-limit SPEC      NAME:LOWER:UPPER; repeat per joint\n"
