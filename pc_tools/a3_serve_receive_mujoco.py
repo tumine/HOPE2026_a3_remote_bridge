@@ -498,8 +498,12 @@ class ClosedLoopRunner:
         serve_time_scale: float,
         auto_cycle: bool,
         cycles: int,
+        receive_balls: int,
         auto_delay_s: float,
         ready_dwell_s: float,
+        ready_stable_s: float,
+        ready_stable_velocity_rad_s: float,
+        ready_stable_timeout_s: float,
         hold_after_s: float,
     ) -> None:
         self.bridge = bridge
@@ -510,8 +514,13 @@ class ClosedLoopRunner:
         self.post_serve_settle_s = post_serve_settle_s
         self.auto_cycle = auto_cycle
         self.requested_cycles = cycles
+        self.requested_receive_balls = receive_balls
         self.auto_delay_s = auto_delay_s
         self.ready_dwell_s = ready_dwell_s
+        self.ready_stable_s = ready_stable_s
+        self.ready_stable_velocity_rad_s = ready_stable_velocity_rad_s
+        self.ready_stable_timeout_s = ready_stable_timeout_s
+        self.ready_stable_elapsed_s = 0.0
         self.hold_after_s = hold_after_s
         self.serve_time_scale = serve_time_scale
         self.serve_tracks = serve_tracks
@@ -544,6 +553,8 @@ class ClosedLoopRunner:
         self.pending_serve_mode = False
         self.completed_cycles = 0
         self.completed_serves = 0
+        self.completed_balls_in_cycle = 0
+        self.ready_lower_body_samples: list[dict] = []
         self.done_since: float | None = None
         self.auto_stage = "enter_serve" if auto_cycle else "manual"
         self.auto_stage_elapsed = 0.0
@@ -803,6 +814,50 @@ class ClosedLoopRunner:
         self.auto_stage = stage
         self.auto_stage_elapsed = 0.0
 
+    def _capture_stable_ready_lower_body(self) -> None:
+        """Record feedback only after READY has satisfied the stability gate."""
+        state = self.bridge.read_state()
+        lower_indices = [*range(0, 3), *range(19, 31)]
+        feedback = {
+            JOINT_NAMES[index]: float(state.q[index]) for index in lower_indices
+        }
+        velocity = {
+            JOINT_NAMES[index]: float(state.qd[index]) for index in lower_indices
+        }
+        command = {
+            JOINT_NAMES[index]: float(self.last_target[index])
+            for index in lower_indices
+        }
+        sample = {
+            "ball": int(self.receive.completed_balls),
+            "simulation_time_s": float(self.bridge.data.time),
+            "stable_duration_s": self.ready_stable_elapsed_s,
+            "velocity_threshold_rad_s": self.ready_stable_velocity_rad_s,
+            "max_abs_velocity_rad_s": max(abs(value) for value in velocity.values()),
+            "feedback_q_rad": feedback,
+            "feedback_qd_rad_s": velocity,
+            "command_q_rad": command,
+        }
+        self.ready_lower_body_samples.append(sample)
+        feedback_text = ", ".join(
+            f"{name}={value:+.4f}" for name, value in feedback.items()
+        )
+        self._log(
+            f"第 {self.receive.completed_balls} 球结束后 READY 已连续稳定 "
+            f"{self.ready_stable_elapsed_s:.2f}s；"
+            f"下半身反馈位置(rad)：{feedback_text}"
+        )
+
+    def _finish_stable_ready_cycle(self) -> None:
+        self._capture_stable_ready_lower_body()
+        self.completed_cycles += 1
+        self.completed_balls_in_cycle = 0
+        if self.completed_cycles >= self.requested_cycles:
+            self.done_since = float(self.bridge.data.time)
+            self._set_auto_stage("done")
+        else:
+            self._set_auto_stage("enter_serve")
+
     def _auto_actions(self) -> None:
         if not self.auto_cycle or self.done_since is not None:
             return
@@ -836,12 +891,37 @@ class ClosedLoopRunner:
             self.auto_stage == "wait_ball"
             and self.receive.completed_balls > self.auto_ball_baseline
         ):
-            self.completed_cycles += 1
-            if self.completed_cycles >= self.requested_cycles:
-                self.done_since = float(self.bridge.data.time)
-                self._set_auto_stage("done")
+            self.completed_balls_in_cycle += 1
+            if self.completed_balls_in_cycle < self.requested_receive_balls:
+                self._set_auto_stage("inject_ball")
             else:
-                self._set_auto_stage("enter_serve")
+                self.ready_stable_elapsed_s = 0.0
+                self._set_auto_stage("wait_ready_stable")
+                self._log(
+                    f"已接完本轮 {self.requested_receive_balls} 球；停止注球，"
+                    f"等待下半身 |qd|max≤{self.ready_stable_velocity_rad_s:.3f}rad/s "
+                    f"连续 {self.ready_stable_s:.2f}s 后采样"
+                )
+        elif self.auto_stage == "wait_ready_stable":
+            lower_indices = np.r_[0:3, 19:31]
+            state = self.bridge.read_state()
+            max_velocity = float(np.max(np.abs(state.qd[lower_indices])))
+            if (
+                self.mode is Mode.RECEIVE
+                and self.receive.lifecycle.phase is ReceivePhase.READY
+                and max_velocity <= self.ready_stable_velocity_rad_s
+            ):
+                self.ready_stable_elapsed_s += self.dt
+            else:
+                self.ready_stable_elapsed_s = 0.0
+            if self.ready_stable_elapsed_s + 1.0e-12 >= self.ready_stable_s:
+                self._finish_stable_ready_cycle()
+            elif self.auto_stage_elapsed >= self.ready_stable_timeout_s:
+                raise RuntimeError(
+                    "READY stability timeout: "
+                    f"lower-body max |qd|={max_velocity:.4f}rad/s, "
+                    f"threshold={self.ready_stable_velocity_rad_s:.4f}rad/s"
+                )
 
     def _target_for_mode(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         # Exact model_72500 receive tick in every mode. Entering serve is permitted
@@ -1085,6 +1165,7 @@ class ClosedLoopRunner:
             ),
             "completed_cycles": self.completed_cycles,
             "completed_serves": self.completed_serves,
+            "receive_balls_per_serve": self.requested_receive_balls,
             "active_serve_track": self.active_serve_track,
             "post_serve_recovery_s": (
                 self.settle_s + self.receive_transition_s
@@ -1093,6 +1174,7 @@ class ClosedLoopRunner:
             "simulation_time_s": float(self.bridge.data.time),
             "visited_states": self.visited,
             "receive_completed_balls": self.receive.completed_balls,
+            "ready_lower_body_after_balls": self.ready_lower_body_samples,
             "min_base_z_m": self.metrics.min_base_z,
             "max_tilt_deg": float(np.degrees(self.metrics.max_tilt_rad)),
             "max_target_step_rad": self.metrics.max_target_step,
@@ -1172,6 +1254,12 @@ def parse_args() -> argparse.Namespace:
         help="自动执行闭环；无动捕测试只循环 V/C/F，普通模式还会注入来球",
     )
     parser.add_argument("--cycles", type=int, default=1, help="自动闭环次数")
+    parser.add_argument(
+        "--receive-balls",
+        type=int,
+        default=1,
+        help="每次发球并切回接球后连续注入的来球数（默认 1）",
+    )
     parser.add_argument("--duration", type=float, default=None, help="最多运行的仿真秒数")
     parser.add_argument(
         "--serve-home-s", type=float, default=1.35,
@@ -1195,6 +1283,24 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--ready-dwell-s", type=float, default=1.00, help="发球 READY 后最短稳定时间"
     )
+    parser.add_argument(
+        "--ready-stable-s",
+        type=float,
+        default=1.00,
+        help="接完本轮球后，下半身速度满足门限的连续时间（默认 1.0s）",
+    )
+    parser.add_argument(
+        "--ready-stable-velocity-rad-s",
+        type=float,
+        default=0.03,
+        help="稳定 READY 的腰腿最大绝对关节速度门限（默认 0.03rad/s）",
+    )
+    parser.add_argument(
+        "--ready-stable-timeout-s",
+        type=float,
+        default=10.0,
+        help="等待稳定 READY 的超时时间（默认 10s）",
+    )
     parser.add_argument("--hold-after-s", type=float, default=1.0)
     parser.add_argument("--max-tilt-deg", type=float, default=40.0)
     parser.add_argument("--min-base-z", type=float, default=0.75)
@@ -1205,6 +1311,8 @@ def main() -> int:
     args = parse_args()
     if args.cycles < 1:
         raise ValueError("--cycles must be >= 1")
+    if args.receive_balls < 1:
+        raise ValueError("--receive-balls must be >= 1")
     for name in (
         "receive_transition_s",
         "serve_home_s",
@@ -1212,9 +1320,14 @@ def main() -> int:
         "serve_time_scale",
         "auto_delay_s",
         "ready_dwell_s",
+        "ready_stable_s",
+        "ready_stable_velocity_rad_s",
+        "ready_stable_timeout_s",
     ):
         if not np.isfinite(getattr(args, name)) or getattr(args, name) <= 0.0:
             raise ValueError(f"--{name.replace('_', '-')} must be finite and > 0")
+    if args.ready_stable_timeout_s <= args.ready_stable_s:
+        raise ValueError("--ready-stable-timeout-s must exceed --ready-stable-s")
     if not args.view and not args.auto_cycle and args.duration is None:
         raise ValueError("headless mode needs --auto-cycle or --duration")
 
@@ -1346,8 +1459,12 @@ def main() -> int:
         serve_time_scale=args.serve_time_scale,
         auto_cycle=args.auto_cycle,
         cycles=args.cycles,
+        receive_balls=args.receive_balls,
         auto_delay_s=args.auto_delay_s,
         ready_dwell_s=args.ready_dwell_s,
+        ready_stable_s=args.ready_stable_s,
+        ready_stable_velocity_rad_s=args.ready_stable_velocity_rad_s,
+        ready_stable_timeout_s=args.ready_stable_timeout_s,
         hold_after_s=args.hold_after_s,
     )
 
