@@ -20,6 +20,7 @@ import importlib.util
 import json
 import math
 from pathlib import Path
+import queue
 import sys
 import time
 
@@ -559,6 +560,11 @@ class ClosedLoopRunner:
         self.auto_stage = "enter_serve" if auto_cycle else "manual"
         self.auto_stage_elapsed = 0.0
         self.auto_ball_baseline = 0
+        # MuJoCo's passive-viewer key callback runs on the GLFW viewer thread.
+        # It must never read or mutate mjModel/mjData while the control thread
+        # may be inside mj_step/mj_forward. The callback therefore only queues
+        # keys; tick() applies them on the single simulation-owner thread.
+        self.key_events: queue.SimpleQueue[str] = queue.SimpleQueue()
         self.metrics = Metrics()
         self.visited: list[str] = [self.mode.name]
         self.events: list[str] = []
@@ -647,6 +653,10 @@ class ClosedLoopRunner:
 
     def handle_key(self, keycode: int) -> None:
         key = chr(keycode).lower() if 0 <= keycode < 256 else ""
+        if key:
+            self.key_events.put(key)
+
+    def _apply_key(self, key: str) -> None:
         if key in self.serve_tracks:
             self.request_serve_track(key)
         elif key == "v":
@@ -679,6 +689,14 @@ class ClosedLoopRunner:
                     f"未观测漂移={drift:.3f}m"
                 )
             self._log_receive_observation("model_72500观测")
+
+    def _drain_key_events(self) -> None:
+        while True:
+            try:
+                key = self.key_events.get_nowait()
+            except queue.Empty:
+                return
+            self._apply_key(key)
 
     def request_serve_track(self, number: str) -> bool:
         if number not in self.serve_tracks:
@@ -1059,6 +1077,7 @@ class ClosedLoopRunner:
         return math.acos(float(np.clip(up_z, -1.0, 1.0)))
 
     def tick(self) -> None:
+        self._drain_key_events()
         self._auto_actions()
         target, kp, kd = self._target_for_mode()
         if not self.ready_contract_logged:
