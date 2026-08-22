@@ -98,16 +98,62 @@ int main() {
   const auto track2 = NumberedUpperBodyServeConfig(2);
   const auto track3 = NumberedUpperBodyServeConfig(3);
   const auto track4 = NumberedUpperBodyServeConfig(4);
-  CHECK(track1 && track2 && track3 && track4);
+  const auto track5 = NumberedUpperBodyServeConfig(5);
+  CHECK(track1 && track2 && track3 && track4 && track5);
   CHECK(!NumberedUpperBodyServeConfig(0));
-  CHECK(!NumberedUpperBodyServeConfig(5));
+  CHECK(!NumberedUpperBodyServeConfig(6));
   CHECK(Near(track1->home_upper[0], -1.191947170859));
   CHECK(Near(track2->swing_duration_s, 0.06));
   CHECK(Near(track3->release_time_s, -0.17));
   CHECK(Near(track4->hit_through_right[6], 1.112887970476));
+  CHECK(Near(track5->home_upper[7], -0.933961988331));
+  CHECK(Near(track5->swing_duration_s, 0.16));
+  CHECK(Near(track5->release_time_s, -0.15));
+  CHECK(Near(track1->prepare_duration_s, 1.35));
+  CHECK(Near(track5->prepare_duration_s, 1.35));
   CHECK(Near(track1->settle_duration_s, 0.05));
   CHECK(Near(track1->return_duration_s, 0.0));
   CHECK(Near(track1->receive_transition_s, 0.20));
+
+  // Negative release time is measured from swing start and must therefore
+  // fire during the final portion of windup, not on the first swing frame.
+  UpperBodyServeTrajectory early_release(*track1);
+  auto early_state = State31();
+  std::string early_reason;
+  UpperBodyServeTarget early_output{};
+  UpperBodyServeDiagnostics early_diagnostics;
+  CHECK(early_release.BeginHoming(early_state, &early_reason));
+  while (!early_release.ready()) {
+    CHECK(early_release.Step(early_state, 0.01, early_output,
+                             &early_diagnostics, &early_reason));
+  }
+  CHECK(early_release.Step(early_state, track1->ready_dwell_s, early_output,
+                           &early_diagnostics, &early_reason));
+  CHECK(early_release.Fire(&early_reason));
+  bool released_in_windup = false;
+  for (int tick = 0; tick < 100 && !released_in_windup; ++tick) {
+    CHECK(early_release.Step(early_state, 0.01, early_output,
+                             &early_diagnostics, &early_reason));
+    if (early_diagnostics.release_requested) {
+      released_in_windup =
+          early_diagnostics.phase == UpperBodyServePhase::kWindup;
+    }
+  }
+  CHECK(released_in_windup);
+
+  UpperBodyServeTarget previous_commanded_home{};
+  previous_commanded_home.fill(0.25);
+  UpperBodyServeTrajectory target_continuous(*track5);
+  std::string target_reason;
+  CHECK(target_continuous.BeginHomingFromTarget(previous_commanded_home,
+                                                &target_reason));
+  UpperBodyServeTarget continuity_output{};
+  UpperBodyServeDiagnostics continuity_diagnostics;
+  CHECK(target_continuous.Step(State31(), 0.02, continuity_output,
+                               &continuity_diagnostics, &target_reason));
+  for (std::size_t index = 0; index < continuity_output.size(); ++index) {
+    CHECK(Near(continuity_output[index], previous_commanded_home[index]));
+  }
 
   GripperHttpConfig gripper_config;
   CHECK(BuildGripperCommandJson(GripperAction::kClose, gripper_config) ==

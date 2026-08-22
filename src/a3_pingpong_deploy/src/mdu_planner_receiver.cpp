@@ -1002,17 +1002,40 @@ class ObservationProbe {
       }
       std::lock_guard<std::mutex> serve_lock(serve_mutex_);
       if (parsed == a3_pingpong::ManualKey::kUpperBodyServe || is_track_key) {
-        if (serve_pending_ || serve_transition_active_ ||
-            upper_body_serve_.phase() !=
-                a3_pingpong::UpperBodyServePhase::kIdle) {
+        if (serve_pending_ || serve_transition_active_) {
+          return a3_pingpong::ManualActionResult::kRejectedServeState;
+        }
+        const auto current_phase = upper_body_serve_.phase();
+        if ((!is_track_key && current_phase !=
+                                  a3_pingpong::UpperBodyServePhase::kIdle) ||
+            (is_track_key &&
+             current_phase != a3_pingpong::UpperBodyServePhase::kIdle &&
+             current_phase != a3_pingpong::UpperBodyServePhase::kReady)) {
           return a3_pingpong::ManualActionResult::kRejectedServeState;
         }
         // V is deliberately stateless: it always returns to track 1 instead
-        // of inheriting the last explicit 2/3/4 selection.
+        // of inheriting the last explicit 2/3/4/5 selection.
         const int track = is_track_key ? requested_track : 1;
         const auto config = a3_pingpong::NumberedUpperBodyServeConfig(track);
         if (!config) {
           return a3_pingpong::ManualActionResult::kRejectedServeState;
+        }
+        if (current_phase == a3_pingpong::UpperBodyServePhase::kReady) {
+          // A READY-to-READY numbered switch starts from the old commanded
+          // Home, never measured q. This preserves the arm-supporting PD
+          // error/torque and eliminates the one-tick target drop seen in the
+          // standalone lower-body serve controller before its optimization.
+          const auto previous_home = upper_body_serve_.config().home_upper;
+          upper_body_serve_ = a3_pingpong::UpperBodyServeTrajectory(*config);
+          std::string reason;
+          if (!upper_body_serve_.BeginHomingFromTarget(previous_home,
+                                                       &reason)) {
+            return a3_pingpong::ManualActionResult::kRejectedServeState;
+          }
+          active_serve_track_ = track;
+          active_serve_track_public_.store(track,
+                                           std::memory_order_relaxed);
+          return a3_pingpong::ManualActionResult::kServePending;
         }
         upper_body_serve_ = a3_pingpong::UpperBodyServeTrajectory(*config);
         active_serve_track_ = track;
@@ -1275,19 +1298,15 @@ class ObservationProbe {
       upper_body_serve_tick_.store(diagnostics.tick);
       command.q_des[3] = serve_head_hold_[0];
       command.q_des[4] = serve_head_hold_[1];
-      double gain_alpha = 1.0;
-      if (diagnostics.phase == a3_pingpong::UpperBodyServePhase::kPrepare) {
-        gain_alpha = SmoothStep01(
-            diagnostics.phase_elapsed_s /
-            upper_body_serve_.config().prepare_duration_s);
-      }
+      const bool home_gain_boost =
+          diagnostics.phase == a3_pingpong::UpperBodyServePhase::kPrepare;
       for (std::size_t i = 0; i < arms.size(); ++i) {
         const auto index = static_cast<Eigen::Index>(5 + i);
         command.q_des[index] = arms[i];
-        command.kp[index] = policy_arm_kp[i] +
-                            gain_alpha * (kServeArmKp[i] - policy_arm_kp[i]);
-        command.kd[index] = policy_arm_kd[i] +
-                            gain_alpha * (kServeArmKd[i] - policy_arm_kd[i]);
+        command.kp[index] = home_gain_boost
+                                ? std::min(1.25 * kServeArmKp[i], 250.0)
+                                : kServeArmKp[i];
+        command.kd[index] = kServeArmKd[i];
       }
       upper_body_serve_command_count_.fetch_add(1);
       if (phase_before == a3_pingpong::UpperBodyServePhase::kPrepare &&
@@ -2119,7 +2138,7 @@ int main(int argc, char** argv) {
         }
         RCLCPP_WARN(node->get_logger(),
                     "manual keys: P=passive S=pd_stand M=receive "
-                    "V=serve_track1 1/2/3/4=select_serve_track "
+                    "V=serve_track1 1/2/3/4/5=select_serve_track "
                     "C=close_gripper F=fire G=open_gripper "
                     "I=status X=halt H=help Q=quit(passive only)");
         while (rclcpp::ok()) {
@@ -2166,7 +2185,7 @@ int main(int argc, char** argv) {
                      a3_pingpong::ManualActionResult::kHelpRequested) {
             RCLCPP_INFO(node->get_logger(),
                         "P=passive S=pd_stand M=receive V=serve_track1 "
-                        "1/2/3/4=select_serve_track "
+                        "1/2/3/4/5=select_serve_track "
                         "C=close_gripper F=fire G=open_gripper I=status X=halt "
                         "H=help Q=quit(passive only)");
           } else if (result ==
@@ -2195,8 +2214,8 @@ int main(int argc, char** argv) {
           } else if (result ==
                      a3_pingpong::ManualActionResult::kServePending) {
             RCLCPP_WARN(node->get_logger(),
-                        "发球轨迹 %d 已选择：等待接球 lifecycle 回到 READY 后，"
-                        "双臂进入对应 Home；V 始终选择 1 号",
+                        "发球轨迹 %d 已选择：双臂用 1.35 秒连续切换至对应 "
+                        "Home（Home Kp=1.25x）；V 始终选择 1 号",
                         observation_probe->upper_body_serve_track());
           } else if (result ==
                      a3_pingpong::ManualActionResult::kGripperRequested) {

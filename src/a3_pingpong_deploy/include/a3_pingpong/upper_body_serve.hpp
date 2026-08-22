@@ -49,10 +49,10 @@ struct UpperBodyServeConfig {
       -0.932245543163, -0.513271234914, 0.793750783000,
       0.501023846375, 0.405425286567, 0.357815376051,
       1.208649592179};
-  // Track 1 is the only implicit V default. Tracks 1-4 are copied exactly
-  // from Serve_A3_leg_model/tracks; only post-impact recovery is shortened
-  // for the combined serve-receive loop.
-  double prepare_duration_s{5.40};
+  // Track 1 is the only implicit V default. Tracks 1-5 are copied exactly
+  // from Serve_A3_leg_model/tracks. The combined loop shortens only Home and
+  // post-impact recovery; windup/swing/release remain robot-tuned values.
+  double prepare_duration_s{1.35};
   double ready_dwell_s{0.50};
   double windup_duration_s{0.50};
   double swing_duration_s{0.12};
@@ -62,7 +62,7 @@ struct UpperBodyServeConfig {
   double receive_transition_s{0.20};
 };
 
-// Returns one of the four robot-tuned serve tracks. Track 1 is the fixed V
+// Returns one of the five robot-tuned serve tracks. Track 1 is the fixed V
 // default. The YAML remains the human-readable source of truth; these values
 // are compiled into the MDU binary so runtime does not depend on yaml-cpp.
 std::optional<UpperBodyServeConfig> NumberedUpperBodyServeConfig(
@@ -87,6 +87,11 @@ class UpperBodyServeTrajectory {
   void Reset() noexcept;
   bool BeginHoming(const robot_io::RobotState& state,
                    std::string* reason = nullptr);
+  // Used for READY-to-READY numbered switching: interpolation starts from the
+  // previous commanded Home, never from feedback, preserving target/torque
+  // continuity exactly like the standalone lower-body serve controller.
+  bool BeginHomingFromTarget(const UpperBodyServeTarget& start_upper,
+                             std::string* reason = nullptr);
   bool Fire(std::string* reason = nullptr) noexcept;
   bool Step(const robot_io::RobotState& state, double dt_s,
             UpperBodyServeTarget& output,

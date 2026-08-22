@@ -16,6 +16,7 @@ ManualKey ParseManualKey(char key) noexcept {
     case '2': return ManualKey::kServeTrack2;
     case '3': return ManualKey::kServeTrack3;
     case '4': return ManualKey::kServeTrack4;
+    case '5': return ManualKey::kServeTrack5;
     case 'c':
     case 'C': return ManualKey::kServeClose;
     case 'f':
@@ -40,6 +41,7 @@ int ManualServeTrackNumber(ManualKey key) noexcept {
     case ManualKey::kServeTrack2: return 2;
     case ManualKey::kServeTrack3: return 3;
     case ManualKey::kServeTrack4: return 4;
+    case ManualKey::kServeTrack5: return 5;
     default: return 0;
   }
 }
@@ -97,6 +99,7 @@ ManualActionResult ManualControl::Apply(ManualKey key) noexcept {
     case ManualKey::kServeTrack2:
     case ManualKey::kServeTrack3:
     case ManualKey::kServeTrack4:
+    case ManualKey::kServeTrack5:
       return ManualActionResult::kIgnored;
     case ManualKey::kHalt:
       pd_stand_ready_ = false;

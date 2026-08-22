@@ -97,7 +97,7 @@ std::optional<UpperBodyServeConfig> NumberedUpperBodyServeConfig(
           -0.706465858083, -0.541027532092, 0.530585720180,
           0.238550245950, 0.470531787375, 0.460047591154,
           1.029143336004};
-      config.prepare_duration_s = 5.40;
+      config.prepare_duration_s = 1.35;
       config.swing_duration_s = 0.06;
       config.release_time_s = -0.18;
       return config;
@@ -115,7 +115,7 @@ std::optional<UpperBodyServeConfig> NumberedUpperBodyServeConfig(
           -0.706465858083, -0.541027532092, 0.530585720180,
           0.238550245950, 0.470531787375, 0.460047591154,
           1.029143336004};
-      config.prepare_duration_s = 5.40;
+      config.prepare_duration_s = 1.35;
       config.swing_duration_s = 0.10;
       config.release_time_s = -0.17;
       return config;
@@ -133,8 +133,28 @@ std::optional<UpperBodyServeConfig> NumberedUpperBodyServeConfig(
           -0.634716002155, -0.744613944223, 0.451040981275,
           0.321645848425, 0.377963868020, 0.009638231988,
           1.112887970476};
-      config.prepare_duration_s = 5.0;
+      config.prepare_duration_s = 1.35;
       config.swing_duration_s = 0.13;
+      config.release_time_s = -0.15;
+      return config;
+    case 5:
+      config.home_upper = {
+          -1.345312944283, 0.259813299460, -0.220873113395,
+          0.662375215355, -0.183730753554, -0.926593600035,
+          -1.374004900815,
+          -0.933961988331, -0.054907899541, 0.913229111892,
+          0.183795947376, 0.107447545804, 0.351957960201,
+          0.543611640621};
+      config.windup_right = {
+          -0.933961988331, -0.054907899541, 0.913229111892,
+          0.183795947376, 0.107447545804, 0.351957960201,
+          0.543611640621};
+      config.hit_through_right = {
+          -1.315178770513, -0.268706150875, 0.543527474500,
+          1.203801839650, 0.120953494377, -0.815975978563,
+          1.159731792674};
+      config.prepare_duration_s = 1.35;
+      config.swing_duration_s = 0.16;
       config.release_time_s = -0.15;
       return config;
     default:
@@ -158,6 +178,20 @@ bool UpperBodyServeTrajectory::BeginHoming(
   if (state.q.size() != static_cast<Eigen::Index>(kPingpongActionDim) ||
       !state.q.array().isFinite().all()) {
     SetReason(reason, "serve start requires a finite 31-DOF RobotState");
+    return false;
+  }
+  UpperBodyServeTarget start_upper{};
+  for (std::size_t index = 0; index < start_upper.size(); ++index) {
+    start_upper[index] =
+        state.q[static_cast<Eigen::Index>(kArmStart + index)];
+  }
+  return BeginHomingFromTarget(start_upper, reason);
+}
+
+bool UpperBodyServeTrajectory::BeginHomingFromTarget(
+    const UpperBodyServeTarget& start_upper, std::string* reason) {
+  if (!FiniteArray(start_upper)) {
+    SetReason(reason, "serve start target must be finite");
     return false;
   }
   if (!FiniteArray(config_.home_upper) ||
@@ -187,10 +221,7 @@ bool UpperBodyServeTrajectory::BeginHoming(
               "serve release time must lie within windup/swing interval");
     return false;
   }
-  for (std::size_t index = 0; index < start_upper_.size(); ++index) {
-    start_upper_[index] =
-        state.q[static_cast<Eigen::Index>(kArmStart + index)];
-  }
+  start_upper_ = start_upper;
   phase_ = UpperBodyServePhase::kPrepare;
   phase_elapsed_s_ = 0.0;
   tick_ = 0;
@@ -266,8 +297,16 @@ bool UpperBodyServeTrajectory::Step(
   while (phase_ != UpperBodyServePhase::kReady &&
          phase_ != UpperBodyServePhase::kComplete &&
          phase_elapsed_s_ + 1.0e-12 >= PhaseDuration(config_, phase_)) {
-    if (phase_ == UpperBodyServePhase::kSwing && !release_emitted_ &&
-        phase_elapsed_s_ + 1.0e-12 >= config_.release_time_s) {
+    const bool windup_release =
+        phase_ == UpperBodyServePhase::kWindup &&
+        config_.release_time_s <= 0.0 &&
+        phase_elapsed_s_ + 1.0e-12 >=
+            config_.windup_duration_s + config_.release_time_s;
+    const bool swing_release =
+        phase_ == UpperBodyServePhase::kSwing &&
+        config_.release_time_s >= 0.0 &&
+        phase_elapsed_s_ + 1.0e-12 >= config_.release_time_s;
+    if (!release_emitted_ && (windup_release || swing_release)) {
       boundary_release = true;
       release_emitted_ = true;
     }
@@ -296,6 +335,15 @@ bool UpperBodyServeTrajectory::Step(
           alpha * (config_.windup_right[index] -
                    config_.home_upper[upper_index]);
     }
+    // release_time_s is relative to swing start. Negative values release in
+    // the final portion of windup, matching the standalone robot controller.
+    const double release_time_in_windup_s =
+        config_.windup_duration_s + config_.release_time_s;
+    if (!release_emitted_ && config_.release_time_s <= 0.0 &&
+        phase_elapsed_s_ + 1.0e-12 >= release_time_in_windup_s) {
+      release_requested = true;
+      release_emitted_ = true;
+    }
   } else if (phase_ == UpperBodyServePhase::kSwing) {
     duration_s = config_.swing_duration_s;
     const double alpha = Progress(phase_elapsed_s_, duration_s, false);
@@ -304,7 +352,7 @@ bool UpperBodyServeTrajectory::Step(
           alpha * (config_.hit_through_right[index] -
                    config_.windup_right[index]);
     }
-    if (!release_emitted_ &&
+    if (!release_emitted_ && config_.release_time_s >= 0.0 &&
         phase_elapsed_s_ + 1.0e-12 >= config_.release_time_s) {
       release_requested = true;
       release_emitted_ = true;

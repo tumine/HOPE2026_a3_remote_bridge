@@ -21,6 +21,7 @@ enum class ManualKey {
   kServeTrack2,
   kServeTrack3,
   kServeTrack4,
+  kServeTrack5,
   kServeClose,
   kServeFire,
   kGripperOpen,

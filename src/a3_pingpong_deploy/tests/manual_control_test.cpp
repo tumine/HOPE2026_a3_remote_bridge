@@ -17,6 +17,7 @@ int main() {
   CHECK(ManualServeTrackNumber(ParseManualKey('2')) == 2);
   CHECK(ManualServeTrackNumber(ParseManualKey('3')) == 3);
   CHECK(ManualServeTrackNumber(ParseManualKey('4')) == 4);
+  CHECK(ManualServeTrackNumber(ParseManualKey('5')) == 5);
   CHECK(ManualServeTrackNumber(ParseManualKey('V')) == 0);
   CHECK(ParseManualKey('C') == ManualKey::kServeClose);
   CHECK(ParseManualKey('f') == ManualKey::kServeFire);
