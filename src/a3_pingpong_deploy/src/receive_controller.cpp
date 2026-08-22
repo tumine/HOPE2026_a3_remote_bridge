@@ -86,6 +86,26 @@ bool BuildDampingCommand(const robot_io::RobotState& state, double damping_kd,
   return true;
 }
 
+bool BuildPassiveDampingCommand(const robot_io::RobotState& state,
+                                double damping_kd,
+                                robot_io::RobotCommand& output) {
+  constexpr int dof = robot_io::kA3Dof;
+  if (!std::isfinite(damping_kd) || damping_kd <= 0.0 ||
+      !FiniteVector(state.q, dof)) {
+    return false;
+  }
+  output.q_des = state.q;
+  output.dq_des = Eigen::VectorXd::Zero(dof);
+  output.tau_ff = Eigen::VectorXd::Zero(dof);
+  output.kp = Eigen::VectorXd::Zero(dof);
+  output.kd = Eigen::VectorXd::Zero(dof);
+  output.kd.segment(robot_io::kA3ArmStart, robot_io::kA3ArmCount)
+      .setConstant(damping_kd);
+  output.kd.segment(kA3LegCommandStart, static_cast<Eigen::Index>(kA3LegDof))
+      .setConstant(damping_kd);
+  return true;
+}
+
 bool ValidateRobotCommand(const robot_io::RobotCommand& command,
                           int expected_dof) {
   return expected_dof > 0 && FiniteVector(command.q_des, expected_dof) &&

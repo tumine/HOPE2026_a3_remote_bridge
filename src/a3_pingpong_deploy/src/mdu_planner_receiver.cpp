@@ -588,7 +588,13 @@ class ObservationProbe {
       }
 
       if (mode != a3_pingpong::ManualMode::kMotion) {
-        if (command_output_enabled_) PreparePassiveCommand(state);
+        if (command_output_enabled_) {
+          if (mode == a3_pingpong::ManualMode::kPassive) {
+            PreparePassiveDampingCommand(state);
+          } else {
+            PrepareSafeHaltCommand(state);
+          }
+        }
         return true;
       }
     }
@@ -1153,11 +1159,23 @@ class ObservationProbe {
     return true;
   }
 
-  void PreparePassiveCommand(const robot_io::RobotState& state) {
+  void PreparePassiveDampingCommand(const robot_io::RobotState& state) {
+    // P is a controlled free-fall mode.  Keep the actual position as q_des
+    // and only add mild velocity damping to arms and legs.  X remains the
+    // separate zero-gain safe-halt path below.
+    if (!a3_pingpong::BuildPassiveDampingCommand(
+            state, kPassiveDampingKd, latest_command_)) {
+      a3_pingpong::BuildSafeHaltCommand(state, latest_command_);
+    }
+    latest_command_ready_ = true;
+  }
+
+  void PrepareSafeHaltCommand(const robot_io::RobotState& state) {
     a3_pingpong::BuildSafeHaltCommand(state, latest_command_);
     latest_command_ready_ = true;
   }
 
+  static constexpr double kPassiveDampingKd = 2.0;
   static constexpr std::uint64_t kPdStandRampTicks = 150;
 
   a3_pingpong::PingpongObservationBuilder builder_;

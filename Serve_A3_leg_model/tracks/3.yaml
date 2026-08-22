@@ -1,0 +1,46 @@
+# Numbered runtime track 3.
+# Source: feasible_tracks/192.168.1.101/track-r-1f-y-10.yaml
+serve:
+# Based on track-r-1f.yaml.
+# The racket center is unchanged. At hit-through, the racket normal is
+# rotated 10 deg toward world -Y; values were solved with bounded FK.
+  home: [
+      -1.191947170859, 0.160059961944, -0.413680271815,
+       0.362461292346, 0.176261448817, -0.944081736121, -0.988417746825, # 左臂
+      -0.57, -0.59, 0.65, 0.0, 0.01, 0.04, 0.70,       # 右臂
+  ]
+  windup_right: [
+       0.002435028829,  # right_shoulder_pitch
+      -0.471091091169,  # right_shoulder_roll
+       0.593553488245,  # right_shoulder_yaw
+      -0.132633432142,  # right_elbow
+       0.354979439390,  # right_wrist_roll
+       0.004177040662,  # right_wrist_pitch
+       0.700382116774,  # right_wrist_yaw
+  ]
+  hit_through_right: [
+      -0.932245543163,  # right_shoulder_pitch
+      -0.513271234914,  # right_shoulder_roll
+       0.793750783000,  # right_shoulder_yaw
+       0.501023846375,  # right_elbow
+       0.405425286567,  # right_wrist_roll
+       0.357815376051,  # right_wrist_pitch
+       1.208649592179,  # right_wrist_yaw
+  ]
+  timing:
+    home_s: 5.40
+    windup_s: 0.50
+    swing_s: 0.10
+    release_s: -0.15
+    settle_s: 1.0
+    return_s: 1.0
+    close_wait_s: 0.5
+  gripper:
+    host: 10.42.10.12
+    port: 56422
+    path: /rpc/aimdk.protocol.HalHandService/SetHandCommand
+    open_position: 4096
+    close_position: 1200
+    right_position: 0
+    connect_timeout_ms: 3000
+    response_timeout_ms: 65000

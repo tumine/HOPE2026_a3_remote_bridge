@@ -94,6 +94,13 @@ void BuildSafeHaltCommand(const robot_io::RobotState& state,
 bool BuildDampingCommand(const robot_io::RobotState& state, double damping_kd,
                          robot_io::RobotCommand& output);
 
+// Build the manual P-mode command: q_des follows the measured state, Kp and
+// feed-forward terms stay zero, while both arms and legs receive mild velocity
+// damping.  Waist and neck remain zero-gain.
+bool BuildPassiveDampingCommand(const robot_io::RobotState& state,
+                                double damping_kd,
+                                robot_io::RobotCommand& output);
+
 bool ValidateRobotCommand(const robot_io::RobotCommand& command,
                           int expected_dof);
 

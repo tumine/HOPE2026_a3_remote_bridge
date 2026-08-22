@@ -75,6 +75,20 @@ int main() {
   CHECK(halt.kp.norm() == 0.0);
   CHECK(halt.kd.norm() == 0.0);
 
+  // P-mode keeps position error at zero while adding only light velocity
+  // damping to the arms and legs; waist and neck must remain zero-gain.
+  robot_io::RobotCommand passive_damping;
+  CHECK(a3_pingpong::BuildPassiveDampingCommand(state, 2.0,
+                                                passive_damping));
+  CHECK(a3_pingpong::ValidateRobotCommand(passive_damping, 31));
+  CHECK((passive_damping.q_des - state.q).norm() == 0.0);
+  CHECK(passive_damping.dq_des.norm() == 0.0);
+  CHECK(passive_damping.tau_ff.norm() == 0.0);
+  CHECK(passive_damping.kp.norm() == 0.0);
+  CHECK(passive_damping.kd.segment(0, 5).norm() == 0.0);
+  CHECK(passive_damping.kd.segment(5, 14).isConstant(2.0));
+  CHECK(passive_damping.kd.segment(19, 12).isConstant(2.0));
+
   // model_72500 locks waist pitch to zero, so its legacy positive-pitch virtual
   // wall is disabled by default and must leave the policy command untouched.
   a3_pingpong::ReceiveControllerOptions::WaistPitchSafety pitch_safety;

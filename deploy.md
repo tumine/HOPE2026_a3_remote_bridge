@@ -95,6 +95,17 @@ Y：在 Idle 或 Home/Ready 状态动态重载当前发球 YAML；修改
 H：打印帮助
 Q：退出程序
 
+数字轨迹选择：
+
+1. 先按 `S` 进入 PD 站立模式。
+2. 按 `1`～`6`，程序读取
+   `/home/agi/a3_lower_body_serve_probe/tracks/<数字>.yaml`，并自动将手臂
+   平滑移动到该轨迹的 Home 初始位。
+3. 等待终端显示 `arm: ready/home`，然后继续按 `C` 关夹爪、按 `F`
+   执行当前数字轨迹。数字 YAML 缺失或校验失败时保留当前轨迹且不动作。
+
+编号与原始文件的对应关系见 `Serve_A3_leg_model/tracks/README.md`。
+
 
 #策略
 sudo systemctl stop agibot_pm #重启后执行，停止服务

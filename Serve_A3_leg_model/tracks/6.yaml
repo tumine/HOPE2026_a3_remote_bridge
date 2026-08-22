@@ -1,0 +1,53 @@
+# Numbered runtime track 6.
+# Source: feasible_tracks/192.168.1.101/track-r-1-z40.yaml
+serve:
+# Based on track-r-1.yaml.
+# The racket center is unchanged. At hit-through, the racket normal is
+# rotated 40 deg toward world +Z; values were solved with bounded FK.
+# The vector from the new hit-through to the original track-r-1 windup is
+# extended by 20%, increasing the pre-swing range while staying in limits.
+  home: [
+      -1.191947170859, 0.160059961944, -0.413680271815,
+       0.362461292346, 0.176261448817, -0.944081736121, -0.988417746825, # 左臂：姿态不变，沿 -X 5 cm
+      -0.57, -0.59, 0.65, 0.0, 0.01, 0.04, 0.70,       # 右臂
+  ]
+  windup_right: [
+       0.002435028829,  # right_shoulder_pitch
+      -0.471091091169,  # right_shoulder_roll
+       0.593553488245,  # right_shoulder_yaw
+      -0.132633432142,  # right_elbow
+       0.354979439390,  # right_wrist_roll
+       0.004177040662,  # right_wrist_pitch
+       0.700382116774,  # right_wrist_yaw
+  ]
+  hit_through_right: [
+      -0.670729331342,  # right_shoulder_pitch
+      -0.510335654994,  # right_shoulder_roll
+       0.546847926869,  # right_shoulder_yaw
+       0.333993786529,  # right_elbow
+       0.434352441698,  # right_wrist_roll
+       0.344919992743,  # right_wrist_pitch
+       1.038845422692,  # right_wrist_yaw
+  ]
+  timing:
+    # Extra 0.20 s keeps the home transition speed comparable after the
+    # Total vertical displacement is 150 mm; the extra 50 mm -X offset gets
+    # another 0.10 s of home-transition margin.
+    home_s: 5.40
+    windup_s: 0.50
+    swing_s: 0.13
+    # The ball is released 150 mm higher than the original pose. Using
+    # sqrt(2*dz/g)=0.175 s in total, release about 0.17 s early.
+    release_s: -0.17
+    settle_s: 1.0
+    return_s: 1.0
+    close_wait_s: 0.5
+  gripper:
+    host: 10.42.10.12
+    port: 56422
+    path: /rpc/aimdk.protocol.HalHandService/SetHandCommand
+    open_position: 4096
+    close_position: 1200
+    right_position: 0
+    connect_timeout_ms: 3000
+    response_timeout_ms: 65000

@@ -56,6 +56,7 @@ if [[ -f "${A3_ROBOT_ENV}" ]]; then
 fi
 
 TRANSPORT="${A3_TRANSPORT:-iceoryx}"
+SERVE_TRACKS_DIR="${A3_SERVE_TRACKS_DIR:-${SCRIPT_DIR}/tracks}"
 if [[ "${TRANSPORT}" == "ros2" ]]; then
   sed -i 's#a3_aimrt_config.iceoryx.yaml#a3_aimrt_config.ros2.yaml#' \
     "${SCRIPT_DIR}/config/a3_lower_body.yaml"
@@ -74,4 +75,5 @@ export LD_LIBRARY_PATH="${A3_DEPLOY_PACKAGE_DIR}:${A3_DEPLOY_PACKAGE_DIR}/lib:${
 exec "${A3_DEPLOY_PACKAGE_DIR}/hope_lower_body_deploy" \
   --config "${SCRIPT_DIR}/config/a3_lower_body.yaml" \
   --ik-serve-config "${SCRIPT_DIR}/config/a3_serve_ik.yaml" \
+  --serve-tracks-dir "${SERVE_TRACKS_DIR}" \
   "$@"
