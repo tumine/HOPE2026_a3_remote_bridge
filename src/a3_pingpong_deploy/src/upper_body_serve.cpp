@@ -9,6 +9,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <yaml-cpp/yaml.h>
+
 #include <algorithm>
 #include <cerrno>
 #include <chrono>
@@ -17,6 +19,7 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <utility>
 
 namespace a3_pingpong {
@@ -58,6 +61,41 @@ double PhaseDuration(const UpperBodyServeConfig& config,
 bool FiniteArray(const UpperBodyServeTarget& values) {
   return std::all_of(values.begin(), values.end(),
                      [](double value) { return std::isfinite(value); });
+}
+
+template <std::size_t N>
+std::array<double, N> ReadFiniteArray(const YAML::Node& node,
+                                      const std::string& name) {
+  if (!node || !node.IsSequence() || node.size() != N) {
+    throw std::runtime_error(name + " must contain exactly " +
+                             std::to_string(N) + " values");
+  }
+  std::array<double, N> output{};
+  for (std::size_t index = 0; index < N; ++index) {
+    output[index] = node[index].as<double>();
+    if (!std::isfinite(output[index])) {
+      throw std::runtime_error(name + " contains a non-finite value");
+    }
+  }
+  return output;
+}
+
+double ReadFinite(const YAML::Node& node, const std::string& name) {
+  if (!node) throw std::runtime_error("missing " + name);
+  const double value = node.as<double>();
+  if (!std::isfinite(value)) {
+    throw std::runtime_error(name + " must be finite");
+  }
+  return value;
+}
+
+int ReadGripperPosition(const YAML::Node& node, const std::string& name) {
+  if (!node) throw std::runtime_error("missing " + name);
+  const int value = node.as<int>();
+  if (value < 0 || value > 4096) {
+    throw std::runtime_error(name + " must be in [0, 4096]");
+  }
+  return value;
 }
 
 }  // namespace
@@ -159,6 +197,124 @@ std::optional<UpperBodyServeConfig> NumberedUpperBodyServeConfig(
       return config;
     default:
       return std::nullopt;
+  }
+}
+
+std::optional<UpperBodyServeProfile> LoadUpperBodyServeProfile(
+    const std::string& path, std::string* reason) noexcept {
+  try {
+    const YAML::Node root = YAML::LoadFile(path);
+    const YAML::Node serve = root["serve"];
+    if (!serve || !serve.IsMap()) {
+      throw std::runtime_error("missing serve mapping");
+    }
+
+    UpperBodyServeProfile profile;
+    profile.trajectory.home_upper =
+        ReadFiniteArray<kServeUpperBodyDim>(serve["home"], "serve.home");
+    profile.trajectory.windup_right = ReadFiniteArray<kServeRightArmDim>(
+        serve["windup_right"], "serve.windup_right");
+    profile.trajectory.hit_through_right = ReadFiniteArray<kServeRightArmDim>(
+        serve["hit_through_right"], "serve.hit_through_right");
+
+    const YAML::Node timing = serve["timing"];
+    if (!timing || !timing.IsMap()) {
+      throw std::runtime_error("missing serve.timing mapping");
+    }
+    profile.trajectory.prepare_duration_s =
+        ReadFinite(timing["home_s"], "serve.timing.home_s");
+    profile.trajectory.ready_dwell_s =
+        ReadFinite(timing["close_wait_s"], "serve.timing.close_wait_s");
+    profile.trajectory.windup_duration_s =
+        ReadFinite(timing["windup_s"], "serve.timing.windup_s");
+    profile.trajectory.swing_duration_s =
+        ReadFinite(timing["swing_s"], "serve.timing.swing_s");
+    profile.trajectory.release_time_s =
+        ReadFinite(timing["release_s"], "serve.timing.release_s");
+    profile.trajectory.settle_duration_s =
+        ReadFinite(timing["settle_s"], "serve.timing.settle_s");
+    profile.trajectory.return_duration_s =
+        ReadFinite(timing["return_s"], "serve.timing.return_s");
+    profile.trajectory.receive_transition_s = ReadFinite(
+        timing["receive_transition_s"],
+        "serve.timing.receive_transition_s");
+
+    const YAML::Node waist_pitch = serve["waist_pitch"];
+    if (!waist_pitch || !waist_pitch.IsMap()) {
+      throw std::runtime_error("missing serve.waist_pitch mapping");
+    }
+    const double waist_pitch_target_deg = ReadFinite(
+        waist_pitch["target_deg"], "serve.waist_pitch.target_deg");
+    if (waist_pitch_target_deg < -8.0 || waist_pitch_target_deg > 5.0) {
+      throw std::runtime_error(
+          "serve.waist_pitch.target_deg must be in [-8, 5]");
+    }
+    profile.waist_pitch_target_rad =
+        waist_pitch_target_deg * 0.017453292519943295;
+
+    const std::array<double, 7> durations{
+        profile.trajectory.prepare_duration_s,
+        profile.trajectory.ready_dwell_s,
+        profile.trajectory.windup_duration_s,
+        profile.trajectory.swing_duration_s,
+        profile.trajectory.settle_duration_s,
+        profile.trajectory.return_duration_s,
+        profile.trajectory.receive_transition_s};
+    if (profile.trajectory.prepare_duration_s <= 0.0 ||
+        profile.trajectory.windup_duration_s <= 0.0 ||
+        profile.trajectory.swing_duration_s <= 0.0 ||
+        profile.trajectory.receive_transition_s <= 0.0 ||
+        !std::all_of(durations.begin(), durations.end(),
+                     [](double value) { return value >= 0.0; })) {
+      throw std::runtime_error(
+          "serve timing must be nonnegative and active transitions positive");
+    }
+    if (profile.trajectory.release_time_s <
+            -profile.trajectory.windup_duration_s ||
+        profile.trajectory.release_time_s >
+            profile.trajectory.swing_duration_s) {
+      throw std::runtime_error(
+          "serve.timing.release_s is outside windup/swing");
+    }
+
+    const YAML::Node gains = serve["arm_gains"];
+    if (!gains || !gains.IsMap()) {
+      throw std::runtime_error("missing serve.arm_gains mapping");
+    }
+    profile.arm_kp = ReadFiniteArray<kServeUpperBodyDim>(
+        gains["kp"], "serve.arm_gains.kp");
+    profile.arm_kd = ReadFiniteArray<kServeUpperBodyDim>(
+        gains["kd"], "serve.arm_gains.kd");
+    for (double value : profile.arm_kp) {
+      if (value < 0.0 || value > 500.0) {
+        throw std::runtime_error("serve.arm_gains.kp must be in [0, 500]");
+      }
+    }
+    for (double value : profile.arm_kd) {
+      if (value < 0.0 || value > 20.0) {
+        throw std::runtime_error("serve.arm_gains.kd must be in [0, 20]");
+      }
+    }
+
+    const YAML::Node gripper = serve["gripper"];
+    if (!gripper || !gripper.IsMap()) {
+      throw std::runtime_error("missing serve.gripper mapping");
+    }
+    profile.gripper_open_position = ReadGripperPosition(
+        gripper["open_position"], "serve.gripper.open_position");
+    profile.gripper_close_position = ReadGripperPosition(
+        gripper["close_position"], "serve.gripper.close_position");
+    profile.gripper_right_position = ReadGripperPosition(
+        gripper["right_position"], "serve.gripper.right_position");
+
+    SetReason(reason, "loaded serve profile: " + path);
+    return profile;
+  } catch (const std::exception& error) {
+    SetReason(reason, "failed to load " + path + ": " + error.what());
+    return std::nullopt;
+  } catch (...) {
+    SetReason(reason, "failed to load " + path + ": unknown error");
+    return std::nullopt;
   }
 }
 
@@ -461,8 +617,19 @@ void GripperHttpClient::Stop() noexcept {
 
 std::optional<std::uint64_t> GripperHttpClient::Enqueue(
     GripperAction action) noexcept {
+  const int left_position = action == GripperAction::kOpen
+                                ? config_.open_position
+                                : config_.close_position;
+  return Enqueue(action, left_position, config_.right_position);
+}
+
+std::optional<std::uint64_t> GripperHttpClient::Enqueue(
+    GripperAction action, int left_position, int right_position) noexcept {
   if (action == GripperAction::kNone || !worker_.joinable() ||
-      stop_.load(std::memory_order_acquire)) return std::nullopt;
+      stop_.load(std::memory_order_acquire) || left_position < 0 ||
+      left_position > 4096 || right_position < 0 || right_position > 4096) {
+    return std::nullopt;
+  }
   bool expected = false;
   if (!busy_.compare_exchange_strong(expected, true,
                                      std::memory_order_acq_rel)) {
@@ -470,6 +637,8 @@ std::optional<std::uint64_t> GripperHttpClient::Enqueue(
   }
   const auto request_id = next_request_id_.fetch_add(1);
   pending_request_id_.store(request_id, std::memory_order_relaxed);
+  pending_left_position_.store(left_position, std::memory_order_relaxed);
+  pending_right_position_.store(right_position, std::memory_order_relaxed);
   pending_.store(action, std::memory_order_release);
   wake_cv_.notify_one();
   return request_id;
@@ -494,20 +663,27 @@ void GripperHttpClient::Worker() {
     const auto action = pending_.exchange(GripperAction::kNone,
                                           std::memory_order_acq_rel);
     const auto request_id = pending_request_id_.load(std::memory_order_relaxed);
+    const int left_position =
+        pending_left_position_.load(std::memory_order_relaxed);
+    const int right_position =
+        pending_right_position_.load(std::memory_order_relaxed);
     std::string detail;
-    const bool success = Send(action, detail);
+    const bool success = Send(action, left_position, right_position, detail);
     completed_action_.store(action, std::memory_order_relaxed);
     completed_success_.store(success, std::memory_order_relaxed);
     completed_request_id_.store(request_id, std::memory_order_release);
     busy_.store(false, std::memory_order_release);
     std::clog << "[gripper_http] id=" << request_id
               << " action=" << GripperActionName(action)
+              << " left_pos=" << left_position
+              << " right_pos=" << right_position
               << " success=" << (success ? "yes" : "no")
               << " detail=" << detail << '\n';
   }
 }
 
-bool GripperHttpClient::Send(GripperAction action,
+bool GripperHttpClient::Send(GripperAction action, int left_position,
+                             int right_position,
                              std::string& detail) noexcept {
   addrinfo hints{};
   hints.ai_family = AF_INET;
@@ -570,7 +746,14 @@ bool GripperHttpClient::Send(GripperAction action,
   ::setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &io_timeout, sizeof(io_timeout));
   ::setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &io_timeout, sizeof(io_timeout));
 
-  const std::string payload = BuildGripperCommandJson(action, config_);
+  GripperHttpConfig request_config = config_;
+  if (action == GripperAction::kOpen) {
+    request_config.open_position = left_position;
+  } else {
+    request_config.close_position = left_position;
+  }
+  request_config.right_position = right_position;
+  const std::string payload = BuildGripperCommandJson(action, request_config);
   std::ostringstream request_stream;
   request_stream << "POST " << config_.path << " HTTP/1.1\r\n"
                  << "Host: " << config_.host << ':' << config_.port << "\r\n"

@@ -348,5 +348,25 @@ int main() {
   CHECK(stale_backend.send_count.load() >= 1);
   CHECK(stale_backend.last_command.kp.norm() == 0.0);
   CHECK(stale_backend.last_command.kd.norm() == 0.0);
+
+  // Deployment mode: zero disables the RobotIO age/sync watchdog, so the
+  // latest assembled state continues through the normal policy path.
+  FakeBackend watchdog_disabled_backend;
+  watchdog_disabled_backend.state = backend.state;
+  watchdog_disabled_backend.state.timestamp_ns = 1;
+  watchdog_disabled_backend.state.sync_complete = false;
+  watchdog_disabled_backend.state.sync_aligned = false;
+  auto watchdog_disabled_options = publishing_options;
+  watchdog_disabled_options.max_state_age_ns = 0;
+  a3_pingpong::ReceiveController watchdog_disabled_controller(
+      watchdog_disabled_backend, mailbox, policy, watchdog_disabled_options);
+  CHECK(watchdog_disabled_controller.Start());
+  std::this_thread::sleep_for(std::chrono::milliseconds(30));
+  watchdog_disabled_controller.Stop();
+  CHECK(watchdog_disabled_controller.last_result() ==
+        a3_pingpong::ReceiveTickResult::kCommandSent);
+  CHECK(watchdog_disabled_controller.safe_halt_count() == 0);
+  CHECK(watchdog_disabled_backend.last_command.kp[0] == 10.0);
+  CHECK(watchdog_disabled_backend.last_command.kd[0] == 1.0);
   return 0;
 }

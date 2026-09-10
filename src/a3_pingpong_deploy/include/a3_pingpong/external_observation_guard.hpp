@@ -20,6 +20,8 @@ const char* ExternalObservationModeName(ExternalObservationMode mode) noexcept;
 
 struct ExternalObservationGuardConfig {
   double freshness_timeout_s{0.100};
+  // Zero disables automatic fallback and holds the last valid external pose
+  // indefinitely. A positive value preserves the latched default-pose PD path.
   double fallback_timeout_s{0.500};
   std::uint64_t recovery_frames{10};
 };
@@ -33,9 +35,9 @@ struct ExternalObservationStatus {
 };
 
 // Keeps only the last valid exteroceptive base pose. Proprioception is never
-// cached here and therefore remains live in the policy observation. A long
-// outage latches fallback until fresh poses have remained stable and the
-// operator explicitly requests resume.
+// cached here and therefore remains live in the policy observation. When the
+// fallback timeout is positive, a long outage latches fallback until fresh
+// poses have remained stable and the operator explicitly requests resume.
 class ExternalObservationGuard {
  public:
   explicit ExternalObservationGuard(ExternalObservationGuardConfig config);

@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "bundle": "model_72500_deploy_bundle",
+  "created_at": "2026-08-20",
+  "status": "mujoco_validated_intermediate_not_hardware_certified",
+  "policy": {
+    "checkpoint_iteration": 72500,
+    "checkpoint_file": "model_72500.pt",
+    "checkpoint_included": false,
+    "checkpoint_sha256": "aa3e99f631f8f56c388329faa1739b2a4cc2dbff2ec35310086d855c84969e0e",
+    "onnx": "policy/hope_pingpong.onnx",
+    "manifest": "policy/policy_manifest.json"
+  },
+  "deployment": {
+    "runtime": "config/runtime.yaml",
+    "action_adapter": "config/action_adapter.yaml",
+    "joint_order": "config/joint_order_agibot_a3.yaml",
+    "strike_box": "config/strike_box.yaml"
+  },
+  "ready_reference": {
+    "motion": "reference_motion/hope_neutral_ready_crouch2cm_flatfeet_compact_waist_pitch_roll_locked0.npz",
+    "metadata": "reference_motion/hope_neutral_ready_crouch2cm_flatfeet_compact_waist_pitch_roll_locked0.yaml"
+  },
+  "validation": {
+    "ready_report": "validation/ready_no_command_10s.json",
+    "continuous_result": "validation/continuous_20_result.json",
+    "continuous_diagnostics": "validation/continuous_20_diagnostics.json",
+    "ready_duration_s": 10.0,
+    "ready_control_ticks": 500,
+    "ready_fell": false,
+    "ready_max_station_drift_m": 0.013872329415004547,
+    "continuous_attempts": 20,
+    "continuous_success_rate": 1.0,
+    "hardware_certified": false
+  },
+  "hashed_assets": [
+    {"path": "policy/hope_pingpong.onnx", "sha256": "6ab2e061062455a997afb7c630599d1eafd0a66f90dfcfb5c1da8177c8093ed0"},
+    {"path": "policy/policy_manifest.json", "sha256": "541469205f2903364eb840f6125c4366fc0f45993be9909dfed635ebf8057c8f"},
+    {"path": "provenance/agent.yaml", "sha256": "31a2e079a2b4a67053489f9dcee728981eeba2e958b9b5e139ab470fb2efc890"},
+    {"path": "provenance/env.yaml", "sha256": "8efd3d51b75612e07ef5e3254950552dd83e411c791f6a8e32144f8d152fd501"},
+    {"path": "provenance/HOPE.diff", "sha256": "6238f7dcf645026ea029a3aa5f833a532608d5d150899ac43e6b9870f917aa89"},
+    {"path": "config/runtime.yaml", "sha256": "47184a7979c8dfc37b3ce42ca7ec46a20f1a7c33e47581895036c027a5a0cb7b"},
+    {"path": "config/action_adapter.yaml", "sha256": "51f50e50c8bb9245e71312cdafe23f615e8c92c6ba15e46c337bc43fc8c9bf5d"},
+    {"path": "config/joint_order_agibot_a3.yaml", "sha256": "29ce02a50bd73587ea63c980415f8119631507a594c53a60e71962750f936e13"},
+    {"path": "config/strike_box.yaml", "sha256": "20341aa5d006b3533acf02f906314d79d776c7c9d450384a37959eb9b33ce5bf"},
+    {"path": "config/ball_physics.yaml", "sha256": "093d0216008e655bdf4d46eb8b07c3beb3d2ce9c41f8fdc4134463cd6be3ec3e"},
+    {"path": "robot_model/agibot_a3/xml/agibot_a3.xml", "sha256": "d6cb5421c9e1dc138c892d5677f6c832bb8182ec11ea4944fae85bf3cb0efb37"},
+    {"path": "reference/a3_deploy_onnx_ref_pingpong/observation.py", "sha256": "6fe0cb0d4debf47258aa30abb941a568608c0a3fe05fb4caf52afadc08eecbf7"},
+    {"path": "reference/a3_deploy_onnx_ref_pingpong/action_adapter.py", "sha256": "0daacf717d0bac0b43f9485e6f080c444eba691e20498f504c924f291bad0cd5"},
+    {"path": "reference/a3_deploy_onnx_ref_pingpong/runner.py", "sha256": "781c92d7604a0db920af0b4a5b1275d16870f5f0d27da17294ca679b6f01c0d5"},
+    {"path": "reference/a3_deploy_onnx_ref_pingpong/station_target.py", "sha256": "e3abe24961f0f8860fb65db6f616834d1e485e4a2be1baccb63af7ef53dc9f87"},
+    {"path": "reference/a3_deploy_onnx_ref_pingpong/lifecycle.py", "sha256": "3d7dc77b685034c0edcb4991b6f46c1e0c689dc39eef4fa5a500efe25de85aef"},
+    {"path": "reference/a3_deploy_onnx_ref_pingpong/quaternion.py", "sha256": "3331b7dd8a754086bcba411ee165965b3e22b535a4530f97d0c973dafbe4f414"},
+    {"path": "reference/a3_deploy_onnx_ref_pingpong/joint_order.py", "sha256": "c61f3a490f4b105c9b92194ed5ff9cd204e0b06583d44e4f73988c3d2c646992"},
+    {"path": "reference/a3_deploy_onnx_ref_pingpong/config.py", "sha256": "bc002021865e96efea3a9221c063dc52ed1348a100d89755d980d56887954f78"},
+    {"path": "reference_motion/hope_neutral_ready_crouch2cm_flatfeet_compact_waist_pitch_roll_locked0.npz", "sha256": "8c421c92fef14b9e0f02ede69f6567a648b86ad54a68c476ed2d57bdbad21312"},
+    {"path": "reference_motion/hope_neutral_ready_crouch2cm_flatfeet_compact_waist_pitch_roll_locked0.yaml", "sha256": "7989c42e503b296f6a0d6b5512af18897beecce7811311afd40d40aa899a86e0"},
+    {"path": "validation/ready_no_command_10s.json", "sha256": "36a992b04b40d55285aebe022c9fd5ffd172f13951348e94396f0e4d4eb21c9d"},
+    {"path": "validation/continuous_20_result.json", "sha256": "f22016886ba0805b1f632def8efef0150287a1288e0a8a9f0098f6e6494b3759"},
+    {"path": "validation/continuous_20_diagnostics.json", "sha256": "6830bc616c9cdf96091e755c07b6d7190255cad6a2dce4dd92ef058e5abef7d8"}
+  ]
+}

@@ -1,0 +1,25 @@
+# Complete receive/serve runtime track 1. V always reloads this file.
+serve:
+  home: [-1.191947170859, 0.160059961944, -0.413680271815, 0.362461292346, 0.176261448817, -0.944081736121, -0.988417746825, -0.57, -0.59, 0.65, 0.0, 0.01, 0.04, 0.70]
+  windup_right: [0.002435028829, -0.471091091169, 0.593553488245, -0.132633432142, 0.354979439390, 0.004177040662, 0.700382116774]
+  hit_through_right: [-0.932245543163, -0.513271234914, 0.793750783000, 0.501023846375, 0.405425286567, 0.357815376051, 1.208649592179]
+  timing:
+    home_s: 1.35
+    close_wait_s: 0.50
+    windup_s: 0.50
+    swing_s: 0.12
+    release_s: -0.15
+    settle_s: 0.05
+    return_s: 0.0
+    receive_transition_s: 0.20
+  # Negative pitch moves the torso backward, away from the table. The command
+  # follows the same Home/receive smoothstep timing as the arm state machine.
+  waist_pitch:
+    target_deg: -4.0
+  arm_gains:
+    kp: [200.0, 150.0, 80.0, 100.0, 100.0, 80.0, 80.0, 200.0, 150.0, 80.0, 100.0, 100.0, 80.0, 80.0]
+    kd: [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+  gripper:
+    open_position: 4096
+    close_position: 600
+    right_position: 0

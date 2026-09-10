@@ -62,9 +62,8 @@ struct UpperBodyServeConfig {
   double receive_transition_s{0.20};
 };
 
-// Returns one of the five robot-tuned serve tracks. Track 1 is the fixed V
-// default. The YAML remains the human-readable source of truth; these values
-// are compiled into the MDU binary so runtime does not depend on yaml-cpp.
+// Returns one of the five built-in reference tracks for simulation/tests.
+// Real MDU V/1-5 control uses the hot-reloaded YAML profiles below.
 std::optional<UpperBodyServeConfig> NumberedUpperBodyServeConfig(
     int track) noexcept;
 
@@ -129,7 +128,7 @@ struct GripperHttpConfig {
   std::uint16_t port{56422};
   std::string path{"/rpc/aimdk.protocol.HalHandService/SetHandCommand"};
   int open_position{4096};
-  int close_position{1200};
+  int close_position{350};
   int right_position{0};
   int command{0};
   int velocity{20};
@@ -139,6 +138,30 @@ struct GripperHttpConfig {
   int connect_timeout_ms{3000};
   int response_timeout_ms{65000};
 };
+
+// Complete runtime-tunable serve profile. The MDU reloads the selected YAML
+// when V/1-5 is pressed. Gripper positions and arm gains are also refreshed
+// immediately before C/F/G, so those values can be commissioned without
+// stopping the receive policy.
+struct UpperBodyServeProfile {
+  UpperBodyServeConfig trajectory;
+  // Final waist-pitch target while serving. The MDU interpolates from the
+  // live policy command during Home and returns to policy ownership during
+  // receive_transition_s. Negative is backward, away from the table.
+  double waist_pitch_target_rad{-0.06981317007977318};  // -4 degrees
+  std::array<double, kServeUpperBodyDim> arm_kp{
+      200.0, 150.0, 80.0, 100.0, 100.0, 80.0, 80.0,
+      200.0, 150.0, 80.0, 100.0, 100.0, 80.0, 80.0};
+  std::array<double, kServeUpperBodyDim> arm_kd{
+      2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
+  int gripper_open_position{4096};
+  int gripper_close_position{350};
+  int gripper_right_position{0};
+};
+
+std::optional<UpperBodyServeProfile> LoadUpperBodyServeProfile(
+    const std::string& path, std::string* reason = nullptr) noexcept;
 
 // Builds the exact dual-claw frame accepted by the deployed A3_T3D0
 // HalHandService. Both sides are mandatory even when only the left claw moves.
@@ -165,13 +188,17 @@ class GripperHttpClient {
   bool Start(std::string* reason = nullptr);
   void Stop() noexcept;
   std::optional<std::uint64_t> Enqueue(GripperAction action) noexcept;
+  std::optional<std::uint64_t> Enqueue(GripperAction action,
+                                       int left_position,
+                                       int right_position) noexcept;
   bool busy() const noexcept { return busy_.load(std::memory_order_acquire); }
   GripperResult result() const noexcept;
   const GripperHttpConfig& config() const noexcept { return config_; }
 
  private:
   void Worker();
-  bool Send(GripperAction action, std::string& detail) noexcept;
+  bool Send(GripperAction action, int left_position, int right_position,
+            std::string& detail) noexcept;
 
   GripperHttpConfig config_;
   std::atomic<GripperAction> pending_{GripperAction::kNone};
@@ -180,6 +207,8 @@ class GripperHttpClient {
   std::atomic<int> active_socket_{-1};
   std::atomic<std::uint64_t> next_request_id_{1};
   std::atomic<std::uint64_t> pending_request_id_{0};
+  std::atomic<int> pending_left_position_{0};
+  std::atomic<int> pending_right_position_{0};
   std::atomic<std::uint64_t> completed_request_id_{0};
   std::atomic<GripperAction> completed_action_{GripperAction::kNone};
   std::atomic<bool> completed_success_{false};

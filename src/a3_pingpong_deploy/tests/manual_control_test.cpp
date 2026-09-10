@@ -22,6 +22,7 @@ int main() {
   CHECK(ParseManualKey('C') == ManualKey::kServeClose);
   CHECK(ParseManualKey('f') == ManualKey::kServeFire);
   CHECK(ParseManualKey('G') == ManualKey::kGripperOpen);
+  CHECK(ParseManualKey('r') == ManualKey::kServeCancel);
   CHECK(ParseManualKey('?') == ManualKey::kUnknown);
 
   ManualControl control;

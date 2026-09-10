@@ -1,0 +1,58 @@
+{
+  "package_name": "a3_mujoco_receive_serve_waist_pitch_back4deg_20260823",
+  "created_date": "2026-08-23",
+  "purpose": "Portable MuJoCo receive-then-serve loop with model_72500 and bounded serve waist-pitch compensation",
+  "simulation_only": true,
+  "receive_policy": {
+    "checkpoint": "model_72500.pt",
+    "onnx": "model_72500_deploy_bundle/policy/hope_pingpong.onnx",
+    "onnx_sha256": "6ab2e061062455a997afb7c630599d1eafd0a66f90dfcfb5c1da8177c8093ed0",
+    "observation_dim": 111,
+    "action_dim": 31,
+    "control_rate_hz": 50
+  },
+  "waist_pitch_compensation": {
+    "joint_name": "waist_pitch_joint",
+    "canonical_joint_index": 2,
+    "default_target_deg": -4.0,
+    "default_target_rad": -0.06981317007977318,
+    "allowed_cli_range_deg": [-8.0, 5.0],
+    "homing_duration_s": 1.35,
+    "homing_interpolation": "smoothstep",
+    "hold_phases": [
+      "SERVE_READY",
+      "SERVE_WINDUP",
+      "SERVE_SWING",
+      "SERVE_SETTLE"
+    ],
+    "return_to_zero_duration_s": 0.2,
+    "kp": 500.0,
+    "kd": 2.0,
+    "sign_convention": "negative is backward, away from the table"
+  },
+  "default_automatic_sequence": [
+    "inject one legal incoming ball",
+    "complete physical receive and return to lifecycle READY",
+    "hold lower body stable for 0.5 seconds",
+    "execute V-equivalent track-1 serve homing",
+    "execute C then F",
+    "smoothly return arms and waist pitch to receive-policy ownership"
+  ],
+  "physics": {
+    "robot_xml_sha256": "d6cb5421c9e1dc138c892d5677f6c832bb8182ec11ea4944fae85bf3cb0efb37",
+    "ball_config": "config/ball_physics.yaml",
+    "ball_config_sha256": "093d0216008e655bdf4d46eb8b07c3beb3d2ce9c41f8fdc4134463cd6be3ec3e",
+    "table_restitution": 0.9448,
+    "table_tangential_damping": 0.2079,
+    "paddle_restitution": 0.654
+  },
+  "validated_result": {
+    "file": "validation/three_cycles_waist_pitch_-4deg.json",
+    "completed_cycles": 3,
+    "racket_contacts": 3,
+    "net_clears": 3,
+    "opponent_bounces": 3,
+    "minimum_base_height_m": 0.986941586194959,
+    "maximum_pelvis_tilt_deg": 9.494699848546995
+  }
+}

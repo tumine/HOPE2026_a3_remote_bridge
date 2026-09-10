@@ -25,7 +25,9 @@ ExternalObservationGuard::ExternalObservationGuard(
   if (!std::isfinite(config_.freshness_timeout_s) ||
       config_.freshness_timeout_s <= 0.0 ||
       !std::isfinite(config_.fallback_timeout_s) ||
-      config_.fallback_timeout_s <= config_.freshness_timeout_s ||
+      config_.fallback_timeout_s < 0.0 ||
+      (config_.fallback_timeout_s > 0.0 &&
+       config_.fallback_timeout_s <= config_.freshness_timeout_s) ||
       config_.recovery_frames == 0) {
     throw std::invalid_argument("invalid external observation guard config");
   }
@@ -36,6 +38,7 @@ ExternalObservationStatus ExternalObservationGuard::Update(
   const bool have_pose = planner.base_pose.has_value();
   const bool fresh = have_pose && std::isfinite(planner.base_pose_age_s) &&
                      planner.base_pose_age_s <= config_.freshness_timeout_s;
+  const bool fallback_enabled = config_.fallback_timeout_s > 0.0;
 
   // The mailbox retains its last accepted pose. Cache even a stale first
   // snapshot so a newly entered motion mode can measure the real outage age.
@@ -57,7 +60,7 @@ ExternalObservationStatus ExternalObservationGuard::Update(
           ? std::max(0.0,
                      std::chrono::duration<double>(now - *last_fresh_at_)
                          .count())
-          : config_.fallback_timeout_s;
+          : (fallback_enabled ? config_.fallback_timeout_s : 0.0);
 
   if (status_.fallback_latched) {
     status_.recovery_streak = fresh ? status_.recovery_streak + 1 : 0;
@@ -71,11 +74,14 @@ ExternalObservationStatus ExternalObservationGuard::Update(
   if (fresh) {
     status_.mode = ExternalObservationMode::kLive;
   } else if (status_.base_pose &&
-             status_.stale_duration_s <= config_.fallback_timeout_s) {
+             (!fallback_enabled ||
+              status_.stale_duration_s <= config_.fallback_timeout_s)) {
     status_.mode = ExternalObservationMode::kHold;
-  } else {
+  } else if (fallback_enabled) {
     status_.fallback_latched = true;
     status_.mode = ExternalObservationMode::kFallbackPd;
+  } else {
+    status_.mode = ExternalObservationMode::kWaiting;
   }
   return status_;
 }

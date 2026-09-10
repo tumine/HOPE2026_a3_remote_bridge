@@ -23,6 +23,8 @@ ManualKey ParseManualKey(char key) noexcept {
     case 'F': return ManualKey::kServeFire;
     case 'g':
     case 'G': return ManualKey::kGripperOpen;
+    case 'r':
+    case 'R': return ManualKey::kServeCancel;
     case 'x':
     case 'X': return ManualKey::kHalt;
     case 'i':
@@ -95,6 +97,7 @@ ManualActionResult ManualControl::Apply(ManualKey key) noexcept {
     case ManualKey::kServeClose:
     case ManualKey::kServeFire:
     case ManualKey::kGripperOpen:
+    case ManualKey::kServeCancel:
     case ManualKey::kServeTrack1:
     case ManualKey::kServeTrack2:
     case ManualKey::kServeTrack3:

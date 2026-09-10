@@ -1,0 +1,51 @@
+# Numbered runtime track 3.
+# Source: feasible_tracks/192.168.1.101/track-r-1f.yaml
+serve:
+# Based on track-r-1f.yaml.
+# The racket center is unchanged. At hit-through, the racket normal is
+# rotated 10 deg toward world -Y; values were solved with bounded FK.
+  home: [
+      -1.273641478967, 0.163693671459, -0.419944012499,
+       0.384910344245, 0.115719728466, -0.895945374305, -1.021938992525, # 左臂：末端姿态不变，沿世界 +Z 抬高 3 cm
+      -0.57, -0.59, 0.65, 0.0, 0.01, 0.04, 0.70,       # 右臂
+  ]
+  windup_right: [
+      -0.008261136630,  # right_shoulder_pitch
+      -0.508973522035,  # right_shoulder_roll
+       0.576516751668,  # right_shoulder_yaw
+      -0.282309917701,  # right_elbow
+       0.398359035293,  # right_wrist_roll
+       0.136361784391,  # right_wrist_pitch
+       0.662183771585,  # right_wrist_yaw
+  ]
+  hit_through_right: [
+      -0.706465858083,  # right_shoulder_pitch
+      -0.541027532092,  # right_shoulder_roll
+       0.530585720180,  # right_shoulder_yaw
+       0.238550245950,  # right_elbow
+       0.470531787375,  # right_wrist_roll
+       0.460047591154,  # right_wrist_pitch
+       1.029143336004,  # right_wrist_yaw
+  ]
+  timing:
+    # Extra 0.20 s keeps the home transition speed comparable after the
+    # Total vertical displacement is now 180 mm; the extra 50 mm -X offset gets
+    # another 0.10 s of home-transition margin.
+    home_s: 5.40
+    windup_s: 0.50
+    swing_s: 0.10
+    # The left arm and both racket keyframes were raised together by 30 mm;
+    # their relative vertical geometry is unchanged, so retain the release offset.
+    release_s: -0.17
+    settle_s: 1.0
+    return_s: 1.0
+    close_wait_s: 0.5
+  gripper:
+    host: 10.42.10.12
+    port: 56422
+    path: /rpc/aimdk.protocol.HalHandService/SetHandCommand
+    open_position: 4096
+    close_position: 350
+    right_position: 0
+    connect_timeout_ms: 3000
+    response_timeout_ms: 65000

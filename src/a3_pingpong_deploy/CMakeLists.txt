@@ -84,7 +84,8 @@ target_include_directories(a3_pingpong_action_adapter PUBLIC
 target_compile_features(a3_pingpong_action_adapter PUBLIC cxx_std_20)
 target_link_libraries(a3_pingpong_action_adapter PUBLIC
   a3_pingpong_observation_builder
-  a3::robot_io)
+  a3::robot_io
+  yaml-cpp)
 
 add_library(a3_pingpong_receive_controller STATIC
   src/receive_controller.cpp)
@@ -261,6 +262,8 @@ if(A3_BUILD_TESTS)
   target_link_libraries(a3_upper_body_serve_test PRIVATE
     a3_pingpong_action_adapter
     a3_pingpong_receive_controller)
+  target_compile_definitions(a3_upper_body_serve_test PRIVATE
+    "A3_SERVE_TRACKS_DIR=\"${CMAKE_SOURCE_DIR}/config/serve_tracks\"")
   add_test(NAME a3_upper_body_serve_test COMMAND a3_upper_body_serve_test)
 
   add_executable(a3_planner_input_smoke_sender

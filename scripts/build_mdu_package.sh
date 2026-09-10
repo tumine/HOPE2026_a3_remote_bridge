@@ -123,6 +123,8 @@ build_inside_docker() {
     "${REPO_ROOT}/config/fastrtps_mdu_planner.xml" \
     "${REPO_ROOT}/config/fastrtps_hdu_dual_nic.xml" \
     "${package_dir}/config/"
+  cp -a "${REPO_ROOT}/config/serve_tracks" \
+    "${package_dir}/config/"
   cp -a "${REPO_ROOT}/scripts/run_mdu_state_bridge.sh" \
     "${REPO_ROOT}/scripts/run_mdu_rl_control.sh" \
     "${REPO_ROOT}/scripts/run_mdu_planner_receiver.sh" \

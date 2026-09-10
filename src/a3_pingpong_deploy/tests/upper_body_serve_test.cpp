@@ -13,6 +13,10 @@
 #include <string>
 #include <thread>
 
+#ifndef A3_SERVE_TRACKS_DIR
+#define A3_SERVE_TRACKS_DIR "config/serve_tracks"
+#endif
+
 #define CHECK(condition)                \
   do {                                  \
     if (!(condition)) return __LINE__;  \
@@ -115,6 +119,41 @@ int main() {
   CHECK(Near(track1->return_duration_s, 0.0));
   CHECK(Near(track1->receive_transition_s, 0.20));
 
+  for (int track = 1; track <= 5; ++track) {
+    std::string profile_reason;
+    const auto profile = LoadUpperBodyServeProfile(
+        std::string(A3_SERVE_TRACKS_DIR) + "/" + std::to_string(track) +
+            ".yaml",
+        &profile_reason);
+    CHECK(profile);
+    CHECK(profile->gripper_open_position == 4096);
+    CHECK(profile->gripper_close_position == (track == 1 ? 600 : 350));
+    CHECK(profile->gripper_right_position == 0);
+    CHECK(Near(profile->waist_pitch_target_rad,
+               -0.06981317007977318));
+    const auto compiled = NumberedUpperBodyServeConfig(track);
+    CHECK(compiled);
+    for (std::size_t index = 0; index < kServeUpperBodyDim; ++index) {
+      CHECK(Near(profile->trajectory.home_upper[index],
+                 compiled->home_upper[index]));
+    }
+    for (std::size_t index = 0; index < kServeRightArmDim; ++index) {
+      CHECK(Near(profile->trajectory.windup_right[index],
+                 compiled->windup_right[index]));
+      CHECK(Near(profile->trajectory.hit_through_right[index],
+                 compiled->hit_through_right[index]));
+    }
+    CHECK(Near(profile->trajectory.swing_duration_s,
+               compiled->swing_duration_s));
+    CHECK(Near(profile->trajectory.release_time_s,
+               compiled->release_time_s));
+    CHECK(Near(profile->arm_kp[4], 100.0));
+    CHECK(Near(profile->arm_kd[13], 2.0));
+    CHECK(Near(profile->trajectory.prepare_duration_s, 1.35));
+    CHECK(Near(profile->trajectory.settle_duration_s, 0.05));
+    CHECK(Near(profile->trajectory.receive_transition_s, 0.20));
+  }
+
   // Negative release time is measured from swing start and must therefore
   // fire during the final portion of windup, not on the first swing frame.
   UpperBodyServeTrajectory early_release(*track1);
@@ -157,7 +196,7 @@ int main() {
 
   GripperHttpConfig gripper_config;
   CHECK(BuildGripperCommandJson(GripperAction::kClose, gripper_config) ==
-        "{\"data\":{\"left\":{\"agi_claw_cmd\":{\"cmd\":0,\"pos\":1200,"
+        "{\"data\":{\"left\":{\"agi_claw_cmd\":{\"cmd\":0,\"pos\":350,"
         "\"vel\":20,\"force\":20,\"clamp_method\":2,\"finger_pos\":0}},"
         "\"right\":{\"agi_claw_cmd\":{\"cmd\":0,\"pos\":0,\"vel\":20,"
         "\"force\":20,\"clamp_method\":2,\"finger_pos\":0}}}}");

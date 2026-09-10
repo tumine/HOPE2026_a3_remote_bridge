@@ -1,0 +1,43 @@
+# Numbered runtime track 4.
+# Source: feasible_tracks/192.168.1.101/track-r-1-wind-right-enhanced1.yaml
+serve:
+  home: [
+      -1.227535374051, 0.021952965340, -0.362970269047,
+       0.417042234922, 0.287261482443, -0.914976259720, -1.005917653318, # 左臂：末端姿态不变，沿世界 +Z 16 cm、-X 5 cm、-Y 4 cm
+      -0.57, -0.59, 0.65, 0.0, 0.01, 0.04, 0.70,       # 右臂
+  ]
+  windup_right: [
+      -0.424269722288,  # right_shoulder_pitch
+      -0.278503596243,  # right_shoulder_roll
+       0.809542912603,  # right_shoulder_yaw
+      -0.163748191625,  # right_elbow
+      -0.341913864255,  # right_wrist_roll
+       0.126565193141,  # right_wrist_pitch
+       0.771753460264,  # right_wrist_yaw
+  ]
+  hit_through_right: [
+      -0.634716002155,  # right_shoulder_pitch
+      -0.744613944223,  # right_shoulder_roll
+       0.451040981275,  # right_shoulder_yaw
+       0.321645848425,  # right_elbow
+       0.377963868020,  # right_wrist_roll
+       0.009638231988,  # right_wrist_pitch
+       1.112887970476,  # right_wrist_yaw
+  ]
+  timing:
+    home_s: 5.0
+    windup_s: 0.50
+    swing_s: 0.13
+    release_s: -0.15
+    settle_s: 1.0
+    return_s: 1.0
+    close_wait_s: 0.5
+  gripper:
+    host: 10.42.10.12
+    port: 56422
+    path: /rpc/aimdk.protocol.HalHandService/SetHandCommand
+    open_position: 4096
+    close_position: 350
+    right_position: 0
+    connect_timeout_ms: 3000
+    response_timeout_ms: 65000

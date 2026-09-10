@@ -24,6 +24,7 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <cctype>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
@@ -50,8 +51,8 @@ struct Options {
   std::string aimrt_cfg;
   double command_timeout_ms{150.0};
   double base_pose_timeout_ms{100.0};
-  double external_fallback_ms{500.0};
-  double state_timeout_ms{100.0};
+  double external_fallback_ms{0.0};
+  double state_timeout_ms{0.0};
   double control_hz{50.0};
   double status_period_s{5.0};
   double leg_soft_scale{0.90};
@@ -62,6 +63,7 @@ struct Options {
   bool action_dry_run{false};
   bool upper_body_serve_dry_run{false};
   bool serve_vcf{false};
+  std::string serve_tracks_dir;
   bool gripper_http{false};
   a3_pingpong::GripperHttpConfig gripper_config;
   bool manual_control{false};
@@ -89,16 +91,17 @@ void Usage(const char* program) {
       << "  --onnx-model PATH           run model_72500 inference\n"
       << "  --action-dry-run            build full RobotCommand; do not send\n"
       << "  --serve-vcf                 MuJoCo-aligned V/C/F serve state machine\n"
+      << "  --serve-tracks-dir PATH     hot-reloaded serve YAML directory\n"
       << "  --gripper-http              actuate proven HalHandService endpoint\n"
       << "  --gripper-host HOST         (default: 10.42.10.12)\n"
       << "  --gripper-port PORT         (default: 56422)\n"
       << "  --upper-body-serve-dry-run  compatibility alias for --serve-vcf\n"
-      << "  --manual-control            P/S/M/V/C/F/G/X keyboard state machine\n"
+      << "  --manual-control            P/S/M/V/C/F/G/R/X keyboard state machine\n"
       << "  --publish-commands          enable official RobotIO SendCommand path\n"
       << "  --command-timeout-ms MS     (default: 150)\n"
       << "  --base-pose-timeout-ms MS   (default: 100)\n"
-      << "  --external-fallback-ms MS   long pose outage -> default-pose PD (default: 500)\n"
-      << "  --state-timeout-ms MS       (default: 100)\n"
+      << "  --external-fallback-ms MS   0=hold last pose indefinitely (default: 0)\n"
+      << "  --state-timeout-ms MS       0=disable RobotIO age/sync watchdog (default: 0)\n"
       << "  --control-hz HZ             (default: 50)\n"
       << "  --leg-soft-scale SCALE     URDF endpoint scale (default: 0.90)\n"
       << "  --leg-soft-limit SPEC      NAME:LOWER:UPPER; repeat per joint\n"
@@ -190,6 +193,7 @@ Options ParseOptions(int argc, char** argv) {
         take_value("--udp-bind-address", options.udp_bind_address) ||
         take_value("--udp-source-address", options.udp_source_address) ||
         take_value("--aimrt-cfg", options.aimrt_cfg) ||
+        take_value("--serve-tracks-dir", options.serve_tracks_dir) ||
         take_value("--gripper-host", options.gripper_config.host) ||
         take_value("--gripper-path", options.gripper_config.path)) {
       continue;
@@ -302,6 +306,9 @@ Options ParseOptions(int argc, char** argv) {
   if (options.serve_vcf && options.onnx_model.empty()) {
     throw std::runtime_error("--serve-vcf requires --onnx-model");
   }
+  if (options.serve_vcf && options.serve_tracks_dir.empty()) {
+    throw std::runtime_error("--serve-vcf requires --serve-tracks-dir");
+  }
   if (options.gripper_http &&
       (!options.serve_vcf || !options.publish_commands)) {
     throw std::runtime_error(
@@ -332,9 +339,11 @@ Options ParseOptions(int argc, char** argv) {
       !std::isfinite(options.base_pose_timeout_ms) ||
       options.base_pose_timeout_ms <= 0.0 ||
       !std::isfinite(options.external_fallback_ms) ||
-      options.external_fallback_ms <= options.base_pose_timeout_ms ||
+      options.external_fallback_ms < 0.0 ||
+      (options.external_fallback_ms > 0.0 &&
+       options.external_fallback_ms <= options.base_pose_timeout_ms) ||
       !std::isfinite(options.state_timeout_ms) ||
-      options.state_timeout_ms <= 0.0 ||
+      options.state_timeout_ms < 0.0 ||
       !std::isfinite(options.control_hz) || options.control_hz <= 0.0 ||
       !std::isfinite(options.leg_soft_scale) ||
       options.leg_soft_scale <= 0.0 || options.leg_soft_scale > 1.0 ||
@@ -508,6 +517,7 @@ class ObservationProbe {
  public:
   ObservationProbe(const std::string& onnx_model, bool command_output_enabled,
                    bool manual_control, bool upper_body_serve_enabled,
+                   const std::string& serve_tracks_dir,
                    bool gripper_http,
                    const a3_pingpong::GripperHttpConfig& gripper_config,
                    double control_hz, double command_timeout_s,
@@ -517,6 +527,7 @@ class ObservationProbe {
         command_output_enabled_(command_output_enabled),
         manual_control_enabled_(manual_control),
         upper_body_serve_enabled_(upper_body_serve_enabled),
+        serve_tracks_dir_(serve_tracks_dir),
         control_dt_s_(1.0 / control_hz),
         command_timeout_s_(command_timeout_s),
         base_pose_timeout_s_(base_pose_timeout_s),
@@ -527,6 +538,18 @@ class ObservationProbe {
                          kExternalRecoveryFrames}) {
     if (!onnx_model.empty()) {
       actor_ = std::make_unique<a3_pingpong::OnnxActor>(onnx_model);
+    }
+    if (upper_body_serve_enabled_) {
+      std::string reason;
+      const auto profile = a3_pingpong::LoadUpperBodyServeProfile(
+          ServeProfilePath(1), &reason);
+      if (!profile) {
+        throw std::runtime_error("initial serve YAML invalid: " + reason);
+      }
+      active_serve_profile_ = *profile;
+      upper_body_serve_ = a3_pingpong::UpperBodyServeTrajectory(
+          active_serve_profile_.trajectory);
+      LogServeProfile(1, active_serve_profile_);
     }
     if (gripper_http) {
       gripper_client_ =
@@ -763,6 +786,7 @@ class ObservationProbe {
           serve_pending_ = false;
           serve_cancel_requested_ = false;
           serve_transition_active_ = false;
+          serve_waist_pitch_initialized_ = false;
           for (std::size_t i = 0; i < 2; ++i) {
             serve_head_hold_[i] = state.q[static_cast<Eigen::Index>(3 + i)];
           }
@@ -947,6 +971,18 @@ class ObservationProbe {
                 1, std::memory_order_relaxed);
             return false;
           }
+          // ApplyServeOverrideLocked owns the actual executable waist target
+          // during V/C/F. Keep waist_diag aligned with the command sent to
+          // RobotIO, while policy_raw continues to report the unmodified ONNX
+          // output for comparison.
+          if (state.q.size() >= 3 && state.dq.size() >= 3) {
+            std::lock_guard<std::mutex> diagnostics_lock(diagnostics_mutex_);
+            diagnostics_.waist_q_command[2] = latest_command_.q_des[2];
+            diagnostics_.waist_tau_theoretical[2] =
+                latest_command_.kp[2] *
+                    (latest_command_.q_des[2] - state.q[2]) -
+                latest_command_.kd[2] * state.dq[2];
+          }
         }
         latest_command_ready_ = true;
       }
@@ -989,6 +1025,7 @@ class ObservationProbe {
         parsed == a3_pingpong::ManualKey::kServeClose ||
         parsed == a3_pingpong::ManualKey::kServeFire ||
         parsed == a3_pingpong::ManualKey::kGripperOpen ||
+        parsed == a3_pingpong::ManualKey::kServeCancel ||
         (parsed == a3_pingpong::ManualKey::kMotion &&
          manual_control_.mode() == a3_pingpong::ManualMode::kMotion)) {
       if (!upper_body_serve_enabled_ &&
@@ -1016,8 +1053,8 @@ class ObservationProbe {
         // V is deliberately stateless: it always returns to track 1 instead
         // of inheriting the last explicit 2/3/4/5 selection.
         const int track = is_track_key ? requested_track : 1;
-        const auto config = a3_pingpong::NumberedUpperBodyServeConfig(track);
-        if (!config) {
+        const auto profile = LoadServeProfileLocked(track);
+        if (!profile) {
           return a3_pingpong::ManualActionResult::kRejectedServeState;
         }
         if (current_phase == a3_pingpong::UpperBodyServePhase::kReady) {
@@ -1026,20 +1063,28 @@ class ObservationProbe {
           // error/torque and eliminates the one-tick target drop seen in the
           // standalone lower-body serve controller before its optimization.
           const auto previous_home = upper_body_serve_.config().home_upper;
-          upper_body_serve_ = a3_pingpong::UpperBodyServeTrajectory(*config);
+          upper_body_serve_ = a3_pingpong::UpperBodyServeTrajectory(
+              profile->trajectory);
           std::string reason;
           if (!upper_body_serve_.BeginHomingFromTarget(previous_home,
                                                        &reason)) {
             return a3_pingpong::ManualActionResult::kRejectedServeState;
           }
+          active_serve_profile_ = *profile;
           active_serve_track_ = track;
+          serve_waist_pitch_from_rad_ = serve_waist_pitch_command_rad_;
+          serve_waist_pitch_initialized_ = true;
           active_serve_track_public_.store(track,
                                            std::memory_order_relaxed);
+          LogServeProfile(track, active_serve_profile_);
           return a3_pingpong::ManualActionResult::kServePending;
         }
-        upper_body_serve_ = a3_pingpong::UpperBodyServeTrajectory(*config);
+        upper_body_serve_ = a3_pingpong::UpperBodyServeTrajectory(
+            profile->trajectory);
+        active_serve_profile_ = *profile;
         active_serve_track_ = track;
         active_serve_track_public_.store(track, std::memory_order_relaxed);
+        LogServeProfile(track, active_serve_profile_);
         serve_pending_ = true;
         return a3_pingpong::ManualActionResult::kServePending;
       }
@@ -1047,8 +1092,8 @@ class ObservationProbe {
         if (!upper_body_serve_.ready()) {
           return a3_pingpong::ManualActionResult::kRejectedServeState;
         }
-        if (serve_gripper_state_ == ServeGripperState::kClosed) {
-          return a3_pingpong::ManualActionResult::kAccepted;
+        if (!RefreshServeActuationLocked()) {
+          return a3_pingpong::ManualActionResult::kRejectedServeState;
         }
         if (!RequestGripperLocked(a3_pingpong::GripperAction::kClose)) {
           return a3_pingpong::ManualActionResult::kRejectedGripperBusy;
@@ -1062,6 +1107,9 @@ class ObservationProbe {
         if (serve_gripper_state_ != ServeGripperState::kClosed) {
           return a3_pingpong::ManualActionResult::kRejectedGripperNotClosed;
         }
+        if (!RefreshServeActuationLocked()) {
+          return a3_pingpong::ManualActionResult::kRejectedServeState;
+        }
         std::string reason;
         if (!upper_body_serve_.Fire(&reason)) {
           return a3_pingpong::ManualActionResult::kRejectedServeState;
@@ -1069,13 +1117,17 @@ class ObservationProbe {
         return a3_pingpong::ManualActionResult::kServeFireRequested;
       }
       if (parsed == a3_pingpong::ManualKey::kGripperOpen) {
+        if (!RefreshServeActuationLocked()) {
+          return a3_pingpong::ManualActionResult::kRejectedServeState;
+        }
         if (!RequestGripperLocked(a3_pingpong::GripperAction::kOpen)) {
           return a3_pingpong::ManualActionResult::kRejectedGripperBusy;
         }
         return a3_pingpong::ManualActionResult::kGripperRequested;
       }
-      // M cancels V while waiting/homing/READY, matching the MuJoCo UI. An
-      // active windup/swing/settle/return is deliberately not interruptible.
+      // R is the dedicated serve-cancel key. M retains the same compatibility
+      // behavior while already in motion. Active windup/swing/settle/return
+      // is deliberately not interruptible.
       const auto phase = upper_body_serve_.phase();
       if (serve_pending_) {
         serve_pending_ = false;
@@ -1217,6 +1269,51 @@ class ObservationProbe {
   }
 
  private:
+  std::string ServeProfilePath(int track) const {
+    return serve_tracks_dir_ + "/" + std::to_string(track) + ".yaml";
+  }
+
+  static void LogServeProfile(
+      int track, const a3_pingpong::UpperBodyServeProfile& profile) {
+    std::clog << "[发球YAML] 已加载 " << track
+              << " 号轨迹：open=" << profile.gripper_open_position
+              << " close=" << profile.gripper_close_position
+              << " right=" << profile.gripper_right_position
+              << " home=" << profile.trajectory.prepare_duration_s << "s"
+              << " windup=" << profile.trajectory.windup_duration_s << "s"
+              << " swing=" << profile.trajectory.swing_duration_s << "s"
+              << " release=" << profile.trajectory.release_time_s << "s"
+              << " waist_pitch="
+              << profile.waist_pitch_target_rad * 57.29577951308232
+              << "deg\n";
+  }
+
+  std::optional<a3_pingpong::UpperBodyServeProfile> LoadServeProfileLocked(
+      int track) const {
+    std::string reason;
+    auto profile = a3_pingpong::LoadUpperBodyServeProfile(
+        ServeProfilePath(track), &reason);
+    if (!profile) {
+      std::clog << "[发球YAML] 读取失败，保持当前控制：" << reason << '\n';
+    }
+    return profile;
+  }
+
+  bool RefreshServeActuationLocked() {
+    const auto profile = LoadServeProfileLocked(active_serve_track_);
+    if (!profile) return false;
+    active_serve_profile_.arm_kp = profile->arm_kp;
+    active_serve_profile_.arm_kd = profile->arm_kd;
+    active_serve_profile_.gripper_open_position =
+        profile->gripper_open_position;
+    active_serve_profile_.gripper_close_position =
+        profile->gripper_close_position;
+    active_serve_profile_.gripper_right_position =
+        profile->gripper_right_position;
+    LogServeProfile(active_serve_track_, active_serve_profile_);
+    return true;
+  }
+
   bool RequestGripperLocked(a3_pingpong::GripperAction action) {
     if (!gripper_client_) {
       serve_gripper_state_ = action == a3_pingpong::GripperAction::kOpen
@@ -1225,8 +1322,17 @@ class ObservationProbe {
       serve_gripper_state_public_.store(serve_gripper_state_);
       return true;
     }
-    const auto request_id = gripper_client_->Enqueue(action);
+    const int left_position = action == a3_pingpong::GripperAction::kOpen
+                                  ? active_serve_profile_.gripper_open_position
+                                  : active_serve_profile_.gripper_close_position;
+    const auto request_id = gripper_client_->Enqueue(
+        action, left_position, active_serve_profile_.gripper_right_position);
     if (!request_id) return false;
+    std::clog << "[发球YAML] 夹爪命令：action="
+              << a3_pingpong::GripperActionName(action)
+              << " left=" << left_position
+              << " right=" << active_serve_profile_.gripper_right_position
+              << '\n';
     gripper_request_id_ = *request_id;
     serve_gripper_state_ = action == a3_pingpong::GripperAction::kOpen
                                ? ServeGripperState::kOpening
@@ -1257,6 +1363,10 @@ class ObservationProbe {
     serve_cancel_requested_ = false;
     serve_transition_active_ = false;
     serve_transition_elapsed_s_ = 0.0;
+    serve_waist_pitch_initialized_ = false;
+    serve_waist_pitch_from_rad_ = 0.0;
+    serve_waist_pitch_command_rad_ = 0.0;
+    serve_transition_from_waist_pitch_rad_ = 0.0;
     upper_body_serve_.Reset();
     upper_body_serve_phase_.store(a3_pingpong::UpperBodyServePhase::kIdle);
   }
@@ -1273,6 +1383,7 @@ class ObservationProbe {
     std::array<double, 16> policy_upper{};
     std::array<double, 14> policy_arm_kp{};
     std::array<double, 14> policy_arm_kd{};
+    const double policy_waist_pitch = command.q_des[2];
     for (std::size_t i = 0; i < policy_upper.size(); ++i) {
       policy_upper[i] = command.q_des[static_cast<Eigen::Index>(3 + i)];
     }
@@ -1280,14 +1391,6 @@ class ObservationProbe {
       policy_arm_kp[i] = command.kp[static_cast<Eigen::Index>(5 + i)];
       policy_arm_kd[i] = command.kd[static_cast<Eigen::Index>(5 + i)];
     }
-    // Exact arm gains from Serve_A3_leg_model/config/a3_lower_body.yaml.
-    static constexpr std::array<double, 14> kServeArmKp{
-        200.0, 150.0, 80.0, 100.0, 60.0, 40.0, 40.0,
-        200.0, 150.0, 80.0, 100.0, 60.0, 40.0, 40.0};
-    static constexpr std::array<double, 14> kServeArmKd{
-        2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
-        2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
-
     const auto phase_before = upper_body_serve_.phase();
     if (phase_before != a3_pingpong::UpperBodyServePhase::kIdle) {
       a3_pingpong::UpperBodyServeTarget arms{};
@@ -1296,6 +1399,28 @@ class ObservationProbe {
                                   reason)) return false;
       upper_body_serve_phase_.store(diagnostics.phase);
       upper_body_serve_tick_.store(diagnostics.tick);
+      if (!serve_waist_pitch_initialized_) {
+        // The first Home command starts from this tick's decoded policy target,
+        // preserving the pre-V waist torque instead of briefly switching to
+        // measured q or zeroing the PD error.
+        serve_waist_pitch_from_rad_ = policy_waist_pitch;
+        serve_waist_pitch_command_rad_ = policy_waist_pitch;
+        serve_waist_pitch_initialized_ = true;
+      }
+      if (diagnostics.phase ==
+          a3_pingpong::UpperBodyServePhase::kPrepare) {
+        const double alpha = SmoothStep01(
+            diagnostics.phase_elapsed_s /
+            upper_body_serve_.config().prepare_duration_s);
+        serve_waist_pitch_command_rad_ =
+            serve_waist_pitch_from_rad_ +
+            alpha * (active_serve_profile_.waist_pitch_target_rad -
+                     serve_waist_pitch_from_rad_);
+      } else {
+        serve_waist_pitch_command_rad_ =
+            active_serve_profile_.waist_pitch_target_rad;
+      }
+      command.q_des[2] = serve_waist_pitch_command_rad_;
       command.q_des[3] = serve_head_hold_[0];
       command.q_des[4] = serve_head_hold_[1];
       const bool home_gain_boost =
@@ -1304,9 +1429,10 @@ class ObservationProbe {
         const auto index = static_cast<Eigen::Index>(5 + i);
         command.q_des[index] = arms[i];
         command.kp[index] = home_gain_boost
-                                ? std::min(1.25 * kServeArmKp[i], 250.0)
-                                : kServeArmKp[i];
-        command.kd[index] = kServeArmKd[i];
+                                ? std::min(1.25 * active_serve_profile_.arm_kp[i],
+                                           250.0)
+                                : active_serve_profile_.arm_kp[i];
+        command.kd[index] = active_serve_profile_.arm_kd[i];
       }
       upper_body_serve_command_count_.fetch_add(1);
       if (phase_before == a3_pingpong::UpperBodyServePhase::kPrepare &&
@@ -1329,6 +1455,7 @@ class ObservationProbe {
           serve_transition_from_upper_[i] =
               command.q_des[static_cast<Eigen::Index>(3 + i)];
         }
+        serve_transition_from_waist_pitch_rad_ = command.q_des[2];
         upper_body_serve_.Reset();
         serve_transition_active_ = true;
         serve_transition_elapsed_s_ = 0.0;
@@ -1345,17 +1472,24 @@ class ObservationProbe {
             serve_transition_from_upper_[i] +
             alpha * (policy_upper[i] - serve_transition_from_upper_[i]);
       }
+      command.q_des[2] = serve_transition_from_waist_pitch_rad_ +
+                         alpha * (policy_waist_pitch -
+                                  serve_transition_from_waist_pitch_rad_);
+      serve_waist_pitch_command_rad_ = command.q_des[2];
       for (std::size_t i = 0; i < 14; ++i) {
         const auto index = static_cast<Eigen::Index>(5 + i);
-        command.kp[index] = kServeArmKp[i] +
-                            alpha * (policy_arm_kp[i] - kServeArmKp[i]);
-        command.kd[index] = kServeArmKd[i] +
-                            alpha * (policy_arm_kd[i] - kServeArmKd[i]);
+        command.kp[index] = active_serve_profile_.arm_kp[i] +
+                            alpha * (policy_arm_kp[i] -
+                                     active_serve_profile_.arm_kp[i]);
+        command.kd[index] = active_serve_profile_.arm_kd[i] +
+                            alpha * (policy_arm_kd[i] -
+                                     active_serve_profile_.arm_kd[i]);
       }
       serve_transition_elapsed_s_ += control_dt_s_;
       if (serve_transition_elapsed_s_ + 1.0e-12 >=
           upper_body_serve_.config().receive_transition_s) {
         serve_transition_active_ = false;
+        serve_waist_pitch_initialized_ = false;
         upper_body_serve_phase_.store(a3_pingpong::UpperBodyServePhase::kIdle);
         std::clog << "[serve_vcf] receive transition complete; "
                      "model_72500 owns all 31 joints\n";
@@ -1390,6 +1524,7 @@ class ObservationProbe {
   const bool command_output_enabled_;
   const bool manual_control_enabled_;
   const bool upper_body_serve_enabled_;
+  const std::string serve_tracks_dir_;
   const double control_dt_s_;
   const double command_timeout_s_;
   const double base_pose_timeout_s_;
@@ -1427,6 +1562,7 @@ class ObservationProbe {
   std::uint64_t pd_stand_elapsed_ticks_{0};
   std::array<double, a3_pingpong::kPingpongActionDim> pd_stand_start_q_{};
   a3_pingpong::UpperBodyServeTrajectory upper_body_serve_;
+  a3_pingpong::UpperBodyServeProfile active_serve_profile_;
   int active_serve_track_{1};
   std::atomic<int> active_serve_track_public_{1};
   std::unique_ptr<a3_pingpong::GripperHttpClient> gripper_client_;
@@ -1436,6 +1572,10 @@ class ObservationProbe {
   double serve_transition_elapsed_s_{0.0};
   std::array<double, 2> serve_head_hold_{};
   std::array<double, 16> serve_transition_from_upper_{};
+  double serve_waist_pitch_from_rad_{0.0};
+  double serve_waist_pitch_command_rad_{0.0};
+  double serve_transition_from_waist_pitch_rad_{0.0};
+  bool serve_waist_pitch_initialized_{false};
   ServeGripperState serve_gripper_state_{ServeGripperState::kOpen};
   std::uint64_t gripper_request_id_{0};
   std::uint64_t gripper_result_id_{0};
@@ -2036,6 +2176,7 @@ int main(int argc, char** argv) {
                 options.publish_commands,
             options.manual_control,
             options.serve_vcf,
+            options.serve_tracks_dir,
             options.gripper_http,
             options.gripper_config,
             options.control_hz,
@@ -2096,7 +2237,9 @@ int main(int argc, char** argv) {
                   "inference=%s command_output=%s manual=%s upper_serve=%s "
                   "gains=model_72500/pd_stand_production "
                   "external_observation=(hold_after=%.0fms,"
-                  "default_pd_after=%.0fms,recovery_frames=10) "
+                  "fallback_enabled=%s,default_pd_after=%.0fms,"
+                  "recovery_frames=10) "
+                  "robot_state_watchdog=(enabled=%s,timeout=%.0fms) "
                   "waist_pitch_guard=(enabled=%s,enter=%.3f,release=%.3f,"
                   "target=%.3f,kp=%.1f,kd=%.1f) "
                   "publish_enabled=%s",
@@ -2107,13 +2250,16 @@ int main(int argc, char** argv) {
                       : ((options.action_dry_run || options.serve_vcf)
                              ? "full_dry_run"
                              : "disabled"),
-                  options.manual_control ? "P/S/M/V/C/F/G/X"
+                  options.manual_control ? "P/S/M/V/C/F/G/R/X"
                                          : "automatic_probe",
                   options.serve_vcf
                       ? "Serve_A3_leg_model+model_72500_ready"
                       : "disabled",
                   options.base_pose_timeout_ms,
+                  options.external_fallback_ms > 0.0 ? "yes" : "no",
                   options.external_fallback_ms,
+                  options.state_timeout_ms > 0.0 ? "yes" : "no",
+                  options.state_timeout_ms,
                   options.waist_pitch_safety.enabled ? "yes" : "no",
                   options.waist_pitch_safety.enter_rad,
                   options.waist_pitch_safety.release_rad,
@@ -2121,6 +2267,12 @@ int main(int argc, char** argv) {
                   options.waist_pitch_safety.recovery_kp,
                   options.waist_pitch_safety.recovery_kd,
                   options.publish_commands ? "true" : "false");
+      if (options.serve_vcf) {
+        RCLCPP_WARN(node->get_logger(),
+                    "发球YAML热加载已启用：目录=%s；V/1-5重载完整轨迹，"
+                    "C/F/G会重新读取当前轨迹的夹爪位置和双臂增益",
+                    options.serve_tracks_dir.c_str());
+      }
     }
 
     std::thread keyboard_thread;
@@ -2140,7 +2292,7 @@ int main(int argc, char** argv) {
                     "manual keys: P=passive S=pd_stand M=receive "
                     "V=serve_track1 1/2/3/4/5=select_serve_track "
                     "C=close_gripper F=fire G=open_gripper "
-                    "I=status X=halt H=help Q=quit(passive only)");
+                    "R=cancel_serve I=status X=halt H=help Q=quit(passive only)");
         while (rclcpp::ok()) {
           pollfd descriptor{STDIN_FILENO, POLLIN, 0};
           const int poll_result = ::poll(&descriptor, 1, 100);
@@ -2176,7 +2328,7 @@ int main(int argc, char** argv) {
           } else if (result ==
                      a3_pingpong::ManualActionResult::kRejectedServeDisabled) {
             RCLCPP_ERROR(node->get_logger(),
-                         "V/C/F/G rejected: start with --serve-vcf");
+                         "V/C/F/G/R rejected: start with --serve-vcf");
           } else if (result ==
                      a3_pingpong::ManualActionResult::kRejectedQuitWhileActive) {
             RCLCPP_ERROR(node->get_logger(),
@@ -2186,8 +2338,9 @@ int main(int argc, char** argv) {
             RCLCPP_INFO(node->get_logger(),
                         "P=passive S=pd_stand M=receive V=serve_track1 "
                         "1/2/3/4/5=select_serve_track "
-                        "C=close_gripper F=fire G=open_gripper I=status X=halt "
-                        "H=help Q=quit(passive only)");
+                        "C=close_gripper F=fire G=open_gripper "
+                        "R=cancel_serve I=status X=halt H=help "
+                        "Q=quit(passive only)");
           } else if (result ==
                      a3_pingpong::ManualActionResult::kStatusRequested) {
             RCLCPP_INFO(node->get_logger(),
@@ -2214,8 +2367,8 @@ int main(int argc, char** argv) {
           } else if (result ==
                      a3_pingpong::ManualActionResult::kServePending) {
             RCLCPP_WARN(node->get_logger(),
-                        "发球轨迹 %d 已选择：双臂用 1.35 秒连续切换至对应 "
-                        "Home（Home Kp=1.25x）；V 始终选择 1 号",
+                        "发球轨迹 %d 已从 YAML 重载并开始连续切换至 Home；"
+                        "V 始终选择并重载 1 号",
                         observation_probe->upper_body_serve_track());
           } else if (result ==
                      a3_pingpong::ManualActionResult::kGripperRequested) {
@@ -2228,7 +2381,9 @@ int main(int argc, char** argv) {
           } else if (result ==
                      a3_pingpong::ManualActionResult::kReceiveRequested) {
             RCLCPP_WARN(node->get_logger(),
-                        "M 已接受：取消待发球/归位，平滑回到接球策略");
+                        "%c 已接受：取消待发球/归位，平滑回到接球策略",
+                        static_cast<char>(std::toupper(
+                            static_cast<unsigned char>(key))));
           } else if (result ==
                      a3_pingpong::ManualActionResult::kQuitRequested) {
             RCLCPP_WARN(node->get_logger(), "manual quit requested");

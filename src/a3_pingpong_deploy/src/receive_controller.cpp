@@ -199,7 +199,7 @@ bool ReceiveController::Start() {
       !std::isfinite(options_.command_timeout_s) ||
       options_.command_timeout_s <= 0.0 ||
       !std::isfinite(options_.base_pose_timeout_s) ||
-      options_.base_pose_timeout_s <= 0.0 || options_.max_state_age_ns <= 0) {
+      options_.base_pose_timeout_s <= 0.0 || options_.max_state_age_ns < 0) {
     running_.store(false, std::memory_order_release);
     return false;
   }
@@ -266,10 +266,11 @@ ReceiveTickResult ReceiveController::RunOneTick(std::int64_t now_ns) {
                            std::memory_order_relaxed);
   last_sync_complete_.store(state->sync_complete, std::memory_order_relaxed);
   last_sync_aligned_.store(state->sync_aligned, std::memory_order_relaxed);
-  if (state->timestamp_ns <= 0 ||
-      now_ns - state->timestamp_ns > options_.max_state_age_ns ||
-      now_ns + options_.max_state_age_ns < state->timestamp_ns ||
-      !state->sync_complete || !state->sync_aligned) {
+  if (options_.max_state_age_ns > 0 &&
+      (state->timestamp_ns <= 0 ||
+       now_ns - state->timestamp_ns > options_.max_state_age_ns ||
+       now_ns + options_.max_state_age_ns < state->timestamp_ns ||
+       !state->sync_complete || !state->sync_aligned)) {
     MaybeSendSafeHalt(*state);
     return ReceiveTickResult::kStateStale;
   }

@@ -25,6 +25,7 @@ enum class ManualKey {
   kServeClose,
   kServeFire,
   kGripperOpen,
+  kServeCancel,
   kHalt,
   kStatus,
   kHelp,
@@ -56,7 +57,7 @@ ManualKey ParseManualKey(char key) noexcept;
 int ManualServeTrackNumber(ManualKey key) noexcept;
 const char* ManualModeName(ManualMode mode) noexcept;
 
-// On-robot control sequence: P=passive, S=pd_stand, M=motion. V/C/F/G are
+// On-robot control sequence: P=passive, S=pd_stand, M=motion. V/C/F/G/R are
 // consumed by ObservationProbe while mode remains kMotion so the receive
 // policy continues to own waist and legs during the upper-body serve.
 class ManualControl {

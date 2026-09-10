@@ -121,7 +121,7 @@ if [[ "${A3_ENABLE_ROBOT_IO_PROBE:-0}" == "1" ||
       "${A3_ENABLE_COMMAND_PUBLISH:-0}" == "1" ]]; then
   ROBOT_IO_ARGS+=(
     --aimrt-cfg "${A3_AIMRT_CONFIG:-${ROOT_DIR}/config/a3_mdu_iceoryx.yaml}"
-    --state-timeout-ms "${A3_ROBOT_STATE_TIMEOUT_MS:-100}"
+    --state-timeout-ms "${A3_ROBOT_STATE_TIMEOUT_MS:-0}"
     --control-hz "${A3_POLICY_HZ:-50}"
   )
 fi
@@ -149,7 +149,10 @@ if [[ "${A3_ENABLE_UPPER_BODY_SERVE_DRY_RUN:-0}" == "1" ]]; then
   ROBOT_IO_ARGS+=(--upper-body-serve-dry-run)
 fi
 if [[ "${SERVE_VCF_ENABLED}" == "1" ]]; then
-  ROBOT_IO_ARGS+=(--serve-vcf)
+  ROBOT_IO_ARGS+=(
+    --serve-vcf
+    --serve-tracks-dir "${A3_SERVE_TRACKS_DIR:-${ROOT_DIR}/config/serve_tracks}"
+  )
 fi
 if [[ "${A3_ENABLE_MANUAL_CONTROL:-0}" == "1" ||
       "${A3_ENABLE_UPPER_BODY_SERVE_DRY_RUN:-0}" == "1" ||
@@ -186,8 +189,6 @@ if [[ "${A3_ENABLE_COMMAND_PUBLISH:-0}" == "1" ]]; then
       --gripper-http
       --gripper-host "${A3_GRIPPER_HOST:-10.42.10.12}"
       --gripper-port "${A3_GRIPPER_PORT:-56422}"
-      --gripper-open-position "${A3_GRIPPER_OPEN_POSITION:-4096}"
-      --gripper-close-position "${A3_GRIPPER_CLOSE_POSITION:-1200}"
     )
   fi
   ROBOT_IO_ARGS+=(--publish-commands)
@@ -219,7 +220,7 @@ exec "${ROOT_DIR}/dist/a3_mdu_planner_receiver" \
   --udp-port "${A3_PLANNER_UDP_PORT:-15001}" \
   --command-timeout-ms "${A3_PLANNER_COMMAND_TIMEOUT_MS:-150}" \
   --base-pose-timeout-ms "${A3_BASE_POSE_TIMEOUT_MS:-100}" \
-  --external-fallback-ms "${A3_EXTERNAL_FALLBACK_MS:-500}" \
+  --external-fallback-ms "${A3_EXTERNAL_FALLBACK_MS:-0}" \
   --status-period-s "${A3_STATUS_PERIOD_S:-5}" \
   "${WAIST_PITCH_GUARD_ARGS[@]}" \
   "${ROBOT_IO_ARGS[@]}" \

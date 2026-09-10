@@ -69,5 +69,19 @@ int main() {
 
   guard.Reset();
   CHECK(guard.Update({}, start).mode == ExternalObservationMode::kFallbackPd);
+
+  // Deployment mode: no automatic external-pose fallback. Once a valid pose
+  // exists it is held indefinitely, and a missing first pose remains waiting.
+  config.fallback_timeout_s = 0.0;
+  a3_pingpong::ExternalObservationGuard hold_forever(config);
+  CHECK(hold_forever.Update({}, start).mode == ExternalObservationMode::kWaiting);
+  planner.base_pose = a3_pingpong::BasePoseInput{};
+  planner.base_pose_age_s = 0.0;
+  CHECK(hold_forever.Update(planner, start).mode == ExternalObservationMode::kLive);
+  planner.base_pose.reset();
+  status = hold_forever.Update(planner, start + std::chrono::seconds(30));
+  CHECK(status.mode == ExternalObservationMode::kHold);
+  CHECK(status.base_pose.has_value());
+  CHECK(!status.fallback_latched);
   return EXIT_SUCCESS;
 }

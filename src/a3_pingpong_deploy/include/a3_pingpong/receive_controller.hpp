@@ -29,6 +29,8 @@ struct ReceiveControllerOptions {
   double control_hz{50.0};
   double command_timeout_s{0.150};
   double base_pose_timeout_s{0.100};
+  // Zero disables the RobotIO age/sync watchdog. The latest assembled state is
+  // then kept in control until the operator changes mode manually.
   std::int64_t max_state_age_ns{50'000'000};
 
   // The ping-pong lifecycle can run its fixed READY target without a live

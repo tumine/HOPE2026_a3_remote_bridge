@@ -122,3 +122,67 @@ cd /home/bth/workspace/a3_remote_bridge
 
 cd /home/bth/workspace/a3_remote_bridge
 ./scripts/run_lower_body_serve_mujoco.sh
+
+
+
+ssh agi@10.231.32.183
+
+#部署指令
+
+#启动动捕
+  env \
+    ROS_DOMAIN_ID=232 \
+    ROS_LOCALHOST_ONLY=1 \
+    ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST \
+    RMW_IMPLEMENTATION=rmw_fastrtps_cpp \
+    FASTRTPS_DEFAULT_PROFILES_FILE=/home/bth/workspace/a3_remote_bridge/config/fastrtps_pc_local.xml \
+    ros2 launch ppmocap_driver ppmocap.launch.py \
+    site_params_file:=/home/bth/workspace/Mocap/install/ppmocap_driver/share/ppmocap_driver/config/sites/competition.yaml \
+    rviz:=true \
+    camera:=true
+  
+  
+#启动本地planner
+cd workspace/a3_remote_bridge
+A3_NEW_TASK_TTS_MIN_S=0.25 A3_NEW_TASK_TTS_MAX_S=1.00 A3_STRIKE_Y_MARGIN_M=0.0 A3_STRIKE_Z_MARGIN_M=0.0 A3_RACKET_VELOCITY_MARGIN_MPS=0.0 A3_PC_WIRED_ADDRESS=192.168.1.11 A3_MDU_ADDRESS=192.168.1.100 A3_PLANNER_UDP_PORT=15001 ./scripts/run_local_receive_planner.sh
+
+#mdu命令
+cd /home/agi/a3_remote_bridge_probe
+sudo systemctl stop agibot_pm #停止服务
+
+A3_ENABLE_COMMAND_PUBLISH=1 \
+A3_ACTUATION_CONFIRM=ENABLE_A3_ACTUATION \
+A3_GRIPPER_ACTUATION_CONFIRM=ENABLE_A3_GRIPPER \
+A3_ROBOT_SAFETY_READY=1 \
+A3_STATUS_PERIOD_S=1 \
+./scripts/run_mdu_planner_receiver.sh
+
+
+#下肢发球策略
+cd /home/agi/a3_lower_body_serve_probe
+
+A3_TRANSPORT=iceoryx \
+A3_ACTUATION_CONFIRM=ENABLE_A3_ACTUATION \
+A3_GRIPPER_ACTUATION_CONFIRM=ENABLE_A3_GRIPPER \
+A3_ROBOT_SAFETY_READY=1 \
+./run_hope_lower_body.sh
+
+#球体物理
+/home/bth/workspace/a3_remote_bridge/model_72500_deploy_bundle/config/ball_physics.yaml
+
+
+#夹爪
+vi /home/agi/a3_remote_bridge_probe/config/serve_tracks/1.yaml
+
+ cd /home/agi/a3_remote_bridge_probe
+
+A3_GRIPPER_OPEN_POSITION=4096 \
+A3_GRIPPER_CLOSE_POSITION=350 \
+A3_ENABLE_COMMAND_PUBLISH=1 \
+A3_ACTUATION_CONFIRM=ENABLE_A3_ACTUATION \
+A3_GRIPPER_ACTUATION_CONFIRM=ENABLE_A3_GRIPPER \
+A3_ROBOT_SAFETY_READY=1 \
+./scripts/run_mdu_planner_receiver.sh  
+
+
+

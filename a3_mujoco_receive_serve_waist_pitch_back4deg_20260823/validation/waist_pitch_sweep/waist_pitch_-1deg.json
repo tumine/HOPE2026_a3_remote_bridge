@@ -1,0 +1,139 @@
+{
+  "status": "ok",
+  "completed_cycles": 1,
+  "completed_serves": 1,
+  "receive_balls_per_serve": 1,
+  "auto_cycle_order": "receive_then_serve",
+  "active_serve_track": "1",
+  "post_serve_recovery_s": 0.25,
+  "ticks": 413,
+  "simulation_time_s": 8.260000000000861,
+  "visited_states": [
+    "RECEIVE",
+    "SERVE_HOMING",
+    "SERVE_READY",
+    "SERVE_WINDUP",
+    "SERVE_SWING",
+    "SERVE_SETTLE",
+    "TO_RECEIVE",
+    "RECEIVE"
+  ],
+  "receive_completed_balls": 1,
+  "ready_lower_body_after_balls": [
+    {
+      "ball": 1,
+      "simulation_time_s": 4.259999999999757,
+      "stable_duration_s": 0.5000000000000001,
+      "velocity_threshold_rad_s": 0.15,
+      "max_abs_velocity_rad_s": 0.043636167695787556,
+      "feedback_q_rad": {
+        "waist_yaw_joint": -0.003188127383666352,
+        "waist_roll_joint": -0.0008833912565160726,
+        "waist_pitch_joint": 0.023763866046101027,
+        "left_hip_pitch_joint": -0.5047555686699129,
+        "left_hip_roll_joint": 0.21462757367006996,
+        "left_hip_yaw_joint": 0.11239067817876859,
+        "left_knee_joint": 0.4446201149105362,
+        "left_ankle_pitch_joint": 0.030886573509711624,
+        "left_ankle_roll_joint": -0.15134395289285343,
+        "right_hip_pitch_joint": -0.08414751035520916,
+        "right_hip_roll_joint": -0.3340569237392209,
+        "right_hip_yaw_joint": -0.30546951701924097,
+        "right_knee_joint": 0.21731623962334345,
+        "right_ankle_pitch_joint": -0.04690360583954324,
+        "right_ankle_roll_joint": 0.20163546553921988
+      },
+      "feedback_qd_rad_s": {
+        "waist_yaw_joint": -0.0024352050150954346,
+        "waist_roll_joint": 0.0025358001730343416,
+        "waist_pitch_joint": 0.0003485455581639035,
+        "left_hip_pitch_joint": -0.016364215375083428,
+        "left_hip_roll_joint": -0.001573203703996963,
+        "left_hip_yaw_joint": -0.009830968355789574,
+        "left_knee_joint": 0.0015819881653250873,
+        "left_ankle_pitch_joint": -0.010652940170131069,
+        "left_ankle_roll_joint": -0.013979660787151356,
+        "right_hip_pitch_joint": -0.0019481544380934074,
+        "right_hip_roll_joint": 0.00336868342144483,
+        "right_hip_yaw_joint": 0.005925521313819649,
+        "right_knee_joint": -0.043636167695787556,
+        "right_ankle_pitch_joint": 0.006646141740860034,
+        "right_ankle_roll_joint": 0.010231758452053003
+      },
+      "command_q_rad": {
+        "waist_yaw_joint": -0.0017227840144187212,
+        "waist_roll_joint": 0.0,
+        "waist_pitch_joint": 0.0,
+        "left_hip_pitch_joint": -0.25351796448230746,
+        "left_hip_roll_joint": 0.12489455193281174,
+        "left_hip_yaw_joint": 0.07742208242416382,
+        "left_knee_joint": 0.3978240668773651,
+        "left_ankle_pitch_joint": -0.20826419591903686,
+        "left_ankle_roll_joint": -0.349066,
+        "right_hip_pitch_joint": -0.22381077110767364,
+        "right_hip_roll_joint": -0.20791709423065186,
+        "right_hip_yaw_joint": -0.3145204186439514,
+        "right_knee_joint": 0.13191226422786712,
+        "right_ankle_pitch_joint": -0.31775403916835787,
+        "right_ankle_roll_joint": -0.018501801416277885
+      }
+    }
+  ],
+  "serve_ready_entries": [
+    {
+      "entry": 1,
+      "simulation_time_s": 6.1200000000003785,
+      "base_z_m": 1.0240322694172026,
+      "pelvis_roll_deg": -1.2496654968875793,
+      "pelvis_pitch_deg": 5.807353194572522,
+      "pelvis_tilt_deg": 5.9461235589973835,
+      "torso_roll_deg": -0.929639312075472,
+      "torso_pitch_deg": 8.237822873212249,
+      "torso_tilt_deg": 8.289752199999194,
+      "waist_pitch_target_deg": -1.0,
+      "waist_pitch_actual_deg": 2.4141296303717796,
+      "max_abs_waist_leg_velocity_rad_s": 0.22708852128439377,
+      "max_abs_waist_leg_tracking_error_rad": 0.6215376154092255,
+      "max_abs_arm_tracking_error_rad": 0.03362382162438893
+    }
+  ],
+  "min_base_z_m": 1.0183665169094445,
+  "max_tilt_deg": 8.224493032968716,
+  "max_target_step_rad": 0.3154197484254837,
+  "max_arm_target_step_rad": 0.2904837727546692,
+  "max_waist_leg_target_step_rad": 0.3154197484254837,
+  "max_tracking_error_rad": 0.9447053200506383,
+  "physical_racket_contacts": 1,
+  "physical_net_clears": 1,
+  "physical_opponent_bounces": 1,
+  "ready_contract_checks": 322,
+  "waist_lock": {
+    "raw_action_max_abs": 2.382189989089966,
+    "applied_action_max_abs": 0.0,
+    "q_des_max_abs_rad": 0.0,
+    "kp_roll_pitch": [
+      500.0,
+      500.0
+    ]
+  },
+  "min_ball_racket_distance_m": 0.04737258904762658,
+  "closest_ball_pos_w": [
+    0.30427912789343453,
+    -0.7353040365290057,
+    1.0474608793523015
+  ],
+  "closest_racket_pos_w": [
+    0.2614084617286003,
+    -0.7333880114554155,
+    1.0273960588054831
+  ],
+  "closest_time_s": 1.4999999999999456,
+  "single_command_owner": true,
+  "serve_waist_legs_source": "compatible_receive_policy_ready",
+  "serve_arms_source": "Serve_A3_leg_model_tuned_trajectory",
+  "serve_waist_pitch_target_deg": -1.0,
+  "gripper_network_io": false,
+  "observation_mode": "live_mujoco_base_and_optional_ball",
+  "planner_commands_accepted": true,
+  "max_unobserved_base_xy_drift_m": null
+}
